@@ -732,6 +732,18 @@
             "Weight": "Weight",
             "Yesterday": "Yesterday"
         },
+        "MmuPanel": {
+            "Headline": "Mmu",
+            "CheckAllGates": "Check All Gates",
+            "EditTtgMap": "Map Tools",
+            "RecoverState": "Recover MMU State",
+            "EditGateMap": "Edit Gate Info",
+            "MmuMaintenance": "MMU Maintenance",
+            "PrintStats": "Print Stats",
+            "ShowClogDetection": "Clog Detection",
+            "ShowTtgMap": "TTG Map",
+            "ShowDetails": "Details"
+        },
         "StatusPanel": {
             "CancelPrint": "Cancel print",
             "ClearPrintStats": "Clear print stats",

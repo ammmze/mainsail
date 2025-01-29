@@ -293,6 +293,11 @@ export const getDefaultState = (): GuiState => {
                     page: 'all',
                 },
             },
+            mmu: {
+               showClogDetection: true,
+               showTtgMap: true,
+               showDetails: true,
+            },
         },
     }
 }
