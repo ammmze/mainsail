@@ -745,7 +745,12 @@
             "ShowDetails": "Details",
             "CommingSoon": "Comming Soon...",
             "Cancel": "Cancel",
-            "Ok": "Ok"
+            "Ok": "Ok",
+            "ButtonEject": "Eject",
+            "ButtonPreload": "Preload",
+            "ButtonCheckGate": "Check Gate",
+            "ButtonLoad": "Load",
+            "ButtonUnload": "Unload"
         },
         "StatusPanel": {
             "CancelPrint": "Cancel print",

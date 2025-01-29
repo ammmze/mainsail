@@ -24,6 +24,26 @@ import { ServerSpoolmanStateSpool } from '@/store/server/spoolman/types'
 export default class MmuActiveGateSummary extends Mixins(BaseMixin) {
     @Prop({ required: false, default: false }) readonly small!: boolean
 
+/* PAUL USEFUL SNIPPITS
+    get warningColor(): string {
+        return this.$vuetify?.theme?.currentTheme?.warning?.toString() ?? '#ff8300'
+    }
+
+    get primaryTextColor(): string {
+        let splits = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(this.primaryColor)
+        if (splits) {
+            const r = parseInt(splits[1], 16) * 0.2126
+            const g = parseInt(splits[2], 16) * 0.7152
+            const b = parseInt(splits[3], 16) * 0.0722
+            const perceivedLightness = (r + g + b) / 255
+
+            return perceivedLightness > 0.7 ? '#222' : '#fff'
+        }
+
+        return '#ffffff'
+    }
+*/
+
     get listItemContentClass() {
         if (this.small) return 'my-0'
 

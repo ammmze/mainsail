@@ -1,65 +1,65 @@
 
 <template>
-    <v-container class="d-flex flex-column">
+<v-container class="d-flex flex-column">
     <v-row>
       <v-col cols="12">
         <v-btn block small color="secondary"
-               class="w-100"
-               @click="doSendOperation('MMU_EJECT')">
+               @click="doSend('MMU_EJECT')">
             <v-icon>{{ mdiEject }}</v-icon>
-            Eject</v-btn>
+            {{ $t('Panels.MmuPanel.ButtonEject') }}
         </v-btn>
       </v-col>
     </v-row>
     <v-row dense>
       <v-col cols="6">
         <v-btn block small color="secondary"
-               @click="doSendOperation('MMU_PRELOAD')">
-            Preload</v-btn>
+               @click="doSend('MMU_PRELOAD')">
+            {{ $t('Panels.MmuPanel.ButtonPreload') }}
         </v-btn>
       </v-col>
       <v-col cols="6">
         <v-btn block small color="secondary"
-               @click="doSendOperation('MMU_CHECK_GATE')">
-            Check Gate</v-btn>
+               @click="doSend('MMU_CHECK_GATE')">
+            {{ $t('Panels.MmuPanel.ButtonCheckGate') }}
         </v-btn>
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="12">
-        <v-btn block large color="secondary"
+        <v-btn block medium color="secondary"
                class="btnMinWidthAuto fill-width"
-               @click="doSendOperation('MMU_UNLOAD')">
+               @click="doSend('MMU_UNLOAD')">
             <v-icon>{{ mdiArrowCollapseUp }}</v-icon>
-            <div>Unload</div>
+            {{ $t('Panels.MmuPanel.ButtonUnload') }}
         </v-btn>
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="12">
-        <v-btn block large color="secondary"
+        <v-btn block medium color="secondary"
                class="btnMinWidthAuto fill-width"
-               @click="doSendOperation('MMU_LOAD')">
+               @click="doSend('MMU_LOAD')">
             <v-icon>{{ mdiArrowCollapseDown }}</v-icon>
-            <div>Load</div>
+            {{ $t('Panels.MmuPanel.ButtonLoad') }}
         </v-btn>
       </v-col>
     </v-row>
-  </v-container>
+</v-container>
 </template>
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
+import ControlMixin from '@/components/mixins/control'
 import { mdiEject, mdiArrowCollapseUp, mdiArrowCollapseDown } from '@mdi/js'
 
 @Component({
     components: { },
 })
-export default class MmuControls extends Mixins(BaseMixin) {
-   mdiEject = mdiEject
-   mdiArrowCollapseUp = mdiArrowCollapseUp
-   mdiArrowCollapseDown = mdiArrowCollapseDown
+export default class MmuControls extends Mixins(BaseMixin, ControlMixin) {
+    mdiEject = mdiEject
+    mdiArrowCollapseUp = mdiArrowCollapseUp
+    mdiArrowCollapseDown = mdiArrowCollapseDown
 
 }
 </script>

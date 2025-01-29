@@ -83,7 +83,7 @@ export default class MmuSpool extends Mixins(BaseMixin) {
     get spoolmanSpool(): ServerSpoolmanStateSpool {
         const gateSpoolId = this.$store.state.printer.mmu.gate_spool_id[this.gate];
         const spools = this.$store.state.server.spoolman?.spools ?? []
-        return spools.find(spool => spool.id === gateSpoolId);
+        return spools.find((spool: ServerSpoolmanStateSpool) => spool.id === gateSpoolId) ?? null
     }
 
     get gateColor(): string {

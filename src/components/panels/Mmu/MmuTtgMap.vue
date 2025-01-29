@@ -43,7 +43,7 @@
         <path :d="generateMappingPathD(tool)" stroke-width="6"
               class="stroke-background-color" fill="none"/>
         <path :d="generateMappingPathD(tool)" stroke-width="4"
-              class="stroke-selected-color"
+              class="stroke-selected-color" fill="none"
               marker-start="url(#squareStartSelected)" marker-end="url(#arrowEndSelected)"/>
     </g>
     <g v-if="showESgroups" v-for="(group, index) in getEndlessSpoolGroups()">

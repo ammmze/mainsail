@@ -1,68 +1,57 @@
 <template>
 <div>
-    <panel
-        :icon="mdiMulticast"
-        :title="title"
-        :collapsible="true"
-        card-class="mmu-panel">
-    
-        <!-- PANEL-HEADER 3-DOT-MENU -->
+    <panel :icon="mdiMulticast" :title="title" :collapsible="true" card-class="mmu-panel">
         <template #buttons>
-            <div :class="{ 'disable-panel': !enabled }">
-                <v-menu left offset-y :close-on-content-click="false" class="pa-0">
-                    <template #activator="{ on, attrs }">
-                        <v-btn icon tile v-bind="attrs" :disabled="['printing'].includes(printer_state)" v-on="on">
-                            <v-icon>{{ mdiDotsVertical }}</v-icon>
+            <v-menu left offset-y :close-on-content-click="false">
+                <template #activator="{ on, attrs }">
+                    <v-btn icon tile v-bind="attrs" v-on="on">
+                        <v-icon>{{ mdiDotsVertical }}</v-icon>
+                    </v-btn>
+                </template>
+                <v-list dense>
+                    <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
+                        <v-btn small style="width: 100%" @click="doSend('MMU_CHECK_GATES')">
+                            <v-icon left>{{ mdiCheckAll }}</v-icon>
+                            {{ $t('Panels.MmuPanel.CheckAllGates') }}
                         </v-btn>
-                    </template>
-                    <v-list dense>
-                        <v-list-item>
-                            <v-btn small style="width: 100%" @click="">
-                                <v-icon left>{{ mdiCheckAll }}</v-icon>
-                                {{ $t('Panels.MmuPanel.CheckAllGates') }}
-                            </v-btn>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-btn small style="width: 100%" @click="showRecoverStateDialog = true">
-                                <v-icon left>{{ mdiCogRefresh }}</v-icon>
-                                {{ $t('Panels.MmuPanel.RecoverState') }}
-                            </v-btn>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-btn small style="width: 100%" @click="showEditTtgMapDialog = true">
-                                <v-icon left>{{ mdiStateMachine }}</v-icon>
-                                {{ $t('Panels.MmuPanel.EditTtgMap') }}
-                            </v-btn>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-btn small style="width: 100%" @click="showEditGateMapDialog = true">
-                                <v-icon left>{{ mdiDatabaseEdit }}</v-icon>
-                                {{ $t('Panels.MmuPanel.EditGateMap') }}
-                            </v-btn>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-btn small style="width: 100%" @click="showMaintenanceDialog = true">
-                                <v-icon left>{{ mdiWrenchCog }}</v-icon>
-                                {{ $t('Panels.MmuPanel.MmuMaintenance') }}
-                            </v-btn>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-btn small style="width: 100%" @click="showEjectSpoolDialog = true">
-                                <v-icon left>{{ mdiNoteText }}</v-icon>
-                                {{ $t('Panels.MmuPanel.PrintStats') }}
-                            </v-btn>
-                        </v-list-item>
-                    </v-list>
-                </v-menu>
-                <mmu-panel-settings />
-            </div>
+                    </v-list-item>
+                    <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
+                        <v-btn small style="width: 100%" @click="showRecoverStateDialog = true">
+                            <v-icon left>{{ mdiCogRefresh }}</v-icon>
+                            {{ $t('Panels.MmuPanel.RecoverState') }}
+                        </v-btn>
+                    </v-list-item>
+                    <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
+                        <v-btn small style="width: 100%" @click="showEditTtgMapDialog = true">
+                            <v-icon left>{{ mdiStateMachine }}</v-icon>
+                            {{ $t('Panels.MmuPanel.EditTtgMap') }}
+                        </v-btn>
+                    </v-list-item>
+                    <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
+                        <v-btn small style="width: 100%" @click="showEditGateMapDialog = true">
+                            <v-icon left>{{ mdiDatabaseEdit }}</v-icon>
+                            {{ $t('Panels.MmuPanel.EditGateMap') }}
+                        </v-btn>
+                    </v-list-item>
+                    <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
+                        <v-btn small style="width: 100%" @click="showMaintenanceDialog = true">
+                            <v-icon left>{{ mdiWrenchCog }}</v-icon>
+                            {{ $t('Panels.MmuPanel.MmuMaintenance') }}
+                        </v-btn>
+                    </v-list-item>
+                    <v-list-item :disabled="!enabled" :class="{ 'mmu-disabled': !enabled }">
+                        <v-btn small style="width: 100%" @click="doSend('MMU_STATS SHOWCOUNTS=1')">
+                            <v-icon left>{{ mdiNoteText }}</v-icon>
+                            {{ $t('Panels.MmuPanel.PrintStats') }}
+                        </v-btn>
+                    </v-list-item>
+                </v-list>
+            </v-menu>
+            <mmu-panel-settings/>
         </template>
-    
-        <div :class="{ 'disable-panel': !enabled }">
-            <!-- VISUALIZATION OF PHYSICAL MMUs -->
+
+        <div :class="{ 'mmu-disabled': !enabled }">
             <mmu-machine/>
-    
-            <!-- FILAMENT VISUALIZATION AND CONTROLS -->
             <v-container pt-0 fluid>
                 <v-row align="start">
                     <v-col cols="5" class="d-flex flex-column justify-center align-center">
@@ -80,7 +69,7 @@
                         <mmu-controls/>
                         <template v-if="showTtgMap">
                             <v-divider style="width: 100%;"/>
-                            <mmu-ttg-map width="70%"></mmu-ttg-map>
+                            <mmu-ttg-map width="75%"></mmu-ttg-map>
                             <div class="text--disabled">Tool Mapping</div>
                         </template>
                     </v-col>
@@ -88,16 +77,17 @@
             </v-container>
         </div>
     </panel>
-    <mmu-recover-state-dialog :show-dialog="showRecoverStateDialog" @close="showRecoverStateDialog = false" />
-    <mmu-edit-ttg-map-dialog :show-dialog="showEditTtgMapDialog" @close="showEditTtgMapDialog = false" />
-    <mmu-edit-gate-map-dialog :show-dialog="showEditGateMapDialog" @close="showEditGateMapDialog = false" />
-    <mmu-maintenance-dialog :show-dialog="showMaintenanceDialog" @close="showMaintenanceDialog = false" />
+    <mmu-recover-state-dialog :show-dialog="showRecoverStateDialog" @close="showRecoverStateDialog = false"/>
+    <mmu-edit-ttg-map-dialog :show-dialog="showEditTtgMapDialog" @close="showEditTtgMapDialog = false"/>
+    <mmu-edit-gate-map-dialog :show-dialog="showEditGateMapDialog" @close="showEditGateMapDialog = false"/>
+    <mmu-maintenance-dialog :show-dialog="showMaintenanceDialog" @close="showMaintenanceDialog = false"/>
 </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
+import ControlMixin from '@/components/mixins/control'
 import { mdiMulticast, mdiDotsVertical, mdiCheckAll, mdiWrenchCog, mdiCogRefresh, mdiDatabaseEdit, mdiStateMachine, mdiNoteText } from '@mdi/js'
 import Panel from '@/components/ui/Panel.vue'
 import MmuMachine from '@/components/panels/Mmu/MmuMachine.vue'
@@ -111,7 +101,7 @@ import MmuTtgMap from '@/components/panels/Mmu/MmuTtgMap.vue'
 @Component({
     components: { Panel, MmuMachine, MmuPanelSettings, MmuFilamentStatus, MmuClogMeter, MmuActiveGateSummary, MmuControls, MmuTtgMap},
 })
-export default class MmuPanel extends Mixins(BaseMixin) {
+export default class MmuPanel extends Mixins(BaseMixin, ControlMixin) {
     mdiMulticast = mdiMulticast
     mdiDotsVertical = mdiDotsVertical
     mdiCheckAll = mdiCheckAll
@@ -184,7 +174,7 @@ export default class MmuPanel extends Mixins(BaseMixin) {
 </script>
 
 <style scoped>
-.disable-panel {
+.mmu-disabled {
   pointer-events: none !important;
   opacity: 0.5 !important;
 }
