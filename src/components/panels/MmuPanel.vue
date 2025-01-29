@@ -16,37 +16,37 @@
             <v-list dense>
                 <v-list-item>
                     <v-btn small style="width: 100%" @click="showEjectSpoolDialog = true">
-                        <v-icon left>{{ mdiEject }}</v-icon>
+                        <v-icon left>{{ mdiCheckAll }}</v-icon>
                         {{ $t('Panels.MmuPanel.CheckAllGates') }}
                     </v-btn>
                 </v-list-item>
                 <v-list-item>
                     <v-btn small style="width: 100%" @click="showEjectSpoolDialog = true">
-                        <v-icon left>{{ mdiEject }}</v-icon>
+                        <v-icon left>{{ mdiWrenchCog }}</v-icon>
                         {{ $t('Panels.MmuPanel.RecoverState') }}
                     </v-btn>
                 </v-list-item>
                 <v-list-item>
                     <v-btn small style="width: 100%" @click="showEjectSpoolDialog = true">
-                        <v-icon left>{{ mdiEject }}</v-icon>
+                        <v-icon left>{{ mdiGraph }}</v-icon>
                         {{ $t('Panels.MmuPanel.EditTtgMap') }}
                     </v-btn>
                 </v-list-item>
                 <v-list-item>
                     <v-btn small style="width: 100%" @click="showEjectSpoolDialog = true">
-                        <v-icon left>{{ mdiEject }}</v-icon>
+                        <v-icon left>{{ mdiDatabaseEdit }}</v-icon>
                         {{ $t('Panels.MmuPanel.EditGateMap') }}
                     </v-btn>
                 </v-list-item>
                 <v-list-item>
                     <v-btn small style="width: 100%" @click="showEjectSpoolDialog = true">
-                        <v-icon left>{{ mdiEject }}</v-icon>
+                        <v-icon left>{{ mdiStateMachine }}</v-icon>
                         {{ $t('Panels.MmuPanel.MmuMaintenance') }}
                     </v-btn>
                 </v-list-item>
                 <v-list-item>
                     <v-btn small style="width: 100%" @click="showEjectSpoolDialog = true">
-                        <v-icon left>{{ mdiEject }}</v-icon>
+                        <v-icon left>{{ mdiNoteText }}</v-icon>
                         {{ $t('Panels.MmuPanel.PrintStats') }}
                     </v-btn>
                 </v-list-item>
@@ -63,7 +63,9 @@
         <v-row align="start">
             <v-col cols="5" class="d-flex flex-column justify-center align-center">
                 <mmu-filament-status/>
-                <mmu-clog-meter v-if="hasEncoder" width="40%"/>
+                <template v-if="showClogDetection">
+                    <mmu-clog-meter v-if="hasEncoder" width="40%"/>
+                </template>
             </v-col>
             <v-col cols="7" class="d-flex flex-column align-center justify-center">
                 <v-row class="pb-3 pt-6" style="align-self: flex-start; width: 100%;">
@@ -71,7 +73,10 @@
                 </v-row>
                 <v-divider style="width: 100%;"/>
                 <mmu-controls/>
-                <mmu-ttg-map width="70%"></mmu-ttg-map>
+                <template v-if="showTtgMap">
+                    <v-divider style="width: 100%;"/>
+                    <mmu-ttg-map width="70%"></mmu-ttg-map>
+                </template>
             </v-col>
         </v-row>
     </v-container>
@@ -81,11 +86,8 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
+import { mdiMulticast, mdiDotsVertical, mdiCheckAll, mdiWrenchCog, mdiGraph, mdiDatabaseEdit, mdiStateMachine, mdiNoteText } from '@mdi/js'
 import Panel from '@/components/ui/Panel.vue'
-import { mdiMulticast, mdiDotsVertical, mdiEject } from '@mdi/js'
-// PAUL import SpoolmanChangeSpoolDialog from '@/components/dialogs/SpoolmanChangeSpoolDialog.vue'
-// PAUL  import SpoolmanEjectSpoolDialog from '@/components/dialogs/SpoolmanEjectSpoolDialog.vue'
-// PAULimport { ServerSpoolmanStateSpool } from '@/store/server/spoolman/types'
 import MmuMachine from '@/components/panels/Mmu/MmuMachine.vue'
 import MmuPanelSettings from '@/components/panels/Mmu/MmuPanelSettings.vue'
 import MmuFilamentStatus from '@/components/panels/Mmu/MmuFilamentStatus.vue'
@@ -100,10 +102,12 @@ import MmuTtgMap from '@/components/panels/Mmu/MmuTtgMap.vue'
 export default class MmuPanel extends Mixins(BaseMixin) {
     mdiMulticast = mdiMulticast
     mdiDotsVertical = mdiDotsVertical
-    mdiEject = mdiEject
-
-    showChangeSpoolDialog = false
-    showEjectSpoolDialog = false
+    mdiCheckAll = mdiCheckAll
+    mdiWrenchCog = mdiWrenchCog
+    mdiGraph = mdiGraph
+    mdiDatabaseEdit = mdiDatabaseEdit
+    mdiStateMachine = mdiStateMachine
+    mdiNoteText = mdiNoteText
 
     get hasEncoder() {
         return !!this.$store.state.printer.mmu?.encoder;
@@ -121,11 +125,18 @@ export default class MmuPanel extends Mixins(BaseMixin) {
         return headline
     }
 
-    get changeSpoolTooltip(): string {
-        if (this.active_spool === null) return this.$t('Panels.MmuPanel.SelectSpool') as string
-
-        return this.$t('Panels.MmuPanel.ChangeSpool') as string
+    get showClogDetection(): boolean {
+        return !this.hasEncoder || !!this.$store.state.gui.view.mmu.showClogDetection;
     }
+
+    get showTtgMap(): boolean {
+        return this.$store.state.gui.view.mmu.showTtgMap ?? true;
+    }
+
+    get showDetails(): boolean {
+        return this.$store.state.gui.view.mmu.showDetails ?? true;
+    }
+
 
 /* PAUL
     get active_spool(): ServerSpoolmanStateSpool | null {
