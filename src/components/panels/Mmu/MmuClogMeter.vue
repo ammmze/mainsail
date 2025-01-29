@@ -1,5 +1,5 @@
 <template>
-<svg viewBox="0 0 140 160"
+<svg viewBox="0 0 140 140"
      preserveAspectRatio="xMidYMid meet"
      :class="{ 'disabled-svg': (detection_mode === 0 || enabled === false) }"
      ref="clogMeter">
@@ -40,7 +40,6 @@
   <text x="70" y="56" text-anchor="middle" class="small-text-color" font-size="11px">FLOW</text>
   <text x="70" y="80" text-anchor="middle" class="small-text-color" font-size="20px">{{ flow_rate }}%</text>
   <text v-if="detection_mode === 2" x="70" y="124" text-anchor="middle" class="small-text-color" font-size="12px">Auto</text>
-  <text x="69" y="155" text-anchor="middle" fill="currentColor" font-size="18px">Clog Detection</text>
   <text x="28" y="132" text-anchor="middle" class="small-text-color" font-size="12px">0</text>
   <text x="108" y="132" class="small-text-color" font-size="12px">{{ detection_length }}</text>
 </svg>

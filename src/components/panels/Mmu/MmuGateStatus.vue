@@ -1,15 +1,15 @@
 <template>
-    <svg viewBox="0 0 120 50"
+    <svg viewBox="0 0 120 54"
          xml:space="preserve"
          preserveAspectRatio="xMidYMid meet"
          ref="mmuGateStatusSvg">
 
-        <rect x="15" y="16" width="80" height="29" rx="8" ry="8"
-              stroke-width="2"
+        <rect x="15" y="18" width="80" height="31" rx="8" ry="8"
+              stroke-width="3"
               :stroke="statusColor"
               :fill="selectedColor"/>
-        <text v-if="gate >= 0" x="56" y="40" text-anchor="middle"
-              font-weight="bold" font-size="28px"
+        <text v-if="gate >= 0" x="56" y="44" text-anchor="middle"
+              font-weight="bold" font-size="30px"
               :class="{ 'selected-text': (gate === selectedGate), 'regular-text': (gate !== selectedGate) }">
             {{ gate }}
         </text>

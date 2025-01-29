@@ -742,7 +742,10 @@
             "PrintStats": "Print Stats",
             "ShowClogDetection": "Clog Detection",
             "ShowTtgMap": "TTG Map",
-            "ShowDetails": "Details"
+            "ShowDetails": "Details",
+            "CommingSoon": "Comming Soon...",
+            "Cancel": "Cancel",
+            "Ok": "Ok"
         },
         "StatusPanel": {
             "CancelPrint": "Cancel print",

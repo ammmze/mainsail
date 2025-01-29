@@ -1,10 +1,10 @@
 <template>
     <v-container>
-      <div class="spool-row text--secondary">{{ name }}</div>
+      <div class="spool-row text--disabled">{{ name }}</div>
       <div class="spool-row">
           <div v-for="gate in gateRange" :key="'gate_' + gate"
                class="gate-status cursor-pointer" @click="selectGate">
-              <mmu-spool width="40px" :gate="gate"/>
+              <mmu-spool :width="width" :gate="gate"/>
               <mmu-gate-status :gate="gate"/>
           </div>
       </div>
@@ -29,7 +29,7 @@ export default class MmuUnit extends Mixins(BaseMixin) {
 
     get name(): string {
         const name = this.$store.state.printer?.mmu_machine?.[this.unitRef]?.name || 'Unit';
-        return `${name} ${this.unit + 1}`;
+        return `#${this.unit + 1} ${name}`;
     }
 
     get numGates(): number {
@@ -43,6 +43,16 @@ export default class MmuUnit extends Mixins(BaseMixin) {
     get gateRange(): number[] {
         const start = this.firstGate;
         return Array.from({ length: this.numGates }, (v, k) => k + start);
+    }
+
+    get width(): number {
+        const numGates = this.$store.state.printer?.mmu?.num_gates;
+        if (numGates <= 9) {
+            return "56px"
+        } else if (numGates <= 12) {
+            return "48px"
+        }
+        return "40px"
     }
 
     @Emit('select-gate')

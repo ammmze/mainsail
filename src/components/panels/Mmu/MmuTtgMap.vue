@@ -129,14 +129,14 @@ export default class MmuTtgMap extends Mixins(BaseMixin) {
 
         return `M ${x1} ${y1} L ${tX} ${y1} ` +                   // Draw leader line
                `L ${tX + gate * tSpace} ${y1} ` +                 // Horizontal to gateX column
-               `L ${gX - (ttgMap.length - gate) * gSpace} ${this.startY + gate * this.verticalSpacing + 4} ` + // Gate column
-               `L ${gX + this.leader} ${this.startY + gate * this.verticalSpacing + 4}`; // Add tail
+               `L ${gX - (ttgMap.length - gate) * gSpace} ${this.startY + gate * this.verticalSpacing + 4} ` + // To gate column
+               `L ${gX + this.leader} ${this.startY + gate * this.verticalSpacing + 4}`; // Add trailer
     }
 
     generateEndlessSpoolPathD(group: number, index: number): string {
-        const tick = 5;                    // Dash size
+        const tick = 5;                                           // Dash size
         const x1 = this.gateX + 24 + (index * this.groupSpacing); // X distance from TTG map
-        const y1 = this.startY + 4;        // Align line with text
+        const y1 = this.startY + 4;                               // Align line with text
 
         let dStr = "";
         let y0: number | null = null;
@@ -187,15 +187,6 @@ export default class MmuTtgMap extends Mixins(BaseMixin) {
 
 <style scoped>
 /* Bug in <path> requires separation of styles - fill attribute doesn't override! */
-.regular-path-color {
-    stroke: #808080;
-    fill: #808080;
-}
-.backgroud-path-color {
-    stroke: #1E1E1E;
-    fill: #1E1E1E;
-}
-
 .stroke-regular-color {
     stroke: #808080;
 }

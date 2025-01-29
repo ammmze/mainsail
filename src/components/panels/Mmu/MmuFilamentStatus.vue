@@ -73,7 +73,7 @@
         <circle cx="258" cy="140" r="8" :style="'fill:' + encoderSensorColor + '; stroke-width:1; stroke-dasharray:0'" />
         <path d="M257 135 L261 140 L257 145" stroke-width="2" fill="none" />
         <text x="278" y="145">Encoder:</text>
-        <text x="348" y="145" font-size="11px">{{ encoderPos }}mm</text>
+        <text x="348" y="145" font-size="11px">{{ encoderPos }} mm</text>
         <text v-if="homedToEncoder()" x="219.5" y="145" font-weight="bold">H</text>
   
         <circle cx="258" cy="320" r="8" :style="'fill:' + extruderSensorColor + '; stroke-width:1; stroke-dasharray:0'" />
@@ -124,6 +124,7 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin) {
     private operation: string = "Unloading 48.7mm"
 
     get encoderPos(): number {
+        // PAUL round(1)
         return 63.4
     }
 
