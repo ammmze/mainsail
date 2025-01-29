@@ -48,11 +48,10 @@
 <script lang="ts">
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
+import MmuMixin from '@/components/mixins/mmu'
 
-@Component({
-    components: { },
-})
-export default class MmuClogMeter extends Mixins(BaseMixin) {
+@Component({ })
+export default class MmuClogMeter extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ default: 1 }) readonly rotationTime!: number;
 
     private circumference: number = 2 * Math.PI * 50;

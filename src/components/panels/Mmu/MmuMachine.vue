@@ -13,12 +13,11 @@
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
+import MmuMixin from '@/components/mixins/mmu'
 import MmuUnit from '@/components/panels/Mmu/MmuUnit.vue'
 
-@Component({
-    components: { },
-})
-export default class MmuMachine extends Mixins(BaseMixin) {
+@Component({ })
+export default class MmuMachine extends Mixins(BaseMixin, MmuMixin) {
 
     get unitArray(): number[] {
         const numUnits = this.$store.state.printer?.mmu_machine?.num_units || 0;

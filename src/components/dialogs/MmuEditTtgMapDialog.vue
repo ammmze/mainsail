@@ -32,12 +32,14 @@
 import Component from 'vue-class-component'
 import { Mixins, Prop } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
+import MmuMixin from '@/components/mixins/mmu'
 import Panel from '@/components/ui/Panel.vue'
 import { mdiCloseThick, mdiStateMachine } from '@mdi/js'
+
 @Component({
     components: { Panel }
 })
-export default class MmuEditTtgMapDialog extends Mixins(BaseMixin) {
+export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
     mdiCloseThick = mdiCloseThick
     mdiStateMachine = mdiStateMachine
 

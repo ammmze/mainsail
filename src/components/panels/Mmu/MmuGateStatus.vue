@@ -20,9 +20,10 @@
 import Component from 'vue-class-component'
 import { Mixins, Prop } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
+import MmuMixin from '@/components/mixins/mmu'
 
 @Component({ })
-export default class MmuGateStatus extends Mixins(BaseMixin) {
+export default class MmuGateStatus extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ required: false, default: -1 }) declare readonly gate!: number
 
     get statusColor(): string {

@@ -41,10 +41,11 @@
 import Component from 'vue-class-component'
 import { Mixins, Prop } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
+import MmuMixin from '@/components/mixins/mmu'
 import { ServerSpoolmanStateSpool } from '@/store/server/spoolman/types'
 
 @Component({ })
-export default class MmuSpool extends Mixins(BaseMixin) {
+export default class MmuSpool extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ required: false, default: null }) readonly gate: number | null
     @Prop({ required: false, default: "#AD8762" }) readonly spoolWheelColor: string
 

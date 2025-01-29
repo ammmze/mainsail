@@ -113,10 +113,11 @@
 <script lang="ts">
 import { Component, Mixins, Watch, Prop, Emit } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
+import MmuMixin from '@/components/mixins/mmu'
 
-@Component({})
-export default class MmuFilamentStatus extends Mixins(BaseMixin) {
-/*
+@Component({ })
+export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
+/* PAUL
     @Prop({ type: Boolean, required: false, default: true }) has_pregate_sensor: boolean | null
     @Prop({ required: false, default: mdiChevronDown }) declare readonly iconExpanded: string | null
 */

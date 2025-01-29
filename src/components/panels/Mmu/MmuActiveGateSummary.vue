@@ -13,6 +13,7 @@
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
+import MmuMixin from '@/components/mixins/mmu'
 import Panel from '@/components/ui/Panel.vue'
 import SpoolmanChangeSpoolDialog from '@/components/dialogs/SpoolmanChangeSpoolDialog.vue'
 import SpoolmanEjectSpoolDialog from '@/components/dialogs/SpoolmanEjectSpoolDialog.vue'
@@ -21,7 +22,7 @@ import { ServerSpoolmanStateSpool } from '@/store/server/spoolman/types'
 @Component({
     components: { SpoolmanChangeSpoolDialog, SpoolmanEjectSpoolDialog },
 })
-export default class MmuActiveGateSummary extends Mixins(BaseMixin) {
+export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ required: false, default: false }) readonly small!: boolean
 
 /* PAUL USEFUL SNIPPITS

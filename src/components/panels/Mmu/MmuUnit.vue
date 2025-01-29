@@ -14,14 +14,14 @@
 <script lang="ts">
 import { Component, Mixins, Prop, Emit } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
-import ControlMixin from '@/components/mixins/control'
+import MmuMixin from '@/components/mixins/mmu'
 import MmuSpool from '@/components/panels/Mmu/MmuSpool.vue'
 import MmuGateStatus from '@/components/panels/Mmu/MmuGateStatus.vue'
 
 @Component({
     components: { MmuSpool, MmuGateStatus },
 })
-export default class MmuUnit extends Mixins(BaseMixin, ControlMixin) {
+export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ required: false, default: 0 }) readonly unit!: number
 
     get unitRef(): string {

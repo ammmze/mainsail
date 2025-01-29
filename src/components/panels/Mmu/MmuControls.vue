@@ -50,17 +50,14 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
-import ControlMixin from '@/components/mixins/control'
+import MmuMixin from '@/components/mixins/mmu'
 import { mdiEject, mdiArrowCollapseUp, mdiArrowCollapseDown } from '@mdi/js'
 
-@Component({
-    components: { },
-})
-export default class MmuControls extends Mixins(BaseMixin, ControlMixin) {
+@Component({ })
+export default class MmuControls extends Mixins(BaseMixin, MmuMixin) {
     mdiEject = mdiEject
     mdiArrowCollapseUp = mdiArrowCollapseUp
     mdiArrowCollapseDown = mdiArrowCollapseDown
-
 }
 </script>
 

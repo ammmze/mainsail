@@ -10,7 +10,9 @@
                 </template>
                 <v-list dense>
                     <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
-                        <v-btn small style="width: 100%" @click="doSend('MMU_CHECK_GATES')">
+                        <v-btn small style="width: 100%"
+                               :loading="loadings.includes('mmu')"
+                               @click="doLoadingSend('MMU_CHECK_GATES')">
                             <v-icon left>{{ mdiCheckAll }}</v-icon>
                             {{ $t('Panels.MmuPanel.CheckAllGates') }}
                         </v-btn>
@@ -40,7 +42,9 @@
                         </v-btn>
                     </v-list-item>
                     <v-list-item :disabled="!enabled" :class="{ 'mmu-disabled': !enabled }">
-                        <v-btn small style="width: 100%" @click="doSend('MMU_STATS SHOWCOUNTS=1')">
+                        <v-btn small style="width: 100%"
+                               :loading="loadings.includes('mmu')"
+                               @click="doLoadingSend('MMU_STATS SHOWCOUNTS=1', 'mmu_stats')">
                             <v-icon left>{{ mdiNoteText }}</v-icon>
                             {{ $t('Panels.MmuPanel.PrintStats') }}
                         </v-btn>
@@ -87,7 +91,7 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
-import ControlMixin from '@/components/mixins/control'
+import MmuMixin from '@/components/mixins/mmu'
 import { mdiMulticast, mdiDotsVertical, mdiCheckAll, mdiWrenchCog, mdiCogRefresh, mdiDatabaseEdit, mdiStateMachine, mdiNoteText } from '@mdi/js'
 import Panel from '@/components/ui/Panel.vue'
 import MmuMachine from '@/components/panels/Mmu/MmuMachine.vue'
@@ -101,7 +105,7 @@ import MmuTtgMap from '@/components/panels/Mmu/MmuTtgMap.vue'
 @Component({
     components: { Panel, MmuMachine, MmuPanelSettings, MmuFilamentStatus, MmuClogMeter, MmuActiveGateSummary, MmuControls, MmuTtgMap},
 })
-export default class MmuPanel extends Mixins(BaseMixin, ControlMixin) {
+export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
     mdiMulticast = mdiMulticast
     mdiDotsVertical = mdiDotsVertical
     mdiCheckAll = mdiCheckAll
@@ -115,14 +119,6 @@ export default class MmuPanel extends Mixins(BaseMixin, ControlMixin) {
     showEditTtgMapDialog = false
     showEditGateMapDialog = false
     showMaintenanceDialog = false
-
-    get hasEncoder() {
-        return !!this.$store.state.printer.mmu?.encoder;
-    }
-
-    get enabled() {
-        return this.$store.state.printer.mmu?.enabled ?? false
-    }
 
     get title() {
         const headline = this.$t('Panels.MmuPanel.Headline') as string
@@ -144,31 +140,10 @@ export default class MmuPanel extends Mixins(BaseMixin, ControlMixin) {
         return this.$store.state.gui.view.mmu.showDetails ?? true;
     }
 
-
-/* PAUL
-    get active_spool(): ServerSpoolmanStateSpool | null {
-        return this.$store.state.server.spoolman.active_spool ?? null
-    }
-
-    get toolsWithSpoolId() {
-        return Object.keys(this.$store.state.printer)
-            .filter((key) => /^gcode_macro T\d+$/i.test(key.toLowerCase()))
-            .filter((keys) => {
-                const object = this.$store.state.printer[keys] ?? {}
-
-                return Object.keys(object).some((key) => key.toLowerCase() === 'spool_id')
-            })
-    }
-*/
-
     mounted() {
         if (this.$store.state.printer.mmu?.spoolman_support ?? 'off' !== 'off') {
-            this.refreshSpoolData()
+            this.refreshSpoolmanData()
         }
-    }
-
-    refreshSpoolData() {     
-        this.$store.dispatch('server/spoolman/refreshSpools')
     }
 }
 </script>

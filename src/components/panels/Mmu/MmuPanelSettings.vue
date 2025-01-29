@@ -32,13 +32,13 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import { Mixins } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
+import MmuMixin from '@/components/mixins/mmu'
 import { mdiCog } from '@mdi/js'
-import ControlMixin from '@/components/mixins/control'
-@Component
-export default class MmuPanelSettings extends Mixins(BaseMixin, ControlMixin) {
+
+@Component({ })
+export default class MmuPanelSettings extends Mixins(BaseMixin, MmuMixin) {
     mdiCog = mdiCog
 
     get hasEncoder() {
