@@ -14,7 +14,7 @@ export default class MmuMixin extends Vue {
 
 
     /*
-     * Encoder properties
+     * Select encoder properties
      */
     get encoderPos(): number {
         return this.$store.state.printer.mmu?.encoder?.encoder_pos
@@ -67,10 +67,11 @@ export default class MmuMixin extends Vue {
     get gate(): number {
         return this.$store.state.printer.mmu?.gate
     }
-
     get tool(): number {
         return this.$store.state.printer.mmu?.tool
     }
+    readonly TOOL_GATE_UNKNOWN: number = -1
+    readonly TOOL_GATE_BYPASS: number = -2
 
     get activeFilament(): object[] {
         return this.$store.state.printer.mmu?.active_filament
@@ -107,10 +108,25 @@ export default class MmuMixin extends Vue {
     get filamentPos(): number {
         return this.$store.state.printer.mmu?.filament_pos
     }
+    readonly FILAMENT_POS_UNKNOWN: number = -1
+    readonly FILAMENT_POS_UNLOADED: number = 0       // Parked in gate
+    readonly FILAMENT_POS_HOMED_GATE: number = 1     // Homed at either gate or gear sensor (currently assumed mutually exclusive sensors)
+    readonly FILAMENT_POS_START_BOWDEN: number = 2   // Point of fast load portion
+    readonly FILAMENT_POS_IN_BOWDEN: number = 3      // Some unknown position in the bowden
+    readonly FILAMENT_POS_END_BOWDEN: number = 4     // End of fast load portion
+    readonly FILAMENT_POS_HOMED_ENTRY: number = 5    // Homed at entry sensor
+    readonly FILAMENT_POS_HOMED_EXTRUDER: number = 6 // Collision homing case at extruder gear entry
+    readonly FILAMENT_POS_EXTRUDER_ENTRY: number = 7 // Past extruder gear entry
+    readonly FILAMENT_POS_HOMED_TS: number = 8       // Homed at toolhead sensor
+    readonly FILAMENT_POS_IN_EXTRUDER: number = 9    // In extruder past toolhead sensor
+    readonly FILAMENT_POS_LOADED: number = 10        // Homed to nozzle
 
     get filamentDirection(): number {
         return this.$store.state.printer.mmu?.filament_direction
     }
+    readonly DIRECTION_LOAD: number = 1
+    readonly DIRECTION_UNKNOWN: number = 0
+    readonly DIRECTION_UNLOAD: number = -1
 
     get ttgMap(): number[] {
         return this.$store.state.printer.mmu?.ttg_map
@@ -123,6 +139,10 @@ export default class MmuMixin extends Vue {
     get gateStatus(): number[] {
         return this.$store.state.printer.mmu?.gate_status
     }
+    readonly GATE_UNKNOWN: number = -1
+    readonly GATE_EMPTY: number = 0
+    readonly GATE_AVAILABLE: number = 1 // Available to load from either buffer or spool
+    readonly GATE_AVAILABLE_FROM_BUFFER: number = 2
 
     get gateFilamentName(): string[] {
         return this.$store.state.printer.mmu?.gate_filament_name
@@ -185,6 +205,16 @@ export default class MmuMixin extends Vue {
     get action(): string {
         return this.$store.state.printer.mmu?.action
     }
+    readonly ACTION_IDLE: string = "Idle"
+    readonly ACTION_LOADING: string = "Loading"
+    readonly ACTION_LOADING_EXTRUDER: string = "Loading Ext"
+    readonly ACTION_UNLOADING: string = "Unloading"
+    readonly ACTION_UNLOADING_EXTRUDER: string = "Unloading Ext"
+    readonly ACTION_FORMING_TIP: string = "Forming Tip"
+    readonly ACTION_HEATING: string = "Heating"
+    readonly ACTION_CHECKING: string = "Checking"
+    readonly ACTION_HOMING: string = "Homing"
+    readonly ACTION_SELECTING: string = "Selecting"
 
     get hasBypass(): boolean {
         return this.$store.state.printer.mmu?.has_bypass
@@ -195,6 +225,10 @@ export default class MmuMixin extends Vue {
     }
 
     //return this.$store.state.printer.mmu?.sync_feedback_state
+
+    get syncFeedbackEnabled(): boolean {
+        return this.$store.state.printer.mmu?.sync_feedback_enabled
+    }
 
     get printState(): string {
         return this.$store.state.printer.mmu?.print_state
@@ -228,6 +262,28 @@ export default class MmuMixin extends Vue {
 
 
     /*
+     * Selective Happy Hare configuration parameters
+     */
+
+    get configGateHomingEndstop(): string {
+        // TODO make dynamic because of MMU_TEST_CONFIG
+        console.log("PAUL: configGateHomingEndstop() called. Value;" + this.$store.state.printer.configfile.config.mmu?.gate_homing_endstop)
+        return this.$store.state.printer.configfile.config.mmu?.gate_homing_endstop
+    }
+
+    get configExtruderHomingEndstop(): string {
+        // TODO make dynamic because of MMU_TEST_CONFIG
+        console.log("PAUL: configExtruderHomingEndstop() called. Value;" + this.$store.state.printer.configfile.config.mmu?.extruder_homing_endstop)
+        return this.$store.state.printer.configfile.config.mmu?.extruder_homing_endstop
+    }
+
+    get configCalibrationBowdenLengths(): number[] {
+        console.log("PAUL: configCalibrationBowdenLengths() called. Value;" + this.$store.state.printer.save_variables?.variables?.mmu_calibration_bowden_lengths)
+        return this.$store.state.printer.save_variables?.variables?.mmu_calibration_bowden_lengths
+    }
+
+
+    /*
      * Miscellaneous
      */
 
@@ -257,7 +313,9 @@ export default class MmuMixin extends Vue {
         this.$socket.emit('printer.gcode.script', { script: gcode })
     }
 
-/* PAUL note to change in Extruder panel..
+/* PAUL TEMP
+   PAUL note to change in Extruder panel..
+   PAUL and USEFUL CODE SNIPPITS
 
     get toolsWithSpoolId() {
         return Object.keys(this.$store.state.printer)
@@ -269,21 +327,6 @@ export default class MmuMixin extends Vue {
             })
     }
 
-// HH Actions:
-        return ("Idle" if action == self.ACTION_IDLE else
-                "Loading" if action == self.ACTION_LOADING else
-                "Unloading" if action == self.ACTION_UNLOADING else
-                "Loading Ext" if action == self.ACTION_LOADING_EXTRUDER else
-                "Exiting Ext" if action == self.ACTION_UNLOADING_EXTRUDER else
-                "Forming Tip" if action == self.ACTION_FORMING_TIP else
-                "Heating" if action == self.ACTION_HEATING else
-                "Checking" if action == self.ACTION_CHECKING else
-                "Homing" if action == self.ACTION_HOMING else
-                "Selecting" if action == self.ACTION_SELECTING else
-                "Unknown") # Error case - should not happen
-
-*/
-/* PAUL USEFUL SNIPPITS
     get warningColor(): string {
         return this.$vuetify?.theme?.currentTheme?.warning?.toString() ?? '#ff8300'
     }
@@ -300,6 +343,26 @@ export default class MmuMixin extends Vue {
         }
 
         return '#ffffff'
+    }
+
+    // For walking store to find property
+    private findKey(obj: any, keyToFind: string): boolean {
+        // Check if the current object has the key
+        if (obj.hasOwnProperty(keyToFind)) {
+            return true;
+        }
+
+        // Otherwise, iterate over all properties of the object
+        for (let key in obj) {
+            if (obj[key] && typeof obj[key] === 'object') {
+                // Recursively search in each nested object
+                if (this.findKey(obj[key], keyToFind)) {
+                    console.log("-->" + key)
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 */
 }

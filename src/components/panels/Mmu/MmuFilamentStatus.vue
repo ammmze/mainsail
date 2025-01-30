@@ -77,11 +77,13 @@
         <text x="278" y="325" :class="{ 'text-disabled': (isSensorDisabled('extruder')) }">Extruder</text>
         <text v-if="homedToExtruder()" x="219.5" y="325" font-weight="bold">H</text>
 
+        <text v-if="homedToExtruderEntrance()" x="219.5" y="339" font-weight="bold">H</text>
+
         <circle cx="258" cy="350" r="8" style="stroke-width:1;" :class="sensorClass('toolhead')"/>
         <text x="278" y="355" :class="{ 'text-disabled': (isSensorDisabled('toolhead')) }">Toolhead</text>
         <text v-if="homedToToolhead()" x="219.5" y="355" font-weight="bold">H</text>
 
-        <g v-if="hasSyncFeedback()">
+        <g v-if="hasSyncFeedback">
             <g v-if="isSensorTriggered('filament_tension')">
                 <use xlink:href="#sync-feedback" transform="translate(258, 199) scale(1.2)"/>
                 <use xlink:href="#sync-feedback" transform="translate(258, 271) scale(1.2,-1.2)"/>
@@ -131,12 +133,12 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
     get encoderPosText(): string {
         if (this.encoderPos < 10000) {
             return `${this.encoderPos} mm`
-        }
+        } 
         return this.encoderPos
     }
 
     private hasSensor(sensorName: string): boolean {
-        console.log("PAUL: hasSensor(" + sensorName + ")")
+        //console.log("PAUL: hasSensor(" + sensorName + ")")
         return sensorName in this.sensors;
     }
 
@@ -167,40 +169,42 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         }
     }
 
-    hasGearSensor(): boolean {
-        return true /* return this.has_gear_sensor */
-    }
-    hasGateSensor(): boolean {
-        return true
-    }
-    hasSyncFeedback(): boolean {
-        return true
+    get hasSyncFeedback(): boolean {
+        return this.syncFeedbackEnabled
+            && (this.hasSensor('filament_compression') || this.hasSensor('filament_tension'))
     }
 
-    syncCompressionTriggered(): boolean | null {
-        return true
-    }
-    syncTensionTriggered(): boolean | null {
-        return false
-    }
-
-    homedToPreGate(): boolean {
-        return false
-    }
     homedToEncoder(): boolean {
-        return false
+        // PAUL review this logic
+        if (this.filamentDirection === this.DIRECTION_LOAD) {
+            return this.configGateHomingEndstop === 'encoder'
+                && this.filamentPos === this.FILAMENT_POS_START_BOWDEN
+        } else {
+            return this.configGateHomingEndstop === 'encoder'
+                && this.filamentPos === this.FILAMENT_POS_START_BOWDEN
+        }
     }
+
     homedToGear(): boolean {
-        return false
+        return this.configGateHomingEndstop === 'mmu_gear'
+            && this.filamentPos === this.FILAMENT_POS_HOMED_GATE
     }
+
     homedToGate(): boolean {
-        return false
+        return this.configGateHomingEndstop === 'mmu_gate'
+            && this.filamentPos === this.FILAMENT_POS_HOMED_GATE
     }
+
     homedToExtruder(): boolean {
-        return true
+        return this.filamentPos === this.FILAMENT_POS_HOMED_ENTRY
     }
+
+    homedToExtruderEntrance(): boolean {
+        return this.filamentPos === this.FILAMENT_POS_HOMED_EXTRUDER
+    }
+
     homedToToolhead(): boolean {
-        return false
+        return this.filamentPos === this.FILAMENT_POS_HOMED_TS
     }
 }
 </script>
