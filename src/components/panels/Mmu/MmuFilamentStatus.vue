@@ -49,80 +49,74 @@
         <polygon id="f_nozzle" points="257,380 243,380 243,405 249,412 249,413 251,413 251,412 257,405" fill="purple" />
     </g>
 
-    <g :style="'stroke:' + colorOutline + '; fill:' + colorFont + '; stroke-linecap: round; stroke-linejoin: round; stroke-width: 0; font-family: Roboto; font-size: 16;'">
-        <g v-if="hasPregateSensor()">
-            <circle cx="258" cy="50" r="8" :style="'fill:' + pregateSensorColor + '; stroke-width:1; stroke-dasharray:0'" />
-            <text x="278" y="55">Pre-Gate</text>
+    <g :style="'stroke:' + colorOutline + '; fill:' + colorFont + '; stroke-linejoin: round; stroke-width: 0; font-family: Roboto; font-size: 16;'">
+        <g v-if="hasSensor('mmu_pre_gate')">
+            <circle cx="258" cy="50" r="8" style="stroke-width:1;" :class="sensorClass('mmu_pre_gate')"/>
+            <text x="278" y="55" :class="{ 'text-disabled': (isSensorDisabled('mmu_pre_gate')) }">Pre-Gate</text>
         </g>
 
-        <g v-if="hasGearSensor()">
-            <circle cx="258" cy="80" r="8" :style="'fill:' + gearSensorColor + '; stroke-width:1; stroke-dasharray:0'" />
-            <text x="278" y="85">Gear</text>
+        <g v-if="hasSensor('mmu_gear')">
+            <circle cx="258" cy="80" r="8" style="stroke-width:1;" :class="sensorClass('mmu_gear')"/>
+            <text x="278" y="85" :class="{ 'text-disabled': (isSensorDisabled('mmu_gear')) }">Gear</text>
             <text v-if="homedToGear()" x="219.5" y="85" font-weight="bold">H</text>
         </g>
 
-        <g v-if="hasGateSensor()">
-            <circle cx="258" cy="110" r="8" :style="'fill:' + gateSensorColor + '; stroke-width:1; stroke-dasharray:0'" />
-            <text x="278" y="115">Gate</text>
+        <g v-if="hasSensor('mmu_gate')">
+            <circle cx="258" cy="110" r="8" style="stroke-width:1;" :class="sensorClass('mmu_gate')"/>
+            <text x="278" y="115" :class="{ 'text-disabled': (isSensorDisabled('mmu_gate')) }">Gate</text>
             <text v-if="homedToGate()" x="219.5" y="115" font-weight="bold">H</text>
         </g>
   
         <circle cx="258" cy="140" r="8" :style="'fill:' + encoderSensorColor + '; stroke-width:1; stroke-dasharray:0'" />
         <path d="M257 135 L261 140 L257 145" stroke-width="2" fill="none" />
-        <text x="278" y="145">Encoder:</text>
-        <text x="348" y="145" font-size="11px">{{ encoderPos }} mm</text>
+        <text x="278" y="145">Encoder</text>
+        <text x="345" y="145" font-size="11px">{{ encoderPosText }}</text>
         <text v-if="homedToEncoder()" x="219.5" y="145" font-weight="bold">H</text>
   
-        <circle cx="258" cy="320" r="8" :style="'fill:' + extruderSensorColor + '; stroke-width:1; stroke-dasharray:0'" />
-        <text x="278" y="325">Extruder</text>
+        <circle cx="258" cy="320" r="8" style="stroke-width:1;" :class="sensorClass('extruder')"/>
+        <text x="278" y="325" :class="{ 'text-disabled': (isSensorDisabled('extruder')) }">Extruder</text>
         <text v-if="homedToExtruder()" x="219.5" y="325" font-weight="bold">H</text>
 
-        <circle cx="258" cy="350" r="8" :style="'fill:' + toolheadSensorColor + '; stroke-width:1; stroke-dasharray:0'" />
-        <text x="278" y="355">Toolhead</text>
+        <circle cx="258" cy="350" r="8" style="stroke-width:1;" :class="sensorClass('toolhead')"/>
+        <text x="278" y="355" :class="{ 'text-disabled': (isSensorDisabled('toolhead')) }">Toolhead</text>
         <text v-if="homedToToolhead()" x="219.5" y="355" font-weight="bold">H</text>
 
         <g v-if="hasSyncFeedback()">
-            <g v-if="syncTensionTriggered()">
+            <g v-if="isSensorTriggered('filament_tension')">
                 <use xlink:href="#sync-feedback" transform="translate(258, 199) scale(1.2)"/>
                 <use xlink:href="#sync-feedback" transform="translate(258, 271) scale(1.2,-1.2)"/>
             </g>
-            <g v-if="syncCompressionTriggered()">
+            <g v-if="isSensorTriggered('filament_compression')">
                 <use xlink:href="#sync-feedback" transform="translate(258, 235) scale(1.2)"/>
                 <use xlink:href="#sync-feedback" transform="translate(258, 235) scale(1.2,-1.2)"/>
             </g>
             <g style="font-size: 14px;">
-                <text v-if="syncTensionTriggered() && syncCompressionTriggered()" x="288" y="240" fill="#FF0000">Error!</text>
-                <text v-else-if="syncTensionTriggered()" x="288" y="240">Tension</text>
-                <text v-else-if="syncCompressionTriggered()" x="288" y="240">Compression</text>
+                <text v-if="isSensorTriggered('filament_tension') && isSensorTriggered('filament_compression')" x="288" y="240" fill="#FF0000">Error!</text>
+                <text v-else-if="isSensorTriggered('filament_tension')" x="288" y="240">Tension</text>
+                <text v-else-if="isSensorTriggered('filament_compression')" x="288" y="240">Compression</text>
             </g>
         </g>
-        <text x="160" y="60" font-size="25px" font-weight="bold">T11</text>
+        <text x="160" y="60" font-size="25px" font-weight="bold">T{{ tool }}</text>
     </g>
 
-    <use xlink:href="#sync-extruder" transform="translate(278, 385) scale(.030)"/>
+    <use v-if="syncDrive" xlink:href="#sync-extruder" transform="translate(278, 385) scale(.030)"/>
     <use xlink:href="#sissors" transform="translate(205, 145) scale(1.2)"/>
     <use xlink:href="#sissors" transform="translate(205, 365) scale(1.2)"/>
-    <use xlink:href="#sync-extruder" transform="translate(278, 385) scale(.030)"/>
 </svg>
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch, Prop, Emit } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin from '@/components/mixins/mmu'
 
 @Component({ })
 export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
 
-    @Watch('username')
-    onEncoderDataChanged(newVal: string, oldVal: string) {
-        // PAUL console.log(`Username changed from ${oldVal} to ${newVal}`);
-    }
-
     // PAUL: Fixme for light theme
     private primaryBackground = "#1E1E1E"
     private highlightedBackground = "#272727"
-    private testing = false
+    private testing = true
 
     get colorOutline(): string {
         return '#2CA9BC'
@@ -133,27 +127,38 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
     get colorFont(): string {
         return '#FFFFFF'
     }
-    get pregateSensorColor(): string {
-        if (this.testing) {
-            return this.highlightedBackground
-        } else {
-            return 'limegreen'
+
+    get encoderPosText(): string {
+        if (this.encoderPos < 10000) {
+            return `${this.encoderPos} mm`
         }
+        return this.encoderPos
     }
-    get gearSensorColor(): string {
-        if (this.testing) {
-            return this.highlightedBackground
-        } else {
-            return 'limegreen'
+
+    private hasSensor(sensorName: string): boolean {
+        console.log("PAUL: hasSensor(" + sensorName + ")")
+        return sensorName in this.sensors;
+    }
+
+    private isSensorDisabled(sensorName: string): boolean {
+        return this.sensors[sensorName] === null;
+    }
+
+    private isSensorTriggered(sensorName: string): boolean {
+        const value = this.sensors[sensorName];
+        return value !== null && value === true;
+    }
+
+    sensorClass(sensorName): string {
+        if (this.isSensorDisabled(sensorName)) {
+            if (sensorName === 'extruder') return "sensor-disabled-extruder"
+            return "sensor-disabled"
+        } else if (this.isSensorTriggered(sensorName)) {
+            return "sensor-triggered"
         }
+        return "sensor-open"
     }
-    get gateSensorColor(): string {
-        if (this.testing) {
-            return this.highlightedBackground
-        } else {
-            return 'limegreen'
-        }
-    }
+
     get encoderSensorColor(): string {
         if (this.testing) {
             return this.highlightedBackground
@@ -161,24 +166,7 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
             return 'limegreen'
         }
     }
-    get extruderSensorColor(): string {
-        if (this.testing) {
-            return this.primaryBackground
-        } else {
-            return 'limegreen'
-        }
-    }
-    get toolheadSensorColor(): string {
-        if (!this.testing) {
-            return this.highlightedBackground
-        } else {
-            return 'limegreen'
-        }
-    }
 
-    hasPregateSensor(): boolean {
-        return true /* return this.has_pregate_sensor */
-    }
     hasGearSensor(): boolean {
         return true /* return this.has_gear_sensor */
     }
@@ -218,4 +206,27 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
 </script>
 
 <style scoped>
+.text-disabled {
+    opacity: 0.5;
+}
+
+.sensor-disabled {
+    stroke: #808080;
+    stroke-dasharray: 2,1;
+    fill: #272727;
+}
+
+.sensor-disabled-extruder {
+    stroke: #808080;
+    stroke-dasharray: 2,1;
+    fill: #1E1E1E;
+}
+
+.sensor-triggered {
+    fill: limegreen;
+}
+
+.sensor-open {
+    fill: #272727;
+}
 </style>

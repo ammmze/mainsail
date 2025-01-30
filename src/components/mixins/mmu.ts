@@ -223,7 +223,7 @@ export default class MmuMixin extends Vue {
     //return this.$store.state.printer.mmu?.selector_type
 
     get sensors(): object[] {
-        return this.$store.state.printer.mmu?.sensors
+        return this.$store.state.printer.mmu?.sensors || []
     }
 
 
