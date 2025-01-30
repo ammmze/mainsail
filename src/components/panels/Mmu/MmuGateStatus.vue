@@ -10,8 +10,8 @@
               :fill="selectedColor"/>
         <text v-if="gate >= 0" x="56" y="44" text-anchor="middle"
               font-weight="bold" font-size="30px"
-              :class="{ 'selected-text': (gate === selectedGate), 'regular-text': (gate !== selectedGate) }">
-            {{ gate }}
+              :class="{ 'selected-text': (thisGate === gate), 'regular-text': (thisGate !== gate) }">
+            {{ thisGate }}
         </text>
     </svg>
 </template>
@@ -24,31 +24,26 @@ import MmuMixin from '@/components/mixins/mmu'
 
 @Component({ })
 export default class MmuGateStatus extends Mixins(BaseMixin, MmuMixin) {
-    @Prop({ required: false, default: -1 }) declare readonly gate!: number
+    @Prop({ required: false, default: -1 }) declare readonly thisGate!: number
 
     get statusColor(): string {
         const gateStatus = this.$store.state.printer.mmu.gate_status;
         if (this.gateStatus < 0) {
             return "none";
-        } else if (gateStatus[this.gate] >= 1) {
+        } else if (gateStatus[this.thisGate] >= 1) {
             return "green";
-        } else if (gateStatus[this.gate] === 0) {
+        } else if (gateStatus[this.thisGate] === 0) {
             return "#808080";
         }
         return "orange"; // Unknown
     }
 
     get selectedColor(): string {
-        const gate = this.$store.state.printer.mmu.gate;
-        if (this.selectedGate === this.gate) {
+        if (this.gate === this.thisGate) {
             return "limegreen";
         } else {
             return "none";
         }
-    }
-
-    get selectedGate(): number {
-        return this.$store.state.printer.mmu.gate;
     }
 }
 </script>

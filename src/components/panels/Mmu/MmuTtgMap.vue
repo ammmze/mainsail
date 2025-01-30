@@ -90,22 +90,6 @@ export default class MmuTtgMap extends Mixins(BaseMixin, MmuMixin) {
         return this.startY + (this.$store.state.printer.mmu.ttg_map.length * this.verticalSpacing) + 6;
     }
 
-    get ttgMap(): number[] {
-        return this.$store.state.printer.mmu.ttg_map;
-    }
-
-    get endlessSpoolGroups(): number[] {
-        return this.$store.state.printer.mmu.endless_spool_groups;
-    }
-
-    get gate(): number {
-        return this.$store.state.printer.mmu.gate;
-    }
-
-    get tool(): number {
-        return this.$store.state.printer.mmu.tool;
-    }
-
     get currentGroup(): number {
         const currentGate = this.$store.state.printer.mmu.gate;
         if (currentGate >= 0) {

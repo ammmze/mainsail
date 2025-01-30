@@ -1,13 +1,18 @@
 <template>
-    <v-list-item three-line>
-        <v-list-item-content :class="listItemContentClass">
-            <div :class="overlineClass">#{{ id }} | {{ vendor }}</div>
-            <v-list-item-title :class="listItemTitleClass">
-                {{ name }}
-            </v-list-item-title>
-            <v-list-item-subtitle>{{ subtitle }}</v-list-item-subtitle>
-        </v-list-item-content>
-    </v-list-item>
+<v-list-item three-line>
+    <v-list-item-content :class="listItemContentClass">
+        <div :class="overlineClass">{{ title }}</div>
+        <v-list-item-title :class="listItemTitleClass">
+            {{ name }}
+        </v-list-item-title>
+        <v-list-item-subtitle class="subtitle-container">
+            {{ subtitle }}
+        </v-list-item-subtitle>
+        <v-list-item-subtitle class="subtitle-container smaller-font">
+            {{ extra }}
+        </v-list-item-subtitle>
+    </v-list-item-content>
+</v-list-item>
 </template>
 
 <script lang="ts">
@@ -15,116 +20,86 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin from '@/components/mixins/mmu'
 import Panel from '@/components/ui/Panel.vue'
-import SpoolmanChangeSpoolDialog from '@/components/dialogs/SpoolmanChangeSpoolDialog.vue'
-import SpoolmanEjectSpoolDialog from '@/components/dialogs/SpoolmanEjectSpoolDialog.vue'
 import { ServerSpoolmanStateSpool } from '@/store/server/spoolman/types'
 
-@Component({
-    components: { SpoolmanChangeSpoolDialog, SpoolmanEjectSpoolDialog },
-})
+@Component({ })
 export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
-    @Prop({ required: false, default: false }) readonly small!: boolean
-
-/* PAUL USEFUL SNIPPITS
-    get warningColor(): string {
-        return this.$vuetify?.theme?.currentTheme?.warning?.toString() ?? '#ff8300'
-    }
-
-    get primaryTextColor(): string {
-        let splits = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(this.primaryColor)
-        if (splits) {
-            const r = parseInt(splits[1], 16) * 0.2126
-            const g = parseInt(splits[2], 16) * 0.7152
-            const b = parseInt(splits[3], 16) * 0.0722
-            const perceivedLightness = (r + g + b) / 255
-
-            return perceivedLightness > 0.7 ? '#222' : '#fff'
-        }
-
-        return '#ffffff'
-    }
-*/
+    @Prop({ required: false, default: true }) readonly small!: boolean
 
     get listItemContentClass() {
         if (this.small) return 'my-0'
-
         return ''
     }
 
     get overlineClass() {
         const classes = ['text-overline', 'mb-1']
         if (this.small) classes.push('line-height-auto')
-
         return classes
     }
 
     get listItemTitleClass() {
         if (this.small) return ['text-h6', 'mb-1']
-
         return ['text-h5', 'mb-1']
     }
 
-    get active_spool(): ServerSpoolmanStateSpool | null {
-        return this.$store.state.server.spoolman.active_spool ?? null
+    get title(): string {
+        return "#" + [this.gate, this.vendorText].filter ((v) => v !== null).join(' | ')
     }
 
-    get color() {
-        const color = this.active_spool?.filament.color_hex ?? null
-        if (color === null) return '#000'
-
-        return `#${color}`
+    get name(): string {
+        return this.currentGateFilamentName
     }
 
-    get id() {
-        return this.active_spool?.id ?? 'XX'
+    get subtitle(): string {
+        return [this.currentGateMaterial,this.temperatureText, this.speedOverrideText].filter((v) => v !== null).join(' | ')
     }
 
-    get vendor() {
-        return this.active_spool?.filament?.vendor?.name ?? 'Unknown'
+    get extra(): string {
+        return [this.spoolIdText, this.weightText, this.lengthText].filter((v) => v !== null).join(' | ')
     }
 
-    get name() {
-        return this.active_spool?.filament.name ?? 'Unknown'
+    get speedOverrideText(): string {
+        if (this.currentGateSpeedOverride === 100) return null
+        return "Speed: " + this.currentGateSpeedOverride + "%"
     }
 
-    get materialOutput() {
-        const material = this.active_spool?.filament.material ?? null
-        if (material === null) return null
-
-        return material
+    get temperatureText(): string {
+        if (!this.currentGateTemperature) return null
+        return this.currentGateTemperature + '\u00B0' + 'C'
     }
 
-    get weightOutput() {
-        let remaining = this.active_spool?.remaining_weight ?? null
-        let total = this.active_spool?.filament.weight ?? null
-        let unit = 'g'
+    get spoolIdText(): string {
+        if (this.currentGateSpoolId <= 0) return null
+        return "Spool ID: " + this.currentGateSpoolId
+    }
 
+    // Only available with Spoolman...
+
+    get vendorText() {
+        return this.spoolmanSpool?.filament?.vendor?.name ?? "n/a"
+    }
+
+    get weightText() {
+        let remaining = this.spoolmanSpool?.remaining_weight ?? null
+        const total = this.spoolmanSpool?.filament.weight ?? null
+        const unit = 'g'
         if (remaining === null || total === null) return null
         remaining = Math.round(remaining)
         let totalRound = Math.floor(total / 1000)
-
         if (total >= 1000) {
             if (totalRound !== total / 1000) {
                 totalRound = Math.round(total / 100) / 10
             }
-
             return `${remaining}g / ${totalRound}kg`
         }
-
         return `${remaining} / ${total}${unit}`
     }
 
-    get lengthOutput() {
-        let remaining = this.active_spool?.remaining_length ?? null
-
+    get lengthText() {
+        let remaining = this.spoolmanSpool?.remaining_length ?? null
         if (remaining === null) return null
         remaining = Math.round(remaining / 1000)
-
         return `${remaining}m`
-    }
-
-    get subtitle() {
-        return [this.materialOutput, this.weightOutput, this.lengthOutput].filter((v) => v !== null).join(' | ')
     }
 }
 </script>
@@ -132,5 +107,13 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
 <style scoped>
 .line-height-auto {
     line-height: 1;
+}
+.subtitle-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.smaller-font {
+  font-size: 0.75em;
 }
 </style>

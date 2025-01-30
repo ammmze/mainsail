@@ -4,7 +4,8 @@
     <v-row>
       <v-col cols="12">
         <v-btn block small color="secondary"
-               @click="doSend('MMU_EJECT')">
+               :loading="loadings.includes('mmu_eject')"
+               @click="doLoadingSend('MMU_EJECT', 'mmu_eject')">
             <v-icon>{{ mdiEject }}</v-icon>
             {{ $t('Panels.MmuPanel.ButtonEject') }}
         </v-btn>
@@ -13,13 +14,15 @@
     <v-row dense>
       <v-col cols="6">
         <v-btn block small color="secondary"
-               @click="doSend('MMU_PRELOAD')">
+               :loading="loadings.includes('mmu_preload')"
+               @click="doLoadingSend('MMU_PRELOAD', 'mmu_preload')">
             {{ $t('Panels.MmuPanel.ButtonPreload') }}
         </v-btn>
       </v-col>
       <v-col cols="6">
         <v-btn block small color="secondary"
-               @click="doSend('MMU_CHECK_GATE')">
+               :loading="loadings.includes('mmu_check_gate')"
+               @click="doLoadingSend('MMU_CHECK_GATE', 'mmu_check_gate')">
             {{ $t('Panels.MmuPanel.ButtonCheckGate') }}
         </v-btn>
       </v-col>
@@ -28,7 +31,8 @@
       <v-col cols="12">
         <v-btn block medium color="secondary"
                class="btnMinWidthAuto fill-width"
-               @click="doSend('MMU_UNLOAD')">
+               :loading="loadings.includes('mmu_unload')"
+               @click="doLoadingSend('MMU_UNLOAD', 'mmu_unload')">
             <v-icon>{{ mdiArrowCollapseUp }}</v-icon>
             {{ $t('Panels.MmuPanel.ButtonUnload') }}
         </v-btn>
@@ -38,7 +42,8 @@
       <v-col cols="12">
         <v-btn block medium color="secondary"
                class="btnMinWidthAuto fill-width"
-               @click="doSend('MMU_LOAD')">
+               :loading="loadings.includes('mmu_load')"
+               @click="doLoadingSend('MMU_LOAD', 'mmu_load')">
             <v-icon>{{ mdiArrowCollapseDown }}</v-icon>
             {{ $t('Panels.MmuPanel.ButtonLoad') }}
         </v-btn>

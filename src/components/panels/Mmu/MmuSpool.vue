@@ -46,7 +46,7 @@ import { ServerSpoolmanStateSpool } from '@/store/server/spoolman/types'
 
 @Component({ })
 export default class MmuSpool extends Mixins(BaseMixin, MmuMixin) {
-    @Prop({ required: false, default: null }) readonly gate: number | null
+    @Prop({ required: false, default: null }) readonly thisGate: number | null
     @Prop({ required: false, default: "#AD8762" }) readonly spoolWheelColor: string
 
     contrastColor: string = "black";
@@ -56,35 +56,35 @@ export default class MmuSpool extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get filamentAmount(): number {
-        if (this.gate === null) {
+        if (this.thisGate === null) {
             return 100;
         }
-        const gateStatus = this.$store.state.printer.mmu.gate_status[this.gate];
+        const gateStatus = this.$store.state.printer.mmu.gate_status[this.thisGate];
         if (gateStatus === 0) {
             return 0;
         }
         const spoolmanSupport = this.$store.state.printer.mmu.spoolman_support;
-        const gateSpoolId = this.$store.state.printer.mmu.gate_spool_id[this.gate];
+        const gateSpoolId = this.$store.state.printer.mmu.gate_spool_id[this.thisGate];
+        const spools = this.$store.state.server.spoolman?.spools ?? []
+        const spoolmanSpool = spools.find((spool: ServerSpoolmanStateSpool) => spool.id === gateSpoolId) ?? null
         let amount = 100;
         if (gateSpoolId > 0 && spoolmanSupport !== "off") {
             // Pull live from spoolman and calculate percentage
-            let remaining = this.spoolmanSpool?.remaining_weight ?? null
-            let used = this.spoolmanSpool?.used_weight ?? null
-            if (remaining == null || used == null) {
-                remaining = this.spoolmanSpool?.remaining_length ?? null
-                used = this.spoolmanSpool?.used_length ?? null
+            let remaining = spoolmanSpool?.remaining_weight ?? null
+            let total = spoolmanSpool?.filament?.weight ?? null
+/*
+            //let used = spoolmanSpool?.used_weight ?? null
+            if (remaining == null || total == null) {
+                remaining = spoolmanSpool?.remaining_length ?? null
+                //used = spoolmanSpool?.used_length ?? null
+                total = spoolmanSpool?.filament?.length ?? null
             }
-            if (remaining !== null && used !== null) {
-                amount = Math.round(Math.max(0, Math.min(100, (remaining / (remaining + used)) * 100)));
+*/
+            if (remaining !== null && total !== null) {
+                amount = Math.round(Math.max(0, Math.min(100, (remaining / total) * 100)));
             }
         }
         return amount;
-    }
-
-    get spoolmanSpool(): ServerSpoolmanStateSpool {
-        const gateSpoolId = this.$store.state.printer.mmu.gate_spool_id[this.gate];
-        const spools = this.$store.state.server.spoolman?.spools ?? []
-        return spools.find((spool: ServerSpoolmanStateSpool) => spool.id === gateSpoolId) ?? null
     }
 
     get gateColor(): string {
@@ -93,11 +93,11 @@ export default class MmuSpool extends Mixins(BaseMixin, MmuMixin) {
             this.computeContrastColor();
         });
 
-        if (this.gate === null) {
+        if (this.thisGate === null) {
             return "#808080E0";
         }
         // Happy Hare syncs with spoolman so believe gate map
-        const gateColor = this.$store.state.printer.mmu.gate_color[this.gate];
+        const gateColor = this.$store.state.printer.mmu.gate_color[this.thisGate];
         const hexColorPattern = /^[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$/;
         if (hexColorPattern.test(gateColor) && !gateColor.startsWith('#')) {
             return '#' + gateColor;
@@ -134,9 +134,6 @@ export default class MmuSpool extends Mixins(BaseMixin, MmuMixin) {
         });
         return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
     }
-
-// PAUL TODO: ADD ALPHA channel support to gate color in HH
-
 }
 </script>
 

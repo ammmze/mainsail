@@ -1,7 +1,7 @@
 <template>
 <svg viewBox="0 0 140 140"
      preserveAspectRatio="xMidYMid meet"
-     :class="{ 'disabled-svg': (detection_mode === 0 || enabled === false) }"
+     :class="{ 'disabled-svg': (encoderDetectionMode === 0 || encoderEnabled === false) }"
      ref="clogMeter">
 
   <g transform="rotate(120 70 70)">
@@ -38,10 +38,10 @@
         stroke-dasharray="65"/>
 
   <text x="70" y="56" text-anchor="middle" class="small-text-color" font-size="11px">FLOW</text>
-  <text x="70" y="80" text-anchor="middle" class="small-text-color" font-size="20px">{{ flow_rate }}%</text>
-  <text v-if="detection_mode === 2" x="70" y="124" text-anchor="middle" class="small-text-color" font-size="12px">Auto</text>
+  <text x="70" y="80" text-anchor="middle" class="small-text-color" font-size="20px">{{ encoderFlowRate }}%</text>
+  <text v-if="encoderDetectionMode === 2" x="70" y="124" text-anchor="middle" class="small-text-color" font-size="12px">Auto</text>
   <text x="28" y="132" text-anchor="middle" class="small-text-color" font-size="12px">0</text>
-  <text x="108" y="132" class="small-text-color" font-size="12px">{{ detection_length }}</text>
+  <text x="108" y="132" class="small-text-color" font-size="12px">{{ encoderDetectionLength }}</text>
 </svg>
 </template>
 
@@ -68,53 +68,27 @@ export default class MmuClogMeter extends Mixins(BaseMixin, MmuMixin) {
     headroomWarning: boolean = false;
 
     get headroomArc(): number {
-        return this.circumference * (1 - (this.desired_headroom / this.detection_length) * (300 / 360));
+        return this.circumference * (1 - (this.encoderDesiredHeadroom / this.encoderDetectionLength) * (300 / 360));
     }
 
     get headroomRotate(): number {
-        return 420 - (this.desired_headroom / this.detection_length) * 300;
-    }
-
-    get encoder_pos(): number {
-        return this.$store.state.printer.mmu.encoder.encoder_pos;
+        return 420 - (this.encoderDesiredHeadroom / this.encoderDetectionLength) * 300;
     }
 
     @Watch('$store.state.printer.mmu.encoder.headroom')
     onHeadroomChanged(newHeadroom: number): void {
-        const { detection_length } = this.$store.state.printer.mmu.encoder;
-        const clogPercent = (Math.min(Math.max(0, detection_length - newHeadroom), detection_length) / detection_length) * 100;
+        const clogPercent = (Math.min(Math.max(0, this.encoderDetectionLength - newHeadroom), this.encoderDetectionLength) / this.encoderDetectionLength) * 100;
         const offset = ((100 - (clogPercent * 300 / 360)) / 100) * this.circumference;
         this.animateMeter(offset);
     }
 
     @Watch('$store.state.printer.mmu.encoder.min_headroom')
     onMinHeadroomChanged(newMinHeadroom: number): void {
-        const { detection_length, desired_headroom } = this.$store.state.printer.mmu.encoder;
-        const clogPercent = (Math.min(Math.max(0, detection_length - newMinHeadroom), detection_length) / detection_length) * 100;
+        const clogPercent = (Math.min(Math.max(0, this.encoderDetectionLength - newMinHeadroom), this.encoderDetectionLength) / this.encoderDetectionLength) * 100;
         const angle = clogPercent * 3;
         this.x2MinHeadroom = 70 + 65 * Math.cos((120 + angle) * Math.PI / 180);
         this.y2MinHeadroom = 70 + 65 * Math.sin((120 + angle) * Math.PI / 180);
-        this.headroomWarning = (newMinHeadroom < desired_headroom);
-    }
-
-    get desired_headroom(): number {
-        return this.$store.state.printer.mmu.encoder.desired_headroom;
-    }
-
-    get detection_length(): number {
-        return this.$store.state.printer.mmu.encoder.detection_length;
-    }
-
-    get enabled(): number {
-        return this.$store.state.printer.mmu.encoder.enabled;
-    }
-
-    get detection_mode(): number {
-        return this.$store.state.printer.mmu.encoder.detection_mode;
-    }
-
-    get flow_rate(): number {
-        return this.$store.state.printer.mmu.encoder.flow_rate;
+        this.headroomWarning = (newMinHeadroom < this.encoderDesiredheadroom);
     }
 
     private animateMeter(newOffset: number) {

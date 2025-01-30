@@ -1,8 +1,5 @@
 <template>
-<svg xmlns="http://www.w3.org/2000/svg"
-     xmlns:xlink="http://www.w3.org/1999/xlink"
-     viewBox="140 0 285 430"
-     fill="none"
+<svg viewBox="140 16 285 425"
      preserveAspectRatio="xMidYMid meet"
      ref="filStatusSvg">
 
@@ -99,7 +96,6 @@
                 <text v-else-if="syncCompressionTriggered()" x="288" y="240">Compression</text>
             </g>
         </g>
-        <text x="200" y="16">{{ operation }}</text>
         <text x="160" y="60" font-size="25px" font-weight="bold">T11</text>
     </g>
 
@@ -117,17 +113,6 @@ import MmuMixin from '@/components/mixins/mmu'
 
 @Component({ })
 export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
-/* PAUL
-    @Prop({ type: Boolean, required: false, default: true }) has_pregate_sensor: boolean | null
-    @Prop({ required: false, default: mdiChevronDown }) declare readonly iconExpanded: string | null
-*/
-
-    private operation: string = "Unloading 48.7mm"
-
-    get encoderPos(): number {
-        // PAUL round(1)
-        return 63.4
-    }
 
     @Watch('username')
     onEncoderDataChanged(newVal: string, oldVal: string) {

@@ -41,10 +41,6 @@ import { mdiCog } from '@mdi/js'
 export default class MmuPanelSettings extends Mixins(BaseMixin, MmuMixin) {
     mdiCog = mdiCog
 
-    get hasEncoder() {
-        return !!this.$store.state.printer.mmu?.encoder;
-    }
-
     get showClogDetection(): boolean {
         return this.$store.state.gui.view.mmu.showClogDetection ?? true
     }

@@ -11,8 +11,8 @@
                 <v-list dense>
                     <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
                         <v-btn small style="width: 100%"
-                               :loading="loadings.includes('mmu')"
-                               @click="doLoadingSend('MMU_CHECK_GATES')">
+                               :loading="loadings.includes('mmu_check_gates')"
+                               @click="doLoadingSend('MMU_CHECK_GATES', 'mmu_check_gates')">
                             <v-icon left>{{ mdiCheckAll }}</v-icon>
                             {{ $t('Panels.MmuPanel.CheckAllGates') }}
                         </v-btn>
@@ -43,7 +43,7 @@
                     </v-list-item>
                     <v-list-item :disabled="!enabled" :class="{ 'mmu-disabled': !enabled }">
                         <v-btn small style="width: 100%"
-                               :loading="loadings.includes('mmu')"
+                               :loading="loadings.includes('mmu_stats')"
                                @click="doLoadingSend('MMU_STATS SHOWCOUNTS=1', 'mmu_stats')">
                             <v-icon left>{{ mdiNoteText }}</v-icon>
                             {{ $t('Panels.MmuPanel.PrintStats') }}
@@ -55,10 +55,13 @@
         </template>
 
         <div :class="{ 'mmu-disabled': !enabled }">
-            <mmu-machine/>
-            <v-container pt-0 fluid>
+            <v-container fluid>
                 <v-row align="start">
-                    <v-col cols="5" class="d-flex flex-column justify-center align-center">
+                    <mmu-machine/>
+                </v-row>
+                <v-row align="start">
+                    <v-col cols="5" class="pt-0 d-flex flex-column align-center justify-center">
+                        {{ statusText }}
                         <mmu-filament-status/>
                         <template v-if="showClogDetection">
                             <mmu-clog-meter v-if="hasEncoder" width="40%"/>
@@ -66,14 +69,14 @@
                         </template>
                     </v-col>
                     <v-col cols="7" class="d-flex flex-column align-center justify-center">
-                        <v-row class="pb-3 pt-6" style="align-self: flex-start; width: 100%;">
+                        <v-row class="pb-3 pt-0" style="align-self: flex-start; width: 100%;">
                             <mmu-active-gate-summary/>
                         </v-row>
                         <v-divider style="width: 100%;"/>
                         <mmu-controls/>
                         <template v-if="showTtgMap">
                             <v-divider style="width: 100%;"/>
-                            <mmu-ttg-map width="75%"></mmu-ttg-map>
+                            <mmu-ttg-map :startY="20" width="75%"></mmu-ttg-map>
                             <div class="text--disabled">Tool Mapping</div>
                         </template>
                     </v-col>
@@ -129,15 +132,34 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get showClogDetection(): boolean {
-        return !this.hasEncoder || !!this.$store.state.gui.view.mmu.showClogDetection;
+        return !this.hasEncoder || !!this.$store.state.gui.view.mmu.showClogDetection
     }
 
     get showTtgMap(): boolean {
-        return this.$store.state.gui.view.mmu.showTtgMap ?? true;
+        return this.$store.state.gui.view.mmu.showTtgMap ?? true
     }
 
     get showDetails(): boolean {
-        return this.$store.state.gui.view.mmu.showDetails ?? true;
+        return this.$store.state.gui.view.mmu.showDetails ?? true
+    }
+
+    get statusText(): string {
+        let posStr: string = ""
+        if (["complete", "error", "cancelled", "started"].includes(this.printState)) {
+            posStr = capitalize(this.printState)
+        } else if (this.action == "Idle") {
+            posStr = (this.filament !== "Unloaded") ? `Filament: ${this.encoderPos}mm` : "Filament: Unloaded";
+        } else if (this.action === "Loading" || this.action === "Unloading") {
+            posStr = `{this.action}: {this.encoderPos}mm`
+        } else {
+            posStr = this.action
+        }
+        return posStr
+    }
+
+    private capitalize(str: string): string {
+        if (!str) return str;
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
 
     mounted() {
