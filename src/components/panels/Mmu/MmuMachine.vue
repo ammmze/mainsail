@@ -1,13 +1,13 @@
 <template>
-    <v-container>
-        <v-row dense>
-            <v-col v-for="index in unitArray" cols="auto" :key="'unit_' + index">
-              <div class="mmu_unit">
-                <mmu-unit :unit="index"/>
-              </div>
-            </v-col>
-        </v-row>
-    </v-container>
+<v-container>
+    <v-row dense>
+        <v-col v-for="index in unitArray" cols="auto" :key="'unit_' + index">
+          <div class="mmu_unit">
+            <mmu-unit :unit="index"/>
+          </div>
+        </v-col>
+    </v-row>
+</v-container>
 </template>
 
 <script lang="ts">
@@ -20,8 +20,8 @@ import MmuUnit from '@/components/panels/Mmu/MmuUnit.vue'
 export default class MmuMachine extends Mixins(BaseMixin, MmuMixin) {
 
     get unitArray(): number[] {
-        const numUnits = this.$store.state.printer?.mmu_machine?.num_units || 0;
-        return Array.from({ length: numUnits }, (_, k) => k);
+        const numUnits = this.$store.state.printer?.mmu_machine?.num_units || 0
+        return Array.from({ length: numUnits }, (_, k) => k)
     }
 }
 </script>

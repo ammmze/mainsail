@@ -1,14 +1,14 @@
 <template>
-    <v-container>
-      <div class="spool-row text--disabled">{{ unitName }}</div>
-      <div class="spool-row">
-          <div v-for="gate in unitGateRange" :key="'gate_' + gate"
-               class="gate-status cursor-pointer" @click="selectGate(gate)">
-              <mmu-spool :width="width" :thisGate="gate"/>
-              <mmu-gate-status :thisGate="gate"/>
-          </div>
-      </div>
-    </v-container>
+<v-container>
+    <div class="spool-row text--disabled">{{ unitName }}</div>
+    <div class="spool-row">
+        <div v-for="gate in unitGateRange" :key="'gate_' + gate"
+             class="gate-status cursor-pointer" @click="selectGate(gate)">
+            <mmu-spool :width="width" :thisGate="gate"/>
+            <mmu-gate-status :thisGate="gate"/>
+        </div>
+    </div>
+</v-container>
 </template>
 
 <script lang="ts">
@@ -25,25 +25,25 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ required: false, default: 0 }) readonly unit!: number
 
     get unitRef(): string {
-        return `unit_${this.unit}`;
+        return `unit_${this.unit}`
     }
 
     get unitName(): string {
-        const name = this.$store.state.printer?.mmu_machine?.[this.unitRef]?.name || 'Unit';
-        return `#${this.unit + 1} ${name}`;
+        const name = this.$store.state.printer?.mmu_machine?.[this.unitRef]?.name || 'Unit'
+        return `#${this.unit + 1} ${name}`
     }
 
     get unitNumGates(): number {
-        return this.$store.state.printer?.mmu_machine?.[this.unitRef]?.num_gates;
+        return this.$store.state.printer?.mmu_machine?.[this.unitRef]?.num_gates
     }
 
     get unitFirstGate(): number {
-        return this.$store.state.printer?.mmu_machine?.[this.unitRef]?.first_gate;
+        return this.$store.state.printer?.mmu_machine?.[this.unitRef]?.first_gate
     }
 
     get unitGateRange(): number[] {
-        const start = this.unitFirstGate;
-        return Array.from({ length: this.unitNumGates }, (v, k) => k + start);
+        const start = this.unitFirstGate
+        return Array.from({ length: this.unitNumGates }, (v, k) => k + start)
     }
 
     get width(): number {

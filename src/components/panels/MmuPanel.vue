@@ -69,10 +69,12 @@
                         </template>
                     </v-col>
                     <v-col cols="7" class="d-flex flex-column align-center justify-center">
-                        <v-row class="pb-3 pt-0" style="align-self: flex-start; width: 100%;">
-                            <mmu-active-gate-summary/>
-                        </v-row>
-                        <v-divider style="width: 100%;"/>
+                        <template v-if="showDetails">
+                            <v-row class="pb-3 pt-0" style="align-self: flex-start; width: 100%;">
+                                <mmu-active-gate-summary/>
+                            </v-row>
+                            <v-divider style="width: 100%;"/>
+                        </template>
                         <mmu-controls/>
                         <template v-if="showTtgMap">
                             <v-divider style="width: 100%;"/>

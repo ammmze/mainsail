@@ -153,15 +153,15 @@ export default class MmuMixin extends Vue {
     }
 
     get currentGateFilamentName(): string {
-        return this.$store.state.printer.mmu?.gate_filament_name?.[this.gate] ?? "Unknown"
+        return this.$store.state.printer.mmu?.gate_filament_name?.[this.gate] || "Unknown"
     }
 
     get currentGateMaterial(): string {
-        return this.$store.state.printer.mmu?.gate_material?.[this.gate] ?? "Unknown"
+        return this.$store.state.printer.mmu?.gate_material?.[this.gate] || "Unknown"
     }
 
     get currentGateColor(): string {
-        return this.$store.state.printer.mmu?.gate_color?.[this.gate] ?? "#808080E0"
+        return this.$store.state.printer.mmu?.gate_color?.[this.gate] || "#808080E0"
     }
 
     get currentGateTemperature(): number {
@@ -238,22 +238,16 @@ export default class MmuMixin extends Vue {
     // Prefer active if its the correct one (updated more frequently)
     get spoolmanSpool(): ServerSpoolmanStateSpool | null {
         const activeSpool = this.$store.state.server.spoolman.active_spool ?? null
-        console.log("PAUL: active=" + activeSpool + " ,gate=" + this.currentGate)
         if (activeSpool?.id === this.currentGate) {
-            console.log("PAUL: returing active")
             return activeSpool
         }
         const spools = this.$store.state.server.spoolman?.spools ?? []
-        let spool = spools.find((spool: ServerSpoolmanStateSpool) => spool.id === this.currentGateSpoolId) ?? null
-        console.log("PAUL: returing spool:" + spool)
-        return spool
+        return spools.find((spool: ServerSpoolmanStateSpool) => spool.id === this.currentGateSpoolId) ?? null
     }
 
     async doLoadingSend(gcode: string, loadingKey: string) {
-        console.log(`PAUL:${gcode}, ${loadingKey}`)
         await this.$store.dispatch('socket/addLoading', { name: loadingKey })
-        this.$store.dispatch('server/addEvent', { message: gcode, type: 'command' })
-        this.$socket.emit('printer.gcode.script', { script: gcode })
+        this.doSend(gcode)
         await new Promise(resolve => setTimeout(resolve, 500))
         await this.$store.dispatch('socket/removeLoading', { name: loadingKey })
     }
@@ -265,7 +259,17 @@ export default class MmuMixin extends Vue {
 
 /* PAUL note to change in Extruder panel..
 
+    get toolsWithSpoolId() {
+        return Object.keys(this.$store.state.printer)
+            .filter((key) => /^gcode_macro T\d+$/i.test(key.toLowerCase()))
+            .filter((keys) => {
+                const object = this.$store.state.printer[keys] ?? {}
 
+                return Object.keys(object).some((key) => key.toLowerCase() === 'spool_id')
+            })
+    }
+
+// HH Actions:
         return ("Idle" if action == self.ACTION_IDLE else
                 "Loading" if action == self.ACTION_LOADING else
                 "Unloading" if action == self.ACTION_UNLOADING else
@@ -278,20 +282,6 @@ export default class MmuMixin extends Vue {
                 "Selecting" if action == self.ACTION_SELECTING else
                 "Unknown") # Error case - should not happen
 
-
-    get active_spool(): ServerSpoolmanStateSpool | null {
-        return this.$store.state.server.spoolman.active_spool ?? null
-    }
-
-    get toolsWithSpoolId() {
-        return Object.keys(this.$store.state.printer)
-            .filter((key) => /^gcode_macro T\d+$/i.test(key.toLowerCase()))
-            .filter((keys) => {
-                const object = this.$store.state.printer[keys] ?? {}
-
-                return Object.keys(object).some((key) => key.toLowerCase() === 'spool_id')
-            })
-    }
 */
 /* PAUL USEFUL SNIPPITS
     get warningColor(): string {

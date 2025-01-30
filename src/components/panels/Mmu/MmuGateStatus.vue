@@ -1,19 +1,19 @@
 <template>
-    <svg viewBox="0 0 120 54"
-         xml:space="preserve"
-         preserveAspectRatio="xMidYMid meet"
-         ref="mmuGateStatusSvg">
+<svg viewBox="0 0 120 54"
+     xml:space="preserve"
+     preserveAspectRatio="xMidYMid meet"
+     ref="mmuGateStatusSvg">
 
-        <rect x="15" y="18" width="80" height="31" rx="8" ry="8"
-              stroke-width="3"
-              :stroke="statusColor"
-              :fill="selectedColor"/>
-        <text v-if="gate >= 0" x="56" y="44" text-anchor="middle"
-              font-weight="bold" font-size="30px"
-              :class="{ 'selected-text': (thisGate === gate), 'regular-text': (thisGate !== gate) }">
-            {{ thisGate }}
-        </text>
-    </svg>
+    <rect x="15" y="18" width="80" height="31" rx="8" ry="8"
+          stroke-width="3"
+          :stroke="statusColor"
+          :fill="selectedColor"/>
+    <text v-if="gate >= 0" x="56" y="44" text-anchor="middle"
+          font-weight="bold" font-size="30px"
+          :class="{ 'selected-text': (thisGate === gate), 'regular-text': (thisGate !== gate) }">
+        {{ thisGate }}
+    </text>
+</svg>
 </template>
 
 <script lang="ts">
@@ -29,20 +29,20 @@ export default class MmuGateStatus extends Mixins(BaseMixin, MmuMixin) {
     get statusColor(): string {
         const gateStatus = this.$store.state.printer.mmu.gate_status;
         if (this.gateStatus < 0) {
-            return "none";
+            return "none"
         } else if (gateStatus[this.thisGate] >= 1) {
-            return "green";
+            return "green"
         } else if (gateStatus[this.thisGate] === 0) {
-            return "#808080";
+            return "#808080"
         }
-        return "orange"; // Unknown
+        return "orange" // Unknown
     }
 
     get selectedColor(): string {
         if (this.gate === this.thisGate) {
-            return "limegreen";
+            return "limegreen"
         } else {
-            return "none";
+            return "none"
         }
     }
 }

@@ -1,7 +1,7 @@
 <template>
 <svg viewBox="0 0 140 140"
      preserveAspectRatio="xMidYMid meet"
-     :class="{ 'disabled-svg': (encoderDetectionMode === 0 || encoderEnabled === false) }"
+     :class="{ 'disabled-clog': (encoderDetectionMode === 0 || encoderEnabled === false) }"
      ref="clogMeter">
 
   <g transform="rotate(120 70 70)">
@@ -104,9 +104,9 @@ export default class MmuClogMeter extends Mixins(BaseMixin, MmuMixin) {
 </script>
 
 <style scoped>
-.disabled-svg {
-  opacity: 0.5;
-  cursor: not-allowed;
+.disabled-clog {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 .primary-color {
     stroke: #2CA9BC;

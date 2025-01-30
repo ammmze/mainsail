@@ -1,5 +1,5 @@
 <template>
-<v-list-item three-line>
+<v-list-item three-line :class="{ 'disabled-panel': (currentGateStatus === 0) }">
     <v-list-item-content :class="listItemContentClass">
         <div :class="overlineClass">{{ title }}</div>
         <v-list-item-title :class="listItemTitleClass">
@@ -9,7 +9,7 @@
             {{ subtitle }}
         </v-list-item-subtitle>
         <v-list-item-subtitle class="subtitle-container smaller-font">
-            {{ extra }}
+            {{ extra || "No spoolman ID" }}
         </v-list-item-subtitle>
     </v-list-item-content>
 </v-list-item>
@@ -76,7 +76,7 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
     // Only available with Spoolman...
 
     get vendorText() {
-        return this.spoolmanSpool?.filament?.vendor?.name ?? "n/a"
+        return this.spoolmanSpool?.filament?.vendor?.name ?? "Unknown"
     }
 
     get weightText() {
@@ -108,12 +108,18 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
 .line-height-auto {
     line-height: 1;
 }
+
 .subtitle-container {
   display: flex;
   justify-content: space-between;
   width: 100%;
 }
+
 .smaller-font {
   font-size: 0.75em;
 }
+
+.disabled-panel {
+    opacity: 0.5;
+} 
 </style>

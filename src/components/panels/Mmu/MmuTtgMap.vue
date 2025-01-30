@@ -78,92 +78,92 @@ export default class MmuTtgMap extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ default: 10 }) readonly leader!: number
     @Prop({ default: true }) readonly showESgroups!: boolean
 
-    private toolX: number = this.startX + 14;
-    private gateX: number = this.startX + 2 * this.leader + this.mapSpace + 40;
-    private groupX: number = this.startX + 2 * this.leader + this.mapSpace + 65;
+    private toolX: number = this.startX + 14
+    private gateX: number = this.startX + 2 * this.leader + this.mapSpace + 40
+    private groupX: number = this.startX + 2 * this.leader + this.mapSpace + 65
 
     get width(): number {
         return this.groupX + (this.getEndlessSpoolGroups().length * this.groupSpacing); // Single gate groups aren't displayed
     }
 
     get height(): number {
-        return this.startY + (this.$store.state.printer.mmu.ttg_map.length * this.verticalSpacing) + 6;
+        return this.startY + (this.$store.state.printer.mmu.ttg_map.length * this.verticalSpacing) + 6
     }
 
     get currentGroup(): number {
-        const currentGate = this.$store.state.printer.mmu.gate;
+        const currentGate = this.$store.state.printer.mmu.gate
         if (currentGate >= 0) {
-            return this.$store.state.printer.mmu.endless_spool_groups[currentGate];
+            return this.$store.state.printer.mmu.endless_spool_groups[currentGate]
         } else {
-            return -1;
+            return -1
         }
     }
 
     generateMappingPathD(tool: number): string {
-        const ttgMap = this.$store.state.printer.mmu.ttg_map;
-        const xOffset = 28;
-        const x1 = this.startX + xOffset;
-        const y1 = this.startY + tool * this.verticalSpacing + 4; // yOffset of 4 to align line with text
-        const tX = x1 + this.leader;                              // X position for tool column
-        const gX = tX + this.mapSpace;                            // X position for gate column
-        const gate = ttgMap[tool];                                // Gate corresponding to the tool
-        const tSpace = 2;                                         // Horizontal "break" spacing tool side
-        const gSpace = 2;                                         // Horizontal "break" spacing gate side
+        const ttgMap = this.$store.state.printer.mmu.ttg_map
+        const xOffset = 28
+        const x1 = this.startX + xOffset
+        const y1 = this.startY + tool * this.verticalSpacing + 4  // yOffset of 4 to align line with text
+        const tX = x1 + this.leader                               // X position for tool column
+        const gX = tX + this.mapSpace                             // X position for gate column
+        const gate = ttgMap[tool]                                 // Gate corresponding to the tool
+        const tSpace = 2                                          // Horizontal "break" spacing tool side
+        const gSpace = 2                                          // Horizontal "break" spacing gate side
 
         return `M ${x1} ${y1} L ${tX} ${y1} ` +                   // Draw leader line
                `L ${tX + gate * tSpace} ${y1} ` +                 // Horizontal to gateX column
                `L ${gX - (ttgMap.length - gate) * gSpace} ${this.startY + gate * this.verticalSpacing + 4} ` + // To gate column
-               `L ${gX + this.leader} ${this.startY + gate * this.verticalSpacing + 4}`; // Add trailer
+               `L ${gX + this.leader} ${this.startY + gate * this.verticalSpacing + 4}`  // Add trailer
     }
 
     generateEndlessSpoolPathD(group: number, index: number): string {
-        const tick = 5;                                           // Dash size
-        const x1 = this.gateX + 24 + (index * this.groupSpacing); // X distance from TTG map
-        const y1 = this.startY + 4;                               // Align line with text
+        const tick = 5                                            // Dash size
+        const x1 = this.gateX + 24 + (index * this.groupSpacing)  // X distance from TTG map
+        const y1 = this.startY + 4                                // Align line with text
 
-        let dStr = "";
-        let y0: number | null = null;
-        const gatesInGroup = this.findAllGatesInGroup(group);
+        let dStr = ""
+        let y0: number | null = null
+        const gatesInGroup = this.findAllGatesInGroup(group)
         if (gatesInGroup.length > 1) {
             gatesInGroup.forEach(gate => {
-                const y = y1 + gate * this.verticalSpacing;
-                dStr += `M ${x1 + tick} ${y} L ${x1} ${y} `;
+                const y = y1 + gate * this.verticalSpacing
+                dStr += `M ${x1 + tick} ${y} L ${x1} ${y} `
                 if (y0 !== null) {
-                    dStr += `M ${x1 + tick} ${y0} L ${x1 + tick} ${y} `;
+                    dStr += `M ${x1 + tick} ${y0} L ${x1 + tick} ${y} `
                 }
-                y0 = y;
-            });
+                y0 = y
+            })
         }
-        return dStr;
+        return dStr
     }
 
     // Find groups with more than one gate
     getEndlessSpoolGroups(): number[] {
-        const endlessSpoolGroups = this.$store.state.printer.mmu.endless_spool_groups;
-        const countMap: { [key: number]: number } = {};
+        const endlessSpoolGroups = this.$store.state.printer.mmu.endless_spool_groups
+        const countMap: { [key: number]: number } = {}
         endlessSpoolGroups.forEach(num => {
             if (countMap[num]) {
-                countMap[num]++;
+                countMap[num]++
             } else {
-                countMap[num] = 1;
+                countMap[num] = 1
             }
-        });
+        })
         const duplicates = Object.keys(countMap)
                                  .filter(key => countMap[key] > 1)
                                  .map(Number)
-                                 .sort((a, b) => a - b);
-        return duplicates;
+                                 .sort((a, b) => a - b)
+        return duplicates
     }
 
     private findAllGatesInGroup(gate: number): number[] {
-        const endlessSpoolGroups = this.$store.state.printer.mmu.endless_spool_groups;
-        const gatesInGroup: number[] = [];
+        const endlessSpoolGroups = this.$store.state.printer.mmu.endless_spool_groups
+        const gatesInGroup: number[] = []
         endlessSpoolGroups.forEach((g, index) => {
             if (g === gate) {
-                gatesInGroup.push(index);
+                gatesInGroup.push(index)
             }
-        });
-        return gatesInGroup;
+        })
+        return gatesInGroup
     }
 }
 </script>
