@@ -9,7 +9,7 @@
             {{ subtitle }}
         </v-list-item-subtitle>
         <v-list-item-subtitle class="subtitle-container smaller-font">
-            {{ extra || "No spoolman ID" }}
+            {{ extra || "No spoolman ID / Active spool" }}
         </v-list-item-subtitle>
     </v-list-item-content>
 </v-list-item>
@@ -43,7 +43,7 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get title(): string {
-        return "#" + [this.gate, this.vendorText].filter ((v) => v !== null).join(' | ')
+        return "#" + [this.gateText, this.currentGateVendor].filter ((v) => v !== null).join(' | ')
     }
 
     get name(): string {
@@ -64,8 +64,9 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get temperatureText(): string {
-        if (!this.currentGateTemperature) return null
+        if (this.currentGateTemperature <= 0) return null
         return this.currentGateTemperature + '\u00B0' + 'C'
+        
     }
 
     get spoolIdText(): string {
@@ -74,10 +75,6 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
     }
 
     // Only available with Spoolman...
-
-    get vendorText() {
-        return this.spoolmanSpool?.filament?.vendor?.name ?? "Unknown"
-    }
 
     get weightText() {
         let remaining = this.spoolmanSpool?.remaining_weight ?? null

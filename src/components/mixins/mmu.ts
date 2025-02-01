@@ -236,16 +236,17 @@ export default class MmuMixin extends Vue {
     //return this.$store.state.printer.mmu?.selector_type
 
     get sensors(): object[] {
-        return this.$store.state.printer.mmu?.sensors || []
+        return this.$store.state.printer.mmu?.sensors ?? []
     }
 
     get espoolerActive(): string {
-        return this.$store.state.printer.mmu?.espooler_active || ''
+        return this.$store.state.printer.mmu?.espooler_active ?? ''
     }
 
 
     /*
-     * Convenience access to current gate info in the gate map
+     * Convenience access to current gate info in the gate map. If bypass is
+     * selected then try to get info from active spoolman spool
      */
 
     get currentGateStatus(): number {
@@ -253,22 +254,55 @@ export default class MmuMixin extends Vue {
     }
 
     get currentGateFilamentName(): string {
-        return this.$store.state.printer.mmu?.gate_filament_name?.[this.gate] || "Unknown"
+        if (this.gate === this.TOOL_GATE_BYPASS) {
+            // Assume active spoolman spool if available
+            return this.$store.state.server.spoolman?.active_spool?.filament?.name ?? 'Unknown'
+        }
+        return this.$store.state.printer.mmu?.gate_filament_name?.[this.gate] || 'Unknown'
     }
 
     get currentGateMaterial(): string {
-        return this.$store.state.printer.mmu?.gate_material?.[this.gate] || "Unknown"
+        if (this.gate === this.TOOL_GATE_BYPASS) {
+            // Assume active spoolman spool if available
+            return this.$store.state.server.spoolman?.active_spool?.filament?.material ?? 'Unknown'
+        }
+        return this.$store.state.printer.mmu?.gate_material?.[this.gate] || 'Unknown'
     }
 
     get currentGateColor(): string {
-        return this.formColorString(this.$store.state.printer.mmu?.gate_color?.[this.gate] || '#808080E0')
+        let color = null
+        if (this.gate === this.TOOL_GATE_BYPASS) {
+            // Assume active spoolman spool if available
+            color = this.$store.state.server.spoolman?.active_spool?.filament.color_hex ?? null
+            if (color !== null) '#' + color
+        } else {
+            color = this.$store.state.printer.mmu?.gate_color[this.gate] || '#808080E0'
+        }
+        return this.formColorString(color)
     }
 
     get currentGateTemperature(): number {
+        if (this.gate === this.TOOL_GATE_BYPASS) {
+            // Assume active spoolman spool if available
+            return this.$store.state.server.spoolman?.active_spool?.filament?.settings_extruder_temp ?? -1
+        }
         return this.$store.state.printer.mmu?.gate_temperature?.[this.gate] ?? -1
+
+    }
+
+    get currentGateVendor(): string {
+        if (this.gate === this.TOOL_GATE_BYPASS) {
+            // Assume active spoolman spool if available
+            return this.$store.state.server.spoolman?.active_spool?.filament?.vendor?.name ?? 'Unknown'
+        }
+        return 'Unknown' // Happy Hare doesn't store vendor
     }
 
     get currentGateSpoolId(): number {
+        if (this.gate === this.TOOL_GATE_BYPASS) {
+            // Assume active spoolman spool if available
+            return this.$store.state.server.spoolman?.active_spool?.id ?? -1
+        }
         return this.$store.state.printer.mmu?.gate_spool_id?.[this.gate] ?? -1
     }
 
@@ -301,11 +335,11 @@ export default class MmuMixin extends Vue {
     }
 
     get varsFilamentRemaining(): string {
-        return this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining || 0
+        return this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining ?? 0
     }
 
     get varsFilamentRemainingColor(): string {
-        return this.formColorString(this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining_color || '')
+        return this.formColorString(this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining_color ?? '')
     }
 
 
@@ -387,6 +421,8 @@ export default class MmuMixin extends Vue {
 /* PAUL TEMP
    PAUL note to change in Extruder panel..
    PAUL and USEFUL CODE SNIPPITS
+
+   Remember:  || <val> if default should apply to 0 or "", ?? <val> if default only for undefined, etc
 
     get toolsWithSpoolId() {
         return Object.keys(this.$store.state.printer)
