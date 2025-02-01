@@ -116,7 +116,7 @@ export default class MmuMixin extends Vue {
     }
 
     get filamentPos(): number {
-        return this.$store.state.printer.mmu?.filament_pos
+        return this.$store.state.printer.mmu?.filament_pos ?? FILAMENT_POS_UNKNOWN
     }
     readonly FILAMENT_POS_UNKNOWN: number = -1
     readonly FILAMENT_POS_UNLOADED: number = 0       // Parked in gate
@@ -327,7 +327,7 @@ export default class MmuMixin extends Vue {
     // Prefer active if its the correct one (updated more frequently)
     get spoolmanSpool(): ServerSpoolmanStateSpool | null {
         const activeSpool = this.$store.state.server.spoolman.active_spool ?? null
-        if (activeSpool?.id === this.currentGate) {
+        if (activeSpool?.id === this.gate) {
             return activeSpool
         }
         const spools = this.$store.state.server.spoolman?.spools ?? []

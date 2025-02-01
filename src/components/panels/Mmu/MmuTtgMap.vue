@@ -92,9 +92,9 @@ export default class MmuTtgMap extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get currentGroup(): number {
-        const currentGate = this.$store.state.printer.mmu.gate
-        if (currentGate >= 0) {
-            return this.$store.state.printer.mmu.endless_spool_groups[currentGate]
+// PAUL        const currentGate = this.$store.state.printer.mmu.gate
+        if (this.gate >= 0) {
+            return this.$store.state.printer.mmu.endless_spool_groups[this.gate]
         } else {
             return -1
         }
