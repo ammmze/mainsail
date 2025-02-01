@@ -92,6 +92,9 @@
                     </v-col>
                 </v-row>
                 <v-row v-if="reasonForPause">
+                    <v-divider style="width: 100%;"/>
+                </v-row>
+                <v-row v-if="reasonForPause">
                     <v-col cols="auto" class="d-flex align-center justify-center">
                         <v-icon class="error-icon">{{ mdiInformationOutline }}</v-icon>
                     </v-col>
