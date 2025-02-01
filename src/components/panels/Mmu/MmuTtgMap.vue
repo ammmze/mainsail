@@ -1,70 +1,71 @@
 <template>
-<svg :viewBox="'0 0 '+ width + ' ' + height"
-     preserveAspectRatio="xMidYMid meet"
-     ref="ttgMap">
+<!-- <div class="cursor-pointer" @click="selectGate(gate)"> -->
+    <svg :viewBox="'0 0 '+ width + ' ' + height"
+         preserveAspectRatio="xMidYMid meet"
+         ref="ttgMap">
 
-    <defs>
-        <marker id="squareStart" markerWidth="7" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
-            <rect x="0" y="0" width="7" height="7" stroke-width="2"
-                  class="stroke-background-color fill-regular-color"/>
-        </marker>
-        <marker id="squareStartSelected" markerWidth="7" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
-            <rect x="0" y="0" width="7" height="7" stroke-width="2"
-                  class="stroke-selected-color fill-selected-color"/>
-        </marker>
-        <marker id="arrowEnd" markerWidth="7" markerHeight="7" refX="0" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
-            <polygon points="0 0, 7 3.5, 0 7" stroke-width="1"
-                     class="stroke-background-color fill-regular-color"/>
-        </marker>
-        <marker id="arrowEndSelected" markerWidth="7" markerHeight="7" refX="0" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
-            <polygon points="0 0, 7 3.5, 0 7" stroke-width="1"
-                     class="stroke-selected-color fill-selected-color"/>
-        </marker>
-    </defs>
+        <defs>
+            <marker id="squareStart" markerWidth="7" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
+                <rect x="0" y="0" width="7" height="7" stroke-width="2"
+                      class="stroke-background-color fill-regular-color"/>
+            </marker>
+            <marker id="squareStartSelected" markerWidth="7" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
+                <rect x="0" y="0" width="7" height="7" stroke-width="2"
+                      class="stroke-selected-color fill-selected-color"/>
+            </marker>
+            <marker id="arrowEnd" markerWidth="7" markerHeight="7" refX="0" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
+                <polygon points="0 0, 7 3.5, 0 7" stroke-width="1"
+                         class="stroke-background-color fill-regular-color"/>
+            </marker>
+            <marker id="arrowEndSelected" markerWidth="7" markerHeight="7" refX="0" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
+                <polygon points="0 0, 7 3.5, 0 7" stroke-width="1"
+                         class="stroke-selected-color fill-selected-color"/>
+            </marker>
+        </defs>
 
-    <g v-for="(g, t) in ttgMap" :key="t">
-        <text :x="toolX" :y="(t) * verticalSpacing + startY + 8"
-              text-anchor="end" fill="currentColor" font-size="10px">
-            T{{ t }}
-        </text>
-        <text :x="gateX" :y="(t) * verticalSpacing + startY + 8"
-              text-anchor="start" fill="currentColor" font-size="10px">
-            #{{ t }}
-        </text>
-        <g v-if="t !== tool">
-            <path :d="generateMappingPathD(t)" stroke-width="4"
+        <g v-for="(g, t) in ttgMap" :key="t">
+            <text :x="toolX" :y="(t) * verticalSpacing + startY + 8"
+                  text-anchor="end" fill="currentColor" font-size="10px">
+                T{{ t }}
+            </text>
+            <text :x="gateX" :y="(t) * verticalSpacing + startY + 8"
+                  text-anchor="start" fill="currentColor" font-size="10px">
+                #{{ t }}
+            </text>
+            <g v-if="t !== tool">
+                <path :d="generateMappingPathD(t)" stroke-width="4"
+                      class="stroke-background-color" fill="none"/>
+                <path :d="generateMappingPathD(t)" stroke-width="2"
+                      class="stroke-regular-color" fill="none"
+                      marker-start="url(#squareStart)" marker-end="url(#arrowEnd)"/>
+            </g>
+        </g>
+        <g v-if="tool >= 0">
+            <path :d="generateMappingPathD(tool)" stroke-width="6"
                   class="stroke-background-color" fill="none"/>
-            <path :d="generateMappingPathD(t)" stroke-width="2"
-                  class="stroke-regular-color" fill="none"
-                  marker-start="url(#squareStart)" marker-end="url(#arrowEnd)"/>
+            <path :d="generateMappingPathD(tool)" stroke-width="4"
+                  class="stroke-selected-color" fill="none"
+                  marker-start="url(#squareStartSelected)" marker-end="url(#arrowEndSelected)"/>
         </g>
-    </g>
-    <g v-if="tool >= 0">
-        <path :d="generateMappingPathD(tool)" stroke-width="6"
-              class="stroke-background-color" fill="none"/>
-        <path :d="generateMappingPathD(tool)" stroke-width="4"
-              class="stroke-selected-color" fill="none"
-              marker-start="url(#squareStartSelected)" marker-end="url(#arrowEndSelected)"/>
-    </g>
-    <g v-if="showESgroups" v-for="(group, index) in getEndlessSpoolGroups()">
-        <g v-if="group !== currentGroup">
-            <path :d="generateEndlessSpoolPathD(group, index)" stroke-width="2" stroke-linecap="round"
-                  class="stroke-regular-color" fill="none"/>
-            <text :x="groupX + (index * groupSpacing)" :y="startY + (ttgMap.length * verticalSpacing) + 2"
-                  class="fill-regular-color" font-size="8px">{{ String.fromCharCode(group + 65) }}</text>
+        <g v-if="showESgroups" v-for="(group, index) in getEndlessSpoolGroups()">
+            <g v-if="group !== currentGroup">
+                <path :d="generateEndlessSpoolPathD(group, index)" stroke-width="2" stroke-linecap="round"
+                      class="stroke-regular-color" fill="none"/>
+                <text :x="groupX + (index * groupSpacing)" :y="startY + (ttgMap.length * verticalSpacing) + 2"
+                      class="fill-regular-color" font-size="8px">{{ String.fromCharCode(group + 65) }}</text>
+            </g>
+            <g v-else>
+                <path :d="generateEndlessSpoolPathD(group, index)" stroke-width="2" stroke-linecap="round"
+                      class="stroke-selected-color" fill="none"/>
+                <text :x="groupX + (index * groupSpacing)" :y="startY + (ttgMap.length * verticalSpacing) + 2"
+                      class="fill-selected-color" font-size="8px" font-weight="bold">{{ String.fromCharCode(group + 65) }}</text>
+            </g>
         </g>
-        <g v-else>
-            <path :d="generateEndlessSpoolPathD(group, index)" stroke-width="2" stroke-linecap="round"
-                  class="stroke-selected-color" fill="none"/>
-            <text :x="groupX + (index * groupSpacing)" :y="startY + (ttgMap.length * verticalSpacing) + 2"
-                  class="fill-selected-color" font-size="8px" font-weight="bold">{{ String.fromCharCode(group + 65) }}</text>
-        </g>
-    </g>
-</svg>
+    </svg>
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin from '@/components/mixins/mmu'
 

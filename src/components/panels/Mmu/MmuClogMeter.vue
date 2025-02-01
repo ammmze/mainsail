@@ -52,53 +52,53 @@ import MmuMixin from '@/components/mixins/mmu'
 
 @Component({ })
 export default class MmuClogMeter extends Mixins(BaseMixin, MmuMixin) {
-    @Prop({ default: 1 }) readonly rotationTime!: number;
+    @Prop({ default: 1 }) readonly rotationTime!: number
 
-    private circumference: number = 2 * Math.PI * 50;
-    private dialArc: number = this.circumference * (60 / 360);
-    private dashOffset: number = this.circumference;
+    private circumference: number = 2 * Math.PI * 50
+    private dialArc: number = this.circumference * (60 / 360)
+    private dashOffset: number = this.circumference
 
-    private x2Start: number = 70 + 65 * Math.cos(120 * Math.PI / 180);
-    private y2Start: number = 70 + 65 * Math.sin(120 * Math.PI / 180);
-    private x2End: number = 70 + 65 * Math.cos(60 * Math.PI / 180);
-    private y2End: number = 70 + 65 * Math.sin(60 * Math.PI / 180);
+    private x2Start: number = 70 + 65 * Math.cos(120 * Math.PI / 180)
+    private y2Start: number = 70 + 65 * Math.sin(120 * Math.PI / 180)
+    private x2End: number = 70 + 65 * Math.cos(60 * Math.PI / 180)
+    private y2End: number = 70 + 65 * Math.sin(60 * Math.PI / 180)
 
-    x2MinHeadroom: number = 70 + 65 * Math.cos((120 + 0) * Math.PI / 180);
-    y2MinHeadroom: number = 70 + 65 * Math.sin((120 + 0) * Math.PI / 180);
-    headroomWarning: boolean = false;
+    x2MinHeadroom: number = 70 + 65 * Math.cos((120 + 0) * Math.PI / 180)
+    y2MinHeadroom: number = 70 + 65 * Math.sin((120 + 0) * Math.PI / 180)
+    headroomWarning: boolean = false
 
     get headroomArc(): number {
-        return this.circumference * (1 - (this.encoderDesiredHeadroom / this.encoderDetectionLength) * (300 / 360));
+        return this.circumference * (1 - (this.encoderDesiredHeadroom / this.encoderDetectionLength) * (300 / 360))
     }
 
     get headroomRotate(): number {
-        return 420 - (this.encoderDesiredHeadroom / this.encoderDetectionLength) * 300;
+        return 420 - (this.encoderDesiredHeadroom / this.encoderDetectionLength) * 300
     }
 
     @Watch('$store.state.printer.mmu.encoder.headroom')
     onHeadroomChanged(newHeadroom: number): void {
-        const clogPercent = (Math.min(Math.max(0, this.encoderDetectionLength - newHeadroom), this.encoderDetectionLength) / this.encoderDetectionLength) * 100;
-        const offset = ((100 - (clogPercent * 300 / 360)) / 100) * this.circumference;
-        this.animateMeter(offset);
+        const clogPercent = (Math.min(Math.max(0, this.encoderDetectionLength - newHeadroom), this.encoderDetectionLength) / this.encoderDetectionLength) * 100
+        const offset = ((100 - (clogPercent * 300 / 360)) / 100) * this.circumference
+        this.animateMeter(offset)
     }
 
     @Watch('$store.state.printer.mmu.encoder.min_headroom')
     onMinHeadroomChanged(newMinHeadroom: number): void {
-        const clogPercent = (Math.min(Math.max(0, this.encoderDetectionLength - newMinHeadroom), this.encoderDetectionLength) / this.encoderDetectionLength) * 100;
-        const angle = clogPercent * 3;
-        this.x2MinHeadroom = 70 + 65 * Math.cos((120 + angle) * Math.PI / 180);
-        this.y2MinHeadroom = 70 + 65 * Math.sin((120 + angle) * Math.PI / 180);
-        this.headroomWarning = (newMinHeadroom < this.encoderDesiredheadroom);
+        const clogPercent = (Math.min(Math.max(0, this.encoderDetectionLength - newMinHeadroom), this.encoderDetectionLength) / this.encoderDetectionLength) * 100
+        const angle = clogPercent * 3
+        this.x2MinHeadroom = 70 + 65 * Math.cos((120 + angle) * Math.PI / 180)
+        this.y2MinHeadroom = 70 + 65 * Math.sin((120 + angle) * Math.PI / 180)
+        this.headroomWarning = (newMinHeadroom < this.encoderDesiredheadroom)
     }
 
     private animateMeter(newOffset: number) {
-        const circle = this.$refs.dialCircle as SVGElement;
-        const currentOffset = parseFloat(getComputedStyle(circle).strokeDashoffset) ?? this.circumference;
-        const difference = Math.abs(currentOffset - newOffset);
-        //const duration = (difference / this.circumference) * this.rotationTime;
-        const duration = this.rotationTime;
-        circle.style.transition = `stroke-dashoffset ${duration}s ease-out`;
-        this.dashOffset = newOffset;
+        const circle = this.$refs.dialCircle as SVGElement
+        const currentOffset = parseFloat(getComputedStyle(circle).strokeDashoffset) ?? this.circumference
+        const difference = Math.abs(currentOffset - newOffset)
+        //const duration = (difference / this.circumference) * this.rotationTime
+        const duration = this.rotationTime
+        circle.style.transition = `stroke-dashoffset ${duration}s ease-out`
+        this.dashOffset = newOffset
     }
 }
 </script>

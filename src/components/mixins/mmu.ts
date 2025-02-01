@@ -17,7 +17,7 @@ export default class MmuMixin extends Vue {
      * Select encoder properties
      */
     get encoderPos(): number {
-        return this.$store.state.printer.mmu?.encoder?.encoder_pos
+        return Math.round(this.$store.state.printer.mmu?.encoder?.encoder_pos ?? 0)
     }
 
     get encoderEnabled(): number {
@@ -49,15 +49,15 @@ export default class MmuMixin extends Vue {
     }   
 
     get numGates(): number {
-        return this.$store.state.printer.mmu?.num_gates
+        return this.$store.state.printer.mmu?.num_gates ?? 0
     }
 
     get isPaused(): boolean {
-        return this.$store.state.printer.mmu?.is_paused
+        return this.$store.state.printer.mmu?.is_paused ?? false
     }
 
     get isHomed(): boolean {
-        return this.$store.state.printer.mmu?.is_homed
+        return this.$store.state.printer.mmu?.is_homed ?? false
     }
 
     get isInPrint(): boolean {
@@ -72,6 +72,16 @@ export default class MmuMixin extends Vue {
     }
     readonly TOOL_GATE_UNKNOWN: number = -1
     readonly TOOL_GATE_BYPASS: number = -2
+
+    get toolText(): string {
+        if (this.tool === -1) {
+            return "T?"
+        } else if (this.tool === -2) {
+            return "Bypass"
+        } else {
+            return "T" + this.tool
+        }
+    }
 
     get activeFilament(): object[] {
         return this.$store.state.printer.mmu?.active_filament
@@ -90,7 +100,7 @@ export default class MmuMixin extends Vue {
     }
 
     get lastToolchange(): string {
-        return this.$store.state.printer.mmu?.last_toolchange
+        return this.$store.state.printer.mmu?.last_toolchange ?? ''
     }
 
     get operation(): string {
@@ -102,7 +112,7 @@ export default class MmuMixin extends Vue {
     }
 
     get filamentPosition(): number {
-        return this.$store.state.printer.mmu?.filament_position
+        return (this.$store.state.printer.mmu?.filament_position ?? 0).toFixed(1)
     }
 
     get filamentPos(): number {
@@ -127,6 +137,10 @@ export default class MmuMixin extends Vue {
     readonly DIRECTION_LOAD: number = 1
     readonly DIRECTION_UNKNOWN: number = 0
     readonly DIRECTION_UNLOAD: number = -1
+
+    get bowdenProgress(): number {
+        return this.$store.state.printer.mmu?.bowden_progress ?? -1
+    }
 
     get ttgMap(): number[] {
         return this.$store.state.printer.mmu?.ttg_map
@@ -181,7 +195,7 @@ export default class MmuMixin extends Vue {
     }
 
     get currentGateColor(): string {
-        return this.$store.state.printer.mmu?.gate_color?.[this.gate] || "#808080E0"
+        return this.formColorString(this.$store.state.printer.mmu?.gate_color?.[this.gate] || '#808080E0')
     }
 
     get currentGateTemperature(): number {
@@ -211,10 +225,13 @@ export default class MmuMixin extends Vue {
     readonly ACTION_UNLOADING: string = "Unloading"
     readonly ACTION_UNLOADING_EXTRUDER: string = "Unloading Ext"
     readonly ACTION_FORMING_TIP: string = "Forming Tip"
+    readonly ACTION_CUTTING_TIP: string = "Cutting Tip"
     readonly ACTION_HEATING: string = "Heating"
     readonly ACTION_CHECKING: string = "Checking"
     readonly ACTION_HOMING: string = "Homing"
     readonly ACTION_SELECTING: string = "Selecting"
+    readonly ACTION_CUTTING_FILAMENT: string = "Cutting Filament"
+    readonly ACTION_PURGING: string = "Purging"
 
     get hasBypass(): boolean {
         return this.$store.state.printer.mmu?.has_bypass
@@ -243,7 +260,7 @@ export default class MmuMixin extends Vue {
     }
 
     get reasonForPause(): string {
-        return this.$store.state.printer.mmu?.reason_for_pause
+        return this.$store.state.printer.mmu?.reason_for_pause ?? ''
     }
 
     get extruderFilamentRemaining(): number {
@@ -260,6 +277,10 @@ export default class MmuMixin extends Vue {
         return this.$store.state.printer.mmu?.sensors || []
     }
 
+    get espoolerActive(): string {
+        return this.$store.state.printer.mmu?.espooler_active || ''
+    }
+
 
     /*
      * Selective Happy Hare configuration parameters
@@ -267,19 +288,31 @@ export default class MmuMixin extends Vue {
 
     get configGateHomingEndstop(): string {
         // TODO make dynamic because of MMU_TEST_CONFIG
-        console.log("PAUL: configGateHomingEndstop() called. Value;" + this.$store.state.printer.configfile.config.mmu?.gate_homing_endstop)
         return this.$store.state.printer.configfile.config.mmu?.gate_homing_endstop
     }
 
     get configExtruderHomingEndstop(): string {
         // TODO make dynamic because of MMU_TEST_CONFIG
-        console.log("PAUL: configExtruderHomingEndstop() called. Value;" + this.$store.state.printer.configfile.config.mmu?.extruder_homing_endstop)
         return this.$store.state.printer.configfile.config.mmu?.extruder_homing_endstop
     }
 
-    get configCalibrationBowdenLengths(): number[] {
-        console.log("PAUL: configCalibrationBowdenLengths() called. Value;" + this.$store.state.printer.save_variables?.variables?.mmu_calibration_bowden_lengths)
+    get configExtruderForceHoming(): string {
+        // TODO make dynamic because of MMU_TEST_CONFIG
+        return this.$store.state.printer.configfile.config.mmu?.extruder_force_homing
+    }
+
+    get varsCalibrationBowdenLengths(): number[] {
         return this.$store.state.printer.save_variables?.variables?.mmu_calibration_bowden_lengths
+    }
+
+    get varsFilamentRemaining(): string {
+        console.log("PAUL: varsFilamentRemaining() called, Value:" + this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining || 0)
+        return this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining || 0
+    }
+
+    get varsFilamentRemainingColor(): string {
+        console.log("PAUL: varsFilamentRemainingColor() called, Value:" + this.formColorString(this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining_color || ''))
+        return this.formColorString(this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining_color || '')
     }
 
 
@@ -312,6 +345,31 @@ export default class MmuMixin extends Vue {
         this.$store.dispatch('server/addEvent', { message: gcode, type: 'command' })
         this.$socket.emit('printer.gcode.script', { script: gcode })
     }
+
+
+    /*
+     * Helper functions
+     */
+
+    // Fix Happy Hare color strings (# problematic in klipper CLI)
+    private formColorString(color: string): string {
+        if (!color) {
+            return "#808080E0"
+        }
+        const hexColorPattern = /^[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$/
+        if (hexColorPattern.test(color) && !color.startsWith('#')) {
+            return '#' + color
+        }
+        return color
+    }
+
+    private getLuminance({ r, g, b }) {
+        const a = [r, g, b].map(function (v) {
+            v /= 255
+            return v <= 0.03928 ? v / 12.92 : Math.pow(((v + 0.055) / 1.055), 2.4)
+        })
+        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722
+    } 
 
 /* PAUL TEMP
    PAUL note to change in Extruder panel..

@@ -8,6 +8,7 @@
             <path d="M18,9,13.78,3.39a1,1,0,0,0-1.56,0L8,9" style="stroke-width: 1; stroke-opacity: 0.8"></path>
             <path d="M13,8.24,18,15H15H8Z" style="stroke-width: 2;"></path>
         </g>
+
         <g id="sissors" :style="'stroke:' + colorOutline + ';fill: none; stroke-linecap: round; stroke-linejoin: round;'">
             <path d="M8.8,7.72c-.6,1.21-2.34,1.64-3.89,1S2.6,6.48,3.2,5.28s2.34-1.64,3.89-1S9.4,6.52,8.8,7.72Zm-3.89,1L21,16M7.09,19.68c-1.55.68-3.29.25-3.89-1s.17-2.73,1.71-3.4,3.29-.25,3.89,1S8.63,19,7.09,19.68ZM21,8,4.91,15.32" style="fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
             <line x1="31" y1="12.5" x2="44" y2="12.5" style="stroke-width: 1; stroke-dasharray: 2,2;" />
@@ -28,6 +29,10 @@
                       d="M 25.032 26.16 c 2.884 -2.883 4.184 -6.74 3.928 -10.51 c -1.511 0.013 -3.021 0.021 -4.531 0.034 c 0.254 2.599 -0.603 5.287 -2.594 7.277 c -3.535 3.533 -9.263 3.533 -12.796 0 c -3.534 -3.533 -3.534 -9.26 0 -12.794 c 3.015 -3.016 7.625 -3.446 11.109 -1.314 c -1.181 1.167 -2.57 2.549 -2.57 2.549 c -1 1.062 0.016 1.766 0.69 1.77 h 8.828 c 0.338 0 0.611 -0.274 0.612 -0.612 V 3.804 c 0.041 -0.825 -0.865 -1.591 -1.756 -0.7 c 0 0 -1.495 1.48 -2.533 2.509 C 18.112 1.736 10.634 2.175 5.841 6.967 c -5.3 5.3 -5.3 13.892 0 19.193 C 11.141 31.459 19.733 31.459 25.032 26.16 z"/>
             </g>
         </g>
+        <g id="blob" style="stroke-linecap: round; stroke-linejoin: round;">
+            <polygon points="0,0 -1,1 1,1 0,0" stroke-width="4" vector-effect="non-scaling-stroke"/>
+            <polygon points="-0.1,0.3 -0.5,0.7 0.3,0.7 -0.1,0.3" stroke-width="1" stroke="white" fill="white" opacity="0.3" vector-effect="non-scaling-stroke"/>
+        </g>
     </defs>
 
     <rect x="150" y="30" width="265" height="130" fill="#808080" fill-opacity="0.1" rx="10" ry="10"/>
@@ -36,52 +41,44 @@
         <path d="M242 25 L242 405 L249 411 L251 411 L258 405 L258 25" style="fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;"></path>
     </g>
 
-    <g> /* PAUL make this is single dynamic line (and a cut fragment) */
-        <rect id="f_pregate" x="243" y="25" width="14" height="25" fill="#8CDFAC" />
-        <rect id="f_gear" x="243" y="50" width="14" height="30" fill="#8CDFAC" />
-        <rect id="f_gate" x="243" y="80" width="14" height="30" fill="#8CDFAC" />
-        <rect id="f_encoder" x="243" y="110" width="14" height="30" fill="#8CDFAC" />
-        <rect id="f_bowden_start" x="243" y="140" width="14" height="20" fill="#8CDFAC" />
-        <rect id="f_extruder_entry" x="243" y="160" width="14" height="160" fill="#8CDFAC" />
-        <rect id="f_extruder" x="243" y="320" width="14" height="12" fill="none" />
-        <rect id="f_toolhead" x="243" y="332" width="14" height="18" fill="none" />
-        <rect id="f_cut" x="243" y="350" width="14" height="30" fill="none" />
-        <polygon id="f_nozzle" points="257,380 243,380 243,405 249,412 249,413 251,413 251,412 257,405" fill="purple" />
+    <g>
+        <rect ref="filamentRect" x="243" y="25" width="14" :height="filamentRectHeight" :fill="currentGateColor" />
+        <polygon v-if="nozzleFull" points="257,380 243,380 243,405 249,412 249,413 251,413 251,412 257,405" :fill="nozzleColor" />
     </g>
 
     <g :style="'stroke:' + colorOutline + '; fill:' + colorFont + '; stroke-linejoin: round; stroke-width: 0; font-family: Roboto; font-size: 16;'">
         <g v-if="hasSensor('mmu_pre_gate')">
             <circle cx="258" cy="50" r="8" style="stroke-width:1;" :class="sensorClass('mmu_pre_gate')"/>
-            <text x="278" y="55" :class="{ 'text-disabled': (isSensorDisabled('mmu_pre_gate')) }">Pre-Gate</text>
+            <text x="278" y="55" :class="{ 'text-disabled': (!isSensorEnabled('mmu_pre_gate')) }">Pre-Gate</text>
         </g>
 
         <g v-if="hasSensor('mmu_gear')">
             <circle cx="258" cy="80" r="8" style="stroke-width:1;" :class="sensorClass('mmu_gear')"/>
-            <text x="278" y="85" :class="{ 'text-disabled': (isSensorDisabled('mmu_gear')) }">Gear</text>
-            <text v-if="homedToGear()" x="219.5" y="85" font-weight="bold">H</text>
+            <text x="278" y="85" :class="{ 'text-disabled': (!isSensorEnabled('mmu_gear')) }">Gear</text>
+            <text v-if="homedToGear" x="219.5" y="85" font-weight="bold">H</text>
         </g>
 
         <g v-if="hasSensor('mmu_gate')">
             <circle cx="258" cy="110" r="8" style="stroke-width:1;" :class="sensorClass('mmu_gate')"/>
-            <text x="278" y="115" :class="{ 'text-disabled': (isSensorDisabled('mmu_gate')) }">Gate</text>
-            <text v-if="homedToGate()" x="219.5" y="115" font-weight="bold">H</text>
+            <text x="278" y="115" :class="{ 'text-disabled': (!isSensorEnabled('mmu_gate')) }">Gate</text>
+            <text v-if="homedToGate" x="219.5" y="115" font-weight="bold">H</text>
         </g>
   
-        <circle cx="258" cy="140" r="8" :style="'fill:' + encoderSensorColor + '; stroke-width:1; stroke-dasharray:0'" />
+        <circle cx="258" cy="140" r="8" style="stroke-width:1;" :class="encoderClass"/>
         <path d="M257 135 L261 140 L257 145" stroke-width="2" fill="none" />
         <text x="278" y="145">Encoder</text>
         <text x="345" y="145" font-size="11px">{{ encoderPosText }}</text>
-        <text v-if="homedToEncoder()" x="219.5" y="145" font-weight="bold">H</text>
+        <text v-if="homedToEncoder" x="219.5" y="145" font-weight="bold">H</text>
   
         <circle cx="258" cy="320" r="8" style="stroke-width:1;" :class="sensorClass('extruder')"/>
-        <text x="278" y="325" :class="{ 'text-disabled': (isSensorDisabled('extruder')) }">Extruder</text>
-        <text v-if="homedToExtruder()" x="219.5" y="325" font-weight="bold">H</text>
+        <text x="278" y="325" :class="{ 'text-disabled': (!isSensorEnabled('extruder')) }">Extruder</text>
+        <text v-if="homedToExtruder" x="219.5" y="325" font-weight="bold">H</text>
 
-        <text v-if="homedToExtruderEntrance()" x="219.5" y="339" font-weight="bold">H</text>
+        <text v-if="homedToExtruderEntrance" x="219.5" y="339" font-weight="bold">H</text>
 
         <circle cx="258" cy="350" r="8" style="stroke-width:1;" :class="sensorClass('toolhead')"/>
-        <text x="278" y="355" :class="{ 'text-disabled': (isSensorDisabled('toolhead')) }">Toolhead</text>
-        <text v-if="homedToToolhead()" x="219.5" y="355" font-weight="bold">H</text>
+        <text x="278" y="355" :class="{ 'text-disabled': (!isSensorEnabled('toolhead')) }">Toolhead</text>
+        <text v-if="homedToToolhead" x="219.5" y="355" font-weight="bold">H</text>
 
         <g v-if="hasSyncFeedback">
             <g v-if="isSensorTriggered('filament_tension')">
@@ -98,28 +95,210 @@
                 <text v-else-if="isSensorTriggered('filament_compression')" x="288" y="240">Compression</text>
             </g>
         </g>
-        <text x="160" y="60" font-size="25px" font-weight="bold">T{{ tool }}</text>
+        <text x="160" y="60" :class="(tool === -2) ? 'tool-bypass' : 'tool-text'">{{ toolText }}</text>
     </g>
 
-    <use v-if="syncDrive" xlink:href="#sync-extruder" transform="translate(278, 385) scale(.030)"/>
-    <use xlink:href="#sissors" transform="translate(205, 145) scale(1.2)"/>
-    <use xlink:href="#sissors" transform="translate(205, 365) scale(1.2)"/>
+    <use v-if="syncDrive" xlink:href="#sync-extruder" ref="sync" transform="translate(278, 385) scale(.030)"/>
+    <use v-if="action == ACTION_CUTTING_FILAMENT" ref="cut" xlink:href="#sissors" transform="translate(205, 145) scale(1.2)"/>
+    <use v-if="action == ACTION_CUTTING_TIP" ref="cutTip" xlink:href="#sissors" transform="translate(205, 365) scale(1.2)"/>
+    <use v-if="action == ACTION_PURGING" ref="poop" xlink:href="#blob"
+         transform="translate(250, 414) scale(1)"
+         :stroke="nozzleColor" :fill="nozzleColor"/>
 </svg>
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin from '@/components/mixins/mmu'
 
 @Component({ })
 export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
+    @Prop({ default: 1 }) readonly animationTime!: number
 
-    // PAUL: Fixme for light theme
-    private primaryBackground = "#1E1E1E"
-    private highlightedBackground = "#272727"
-    private testing = true
+    private filamentRectHeight: number = 0
+    private blobTimerId = null
 
+    readonly POSITIONS = {
+        'unknown': 8,
+        'before-pre-gate': 20,
+        'pre-gate': 25,       // Not currently used
+        'after-pre-gate': 40,
+        'before-gear': 50,    // Not currently used
+        'gear': 55,
+        'after-gear': 70,     // Not currently used
+        'gate': 85,
+        'after-gate': 100,
+        'encoder': 115,       // Not currently used
+        'start-bowden': 135,     // Bowden range vvv
+        'mid-bowden': 221,
+        'end-bowden': 290,
+        'extruder': 295,
+        'extruder-entrance': 308,
+        'before-toolhead': 315,  // Bowden range ^^^
+        'toolhead': 325,
+        'cut-point': 355 
+    } as const
+
+    readonly BOWDEN_RANGE = 173 as const
+
+    @Watch('$store.state.printer.mmu.bowden_progress')
+    onBowdenProgress(newProgress: number): void {
+        // Percentage movement in the bowden
+        this.calcFilamentHeight(this.filamentPos)
+    }
+
+    @Watch('$store.state.printer.mmu.filament_pos')
+    onFilamentPosChanged(newPos: number): void {
+        // Filament position state
+        this.calcFilamentHeight(newPos)
+    }
+
+    @Watch('$store.state.printer.mmu.action')
+    onActionChanged(newAction: string): void {
+        if (newAction === this.ACTION_PURGING) {
+            this.startPoopAnimation()
+        } else {
+            this.stopPoopAnimation()
+        }
+    }
+
+    private calcFilamentHeight(filamentPos: number): void {
+        let pos = 0
+        let animationTime = this.animationTime
+        switch (filamentPos) {
+
+            case this.FILAMENT_POS_UNLOADED:
+                if (this.isSensorTriggered('mmu-pre-gate')) {
+                    pos = this.POSITIONS['after-pre-gate']
+                } else {
+                    pos = this.POSITIONS['before-pre-gate']
+                }
+                break
+
+            case this.FILAMENT_POS_HOMED_GATE:
+                if (this.configGateHomingEndstop === 'mmu_gear') {
+                    pos = this.POSITIONS['gear']
+                } else if (this.configGateHomingEndstop === 'mmu_gate') {
+                    pos = this.POSITIONS['gate']
+                } else if (this.configGateHomingEndstop === 'extruder') {
+                    pos = this.POSITIONS['extruder'] // Special no-bowden case
+                } else {
+                    pos = this.POSITIONS['after-gate']
+                }
+                break
+
+            // TODO: State not yet implmented in Happy Hare
+            //case this.FILAMENT_POS_HOMED_ENCODER:
+            //    pos = this.POSITIONS['encoder']
+            //    break
+
+            case this.FILAMENT_POS_START_BOWDEN:
+                if (this.bowdenProgress >= 0) {
+                    pos = this.POSITIONS['start-bowden'] + (this.BOWDEN_RANGE * this.bowdenProgress / 100)
+                } else {
+                    pos = this.POSITIONS['start-bowden']
+                }
+                break
+
+            case this.FILAMENT_POS_IN_BOWDEN:
+                if (this.bowdenProgress >= 0) {
+                    pos = this.POSITIONS['start-bowden'] + (this.BOWDEN_RANGE * this.bowdenProgress / 100)
+                } else {
+                    pos = this.POSITIONS['mid-bowden']
+                }
+                break
+
+            case this.FILAMENT_POS_END_BOWDEN:
+                const extruderForceHoming = false // TODO read from config?
+                if (this.configGateHomingEndstop === 'none' || ((this.hasSensor('toolhead') && this.isSensorEnabled('toolhead')) || this.configExtruderForceHoming)) {
+                    pos = this.POSITIONS['extruder-entrance'] // No extruder homing will be performed so indicate at the extruder now
+                } else {
+                    pos = this.POSITIONS['end-bowden']
+                }
+                break
+
+            case this.FILAMENT_POS_HOMED_ENTRY:
+                pos = this.POSITIONS['extruder']
+                break
+
+            case this.FILAMENT_POS_HOMED_EXTRUDER:
+                animationTime = 0
+                pos = this.POSITIONS['extruder-entrance']
+                break
+
+            case this.FILAMENT_POS_EXTRUDER_ENTRY:
+                animationTime = 0
+                pos = this.POSITIONS['before-toolhead']
+                break
+
+            case this.FILAMENT_POS_HOMED_TS:
+                animationTime = 0
+                pos = this.POSITIONS['toolhead']
+                break
+
+            case this.FILAMENT_POS_IN_EXTRUDER:
+                animationTime = 0
+                pos = this.POSITIONS['cut-point']
+                break
+
+            case this.FILAMENT_POS_LOADED:
+                animationTime = 0
+                pos = this.POSITIONS['cut-point']
+                break
+
+            default: // this.FILAMENT_POS_UNKNOWN
+                pos = this.POSITIONS['unknown']
+        }
+        this.animateFilament(pos, animationTime)
+    }
+
+    private animateFilament(newHeight: number, animationTime: number = this.animationTime) {
+        const rect = this.$refs.filamentRect as SVGElement
+        const currentHeight = parseFloat(getComputedStyle(rect).height) ?? this.POSITIONS['end-bowden']
+        const difference = Math.abs(currentHeight - newHeight)
+        const duration = Math.min(((difference / this.BOWDEN_RANGE) * animationTime + 0.1), animationTime)
+        rect.style.transition = `height ${duration}s ease-in`
+        this.filamentRectHeight = newHeight
+    }
+
+    private startPoopAnimation() {
+        this.$nextTick(() => {
+            this.animatePoop()
+        })
+        if (this.intervalId !== null) {
+            clearInterval(this.intervalId)
+        }
+        this.blobTimerId = setInterval(() => {
+            this.animatePoop()
+        }, 5000)
+    }
+
+    private stopPoopAnimation() {
+        if (this.blobTimerId !== null) {
+            clearInterval(this.blobTimerId)
+            let poop = this.$refs.poop as SVGElement
+            if (poop) {
+                //poop.setAttribute('transform', 'translate(250, 414) scale(1)')
+                poop.style.transition = ''
+            }
+            this.blobTimerId = null
+        }
+    }
+
+    private animatePoop() {
+        let poop = this.$refs.poop as SVGElement
+        if (poop) {
+            poop.setAttribute('transform', 'translate(250, 414) scale(1)');
+            poop.style.transition = ''
+            setTimeout(() => {
+                poop.setAttribute('transform', `translate(250, 414) scale(16)`);
+                poop.style.transition = 'transform 2s ease-in-out';
+            }, 100);
+        }
+    }
+
+    /* PAUL fixme -- styles */
     get colorOutline(): string {
         return '#2CA9BC'
     }
@@ -138,35 +317,32 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
     }
 
     private hasSensor(sensorName: string): boolean {
-        //console.log("PAUL: hasSensor(" + sensorName + ")")
         return sensorName in this.sensors;
     }
 
-    private isSensorDisabled(sensorName: string): boolean {
-        return this.sensors[sensorName] === null;
+    private isSensorEnabled(sensorName: string): boolean {
+        return this.sensors[sensorName] !== null;
     }
 
     private isSensorTriggered(sensorName: string): boolean {
         const value = this.sensors[sensorName];
-        return value !== null && value === true;
+        return value !== null && value === true
     }
 
-    sensorClass(sensorName): string {
-        if (this.isSensorDisabled(sensorName)) {
-            if (sensorName === 'extruder') return "sensor-disabled-extruder"
-            return "sensor-disabled"
-        } else if (this.isSensorTriggered(sensorName)) {
-            return "sensor-triggered"
-        }
-        return "sensor-open"
-    }
-
-    get encoderSensorColor(): string {
-        if (this.testing) {
-            return this.highlightedBackground
+    sensorClass(sensorName: string): string {
+        if (!this.isSensorEnabled(sensorName)) {
+            return sensorName === 'extruder' ? 'sensor-disabled-extruder' : 'sensor-disabled'
         } else {
-            return 'limegreen'
+            return this.isSensorTriggered(sensorName) ? 
+                   'sensor-triggered' : 
+                   (sensorName === 'extruder' ? 'sensor-open-extruder' : 'sensor-open')
         }
+    }
+
+    get encoderClass(): string {
+        // TODO: need to separate encoder runout disable from general availability (like other sensors)
+        if (this.filamentPos === this.FILAMENT_POS_UNLOADED) return 'sensor-disabled'
+        return this.encoderPos ? 'sensor-triggered' : 'sensor-open'
     }
 
     get hasSyncFeedback(): boolean {
@@ -174,7 +350,7 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
             && (this.hasSensor('filament_compression') || this.hasSensor('filament_tension'))
     }
 
-    homedToEncoder(): boolean {
+    get homedToEncoder(): boolean {
         // PAUL review this logic
         if (this.filamentDirection === this.DIRECTION_LOAD) {
             return this.configGateHomingEndstop === 'encoder'
@@ -185,26 +361,40 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         }
     }
 
-    homedToGear(): boolean {
+    get homedToGear(): boolean {
         return this.configGateHomingEndstop === 'mmu_gear'
             && this.filamentPos === this.FILAMENT_POS_HOMED_GATE
     }
 
-    homedToGate(): boolean {
+    get homedToGate(): boolean {
         return this.configGateHomingEndstop === 'mmu_gate'
             && this.filamentPos === this.FILAMENT_POS_HOMED_GATE
     }
 
-    homedToExtruder(): boolean {
+    get homedToExtruder(): boolean {
         return this.filamentPos === this.FILAMENT_POS_HOMED_ENTRY
     }
 
-    homedToExtruderEntrance(): boolean {
+    get homedToExtruderEntrance(): boolean {
         return this.filamentPos === this.FILAMENT_POS_HOMED_EXTRUDER
     }
 
-    homedToToolhead(): boolean {
+    get homedToToolhead(): boolean {
         return this.filamentPos === this.FILAMENT_POS_HOMED_TS
+    }
+
+    get nozzleFull(): boolean {
+        return this.filamentPos === this.FILAMENT_POS_LOADED
+            || this.varsFilamentRemaining
+    }
+
+    get nozzleColor(): string {
+        if (this.varsFilamentRemaining) return this.varsFilamentRemainingColor
+        return this.currentGateColor
+    }
+
+    mounted() {
+        this.calcFilamentHeight(this.filamentPos)
     }
 }
 </script>
@@ -220,17 +410,31 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
     fill: #272727;
 }
 
-.sensor-disabled-extruder {
-    stroke: #808080;
-    stroke-dasharray: 2,1;
-    fill: #1E1E1E;
-}
-
 .sensor-triggered {
     fill: limegreen;
 }
 
 .sensor-open {
     fill: #272727;
+}
+
+.sensor-disabled-extruder {
+    stroke: #808080;
+    stroke-dasharray: 2,1;
+    fill: #1E1E1E;
+}
+
+.sensor-open-extruder {
+    fill: #1E1E1E;
+}
+
+.tool-text {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.tool-bypass {
+    font-size: 16px;
+    font-weight: normal;
 }
 </style>

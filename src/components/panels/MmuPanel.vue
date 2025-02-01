@@ -11,6 +11,14 @@
                 <v-list dense>
                     <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
                         <v-btn small style="width: 100%"
+                               :loading="loadings.includes('mmu_recover')"
+                               @click="doLoadingSend('MMU_RECOVER', 'mmu_recover')">
+                            <v-icon left>{{ mdiAutoFix }}</v-icon>
+                            {{ $t('Panels.MmuPanel.RecoverFilamentPosition') }}
+                        </v-btn>
+                    </v-list-item>
+                    <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
+                        <v-btn small style="width: 100%"
                                :loading="loadings.includes('mmu_check_gates')"
                                @click="doLoadingSend('MMU_CHECK_GATES', 'mmu_check_gates')">
                             <v-icon left>{{ mdiCheckAll }}</v-icon>
@@ -83,6 +91,18 @@
                         </template>
                     </v-col>
                 </v-row>
+                <v-row v-if="reasonForPause">
+                    <v-col cols="auto" class="d-flex align-center justify-center">
+                        <v-icon class="error-icon">{{ mdiInformationOutline }}</v-icon>
+                    </v-col>
+                    <v-col class="d-flex align-center">
+                        <div>
+                            <div class="text--secondary"><strong>Last Error</strong></div>
+                            <div class="text--disabled smaller-font">{{ reasonForPause }}</div>
+                            <div v-if="lastToolchange && lastToolchange !== 'Unknown'" class="text--disabled smaller-font">Last toolchange: {{ lastToolchange }}</div>
+                        </div>
+                    </v-col>
+                </v-row>
             </v-container>
         </div>
     </panel>
@@ -97,7 +117,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin from '@/components/mixins/mmu'
-import { mdiMulticast, mdiDotsVertical, mdiCheckAll, mdiWrenchCog, mdiCogRefresh, mdiDatabaseEdit, mdiStateMachine, mdiNoteText } from '@mdi/js'
+import { mdiMulticast, mdiDotsVertical, mdiAutoFix, mdiCheckAll, mdiWrenchCog, mdiCogRefresh, mdiDatabaseEdit, mdiStateMachine, mdiNoteText, mdiInformationOutline } from '@mdi/js'
 import Panel from '@/components/ui/Panel.vue'
 import MmuMachine from '@/components/panels/Mmu/MmuMachine.vue'
 import MmuPanelSettings from '@/components/panels/Mmu/MmuPanelSettings.vue'
@@ -113,12 +133,14 @@ import MmuTtgMap from '@/components/panels/Mmu/MmuTtgMap.vue'
 export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
     mdiMulticast = mdiMulticast
     mdiDotsVertical = mdiDotsVertical
+    mdiAutoFix = mdiAutoFix
     mdiCheckAll = mdiCheckAll
     mdiWrenchCog = mdiWrenchCog
     mdiCogRefresh = mdiCogRefresh
     mdiDatabaseEdit = mdiDatabaseEdit
     mdiStateMachine = mdiStateMachine
     mdiNoteText = mdiNoteText
+    mdiInformationOutline = mdiInformationOutline
 
     showRecoverStateDialog = false
     showEditTtgMapDialog = false
@@ -150,9 +172,9 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
         if (["complete", "error", "cancelled", "started"].includes(this.printState)) {
             posStr = capitalize(this.printState)
         } else if (this.action == "Idle") {
-            posStr = (this.filament !== "Unloaded") ? `Filament: ${this.encoderPos}mm` : "Filament: Unloaded";
+            posStr = (this.filament !== "Unloaded") ? `Filament: ${this.filamentPosition}mm` : "Filament: Unloaded";
         } else if (this.action === "Loading" || this.action === "Unloading") {
-            posStr = `{this.action}: {this.encoderPos}mm`
+            posStr = `${this.action}: ${this.filamentPosition}mm`
         } else {
             posStr = this.action
         }
@@ -162,6 +184,10 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
     private capitalize(str: string): string {
         if (!str) return str;
         return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    }
+
+    handleEditTtgMap() {
+        console.log('Received edit-ttg-map event');
     }
 
     mounted() {
@@ -174,8 +200,15 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
 
 <style scoped>
 .mmu-disabled {
-  pointer-events: none !important;
-  opacity: 0.5 !important;
+    pointer-events: none !important;
+    opacity: 0.5 !important;
 }
 
+.error-icon {
+    color: red;
+}
+
+.smaller-font {
+  font-size: 0.8em;
+}
 </style>

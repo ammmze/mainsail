@@ -734,9 +734,10 @@
         },
         "MmuPanel": {
             "Headline": "Mmu",
+            "RecoverFilamentPosition": "Recover Filament Position",
             "CheckAllGates": "Check All Gates",
             "EditTtgMap": "Map Tools",
-            "RecoverState": "Recover MMU State",
+            "RecoverState": "Fix MMU State",
             "EditGateMap": "Edit Gate Info",
             "MmuMaintenance": "MMU Maintenance",
             "PrintStats": "Print Stats",
@@ -749,6 +750,7 @@
             "ButtonEject": "Eject",
             "ButtonPreload": "Preload",
             "ButtonCheckGate": "Check Gate",
+            "ButtonUnlock": "Unlock",
             "ButtonLoad": "Load",
             "ButtonUnload": "Unload"
         },

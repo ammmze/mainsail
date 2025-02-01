@@ -6,6 +6,9 @@
     <defs>
         <path id="oval" d="M 0 -63 C 35 -63 63 -35 63 0 C 63 35 35 63 0 63 C -35 63 -63 35 -63 0 C -63 -35 -35 -63 0 -63 z" vector-effect="non-scaling-stroke"/>
         <path id="center" d="M 0 -63 C 35 -63 63 -35 63 0 C 63 35 35 63 0 63 L -624 63 L -624 -63 z" vector-effect="non-scaling-stroke"/>
+        <path id="espool"
+              d="M 89.561 35.5 L 60.333 15.734 c -0.308 -0.208 -0.704 -0.229 -1.029 -0.055 c -0.327 0.173 -0.531 0.513 -0.531 0.883 v 7.987 c -12.038 0.262 -26.306 5.201 -37.501 13.023 C 7.554 47.155 0 59.894 0 73.438 c 0 0.471 0.329 0.878 0.79 0.978 C 0.86 74.432 0.931 74.438 1 74.438 c 0.386 0 0.747 -0.225 0.911 -0.588 c 7.823 -17.312 26.952 -26.183 56.861 -26.376 v 8.62 c 0 0.37 0.204 0.71 0.531 0.883 c 0.325 0.173 0.722 0.153 1.029 -0.055 l 29.228 -19.766 C 89.835 36.971 90 36.661 90 36.329 S 89.835 35.686 89.561 35.5 z"
+              stroke-width="2" stroke="#CCCCCC" fill="#808080" opacity="0.7"/>
     </defs>
     <filter id="blur_wheel2" width="1.3" height="1.16">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
@@ -34,6 +37,8 @@
           font-weight="bold" font-size="56px" :fill="contrastColor">
         {{ filamentAmount }}%
     </text>
+    <use v-if="espoolerActive === 'rewind' && thisGate === gate" href="#espool" transform="translate(225,0) rotate(90) scale(2,2)"/>
+    <use v-if="espoolerActive === 'assist' && thisGate === gate" href="#espool" transform="translate(225,500) rotate(270) scale(2,-2)"/>
 </svg>
 </template>
 
@@ -86,19 +91,11 @@ export default class MmuSpool extends Mixins(BaseMixin, MmuMixin) {
         })
 
         if (this.thisGate === null) {
-            return "#808080E0"
+            return this.formColorString(null)
         }
         // Happy Hare syncs with spoolman so believe gate map
         const gateColor = this.$store.state.printer.mmu.gate_color[this.thisGate]
-        const hexColorPattern = /^[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$/
-        if (hexColorPattern.test(gateColor) && !gateColor.startsWith('#')) {
-            return '#' + gateColor
-        }
-        return gateColor
-    }
-
-    mounted() {
-        this.computeContrastColor()
+        return this.formColorString(gateColor)
     }
 
     computeContrastColor(): void {
@@ -119,12 +116,8 @@ export default class MmuSpool extends Mixins(BaseMixin, MmuMixin) {
         }
     }
 
-    getLuminance({ r, g, b }) {
-        const a = [r, g, b].map(function (v) {
-            v /= 255
-            return v <= 0.03928 ? v / 12.92 : Math.pow(((v + 0.055) / 1.055), 2.4)
-        })
-        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722
+    mounted() {
+        this.computeContrastColor()
     }
 }
 </script>
