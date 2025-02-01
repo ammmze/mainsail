@@ -73,16 +73,6 @@ export default class MmuMixin extends Vue {
     readonly TOOL_GATE_UNKNOWN: number = -1
     readonly TOOL_GATE_BYPASS: number = -2
 
-    get toolText(): string {
-        if (this.tool === -1) {
-            return "T?"
-        } else if (this.tool === -2) {
-            return "Bypass"
-        } else {
-            return "T" + this.tool
-        }
-    }
-
     get activeFilament(): object[] {
         return this.$store.state.printer.mmu?.active_filament
     }
@@ -182,34 +172,6 @@ export default class MmuMixin extends Vue {
         return this.$store.state.printer.mmu?.gate_speed_override
     }
 
-    get currentGateStatus(): number {
-        return this.$store.state.printer.mmu?.gate_status?.[this.gate] ?? -1
-    }
-
-    get currentGateFilamentName(): string {
-        return this.$store.state.printer.mmu?.gate_filament_name?.[this.gate] || "Unknown"
-    }
-
-    get currentGateMaterial(): string {
-        return this.$store.state.printer.mmu?.gate_material?.[this.gate] || "Unknown"
-    }
-
-    get currentGateColor(): string {
-        return this.formColorString(this.$store.state.printer.mmu?.gate_color?.[this.gate] || '#808080E0')
-    }
-
-    get currentGateTemperature(): number {
-        return this.$store.state.printer.mmu?.gate_temperature?.[this.gate] ?? -1
-    }
-
-    get currentGateSpoolId(): number {
-        return this.$store.state.printer.mmu?.gate_spool_id?.[this.gate] ?? -1
-    }
-
-    get currentGateSpeedOverride(): number {
-        return this.$store.state.printer.mmu?.gate_speed_override?.[this.gate] ?? 100
-    }
-
     //return this.$store.state.printer.mmu?.gate_color_rgb
     //return this.$store.state.printer.mmu?.slicer_color_rgb
     //return this.$store.state.printer.mmu?.tool_extrusion_multipliers
@@ -234,7 +196,7 @@ export default class MmuMixin extends Vue {
     readonly ACTION_PURGING: string = "Purging"
 
     get hasBypass(): boolean {
-        return this.$store.state.printer.mmu?.has_bypass
+        return this.$store.state.printer.mmu?.has_bypass ?? false
     }
 
     get syncDrive(): boolean {
@@ -283,6 +245,39 @@ export default class MmuMixin extends Vue {
 
 
     /*
+     * Convenience access to current gate info in the gate map
+     */
+
+    get currentGateStatus(): number {
+        return this.$store.state.printer.mmu?.gate_status?.[this.gate] ?? -1
+    }
+
+    get currentGateFilamentName(): string {
+        return this.$store.state.printer.mmu?.gate_filament_name?.[this.gate] || "Unknown"
+    }
+
+    get currentGateMaterial(): string {
+        return this.$store.state.printer.mmu?.gate_material?.[this.gate] || "Unknown"
+    }
+
+    get currentGateColor(): string {
+        return this.formColorString(this.$store.state.printer.mmu?.gate_color?.[this.gate] || '#808080E0')
+    }
+
+    get currentGateTemperature(): number {
+        return this.$store.state.printer.mmu?.gate_temperature?.[this.gate] ?? -1
+    }
+
+    get currentGateSpoolId(): number {
+        return this.$store.state.printer.mmu?.gate_spool_id?.[this.gate] ?? -1
+    }
+
+    get currentGateSpeedOverride(): number {
+        return this.$store.state.printer.mmu?.gate_speed_override?.[this.gate] ?? 100
+    }
+
+
+    /*
      * Selective Happy Hare configuration parameters
      */
 
@@ -306,12 +301,10 @@ export default class MmuMixin extends Vue {
     }
 
     get varsFilamentRemaining(): string {
-        console.log("PAUL: varsFilamentRemaining() called, Value:" + this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining || 0)
         return this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining || 0
     }
 
     get varsFilamentRemainingColor(): string {
-        console.log("PAUL: varsFilamentRemainingColor() called, Value:" + this.formColorString(this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining_color || ''))
         return this.formColorString(this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining_color || '')
     }
 
@@ -319,6 +312,26 @@ export default class MmuMixin extends Vue {
     /*
      * Miscellaneous
      */
+
+    get gateText(): string {
+        if (this.gate === -1) {
+            return "?"
+        } else if (this.gate === -2) {
+            return "Bypass"
+        } else {
+            return this.gate
+        }
+    }
+
+    get toolText(): string {
+        if (this.tool === -1) {
+            return "T?"
+        } else if (this.tool === -2) {
+            return "Bypass"
+        } else {
+            return "T" + this.tool
+        }
+    }
 
     refreshSpoolmanData() {     
         this.$store.dispatch('server/spoolman/refreshSpools')

@@ -7,12 +7,17 @@
             <mmu-spool :width="width" :thisGate="gate"/>
             <mmu-gate-status :thisGate="gate"/>
         </div>
+        <div v-if="hasBypass"
+             class="gate-status cursor-pointer" @click="selectBypass()">
+            <mmu-spool :width="width" :thisGate="TOOL_GATE_BYPASS"/>
+            <mmu-gate-status :thisGate="TOOL_GATE_BYPASS"/>
+        </div>
     </div>
 </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop, Emit } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin from '@/components/mixins/mmu'
 import MmuSpool from '@/components/panels/Mmu/MmuSpool.vue'
@@ -55,9 +60,13 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
         return "40px"
     }
 
-    @Emit('select-gate')
     selectGate(gate) {
         this.doSend("MMU_SELECT GATE=" + gate)
+        return gate
+    }
+
+    selectBypass() {
+        this.doSend("MMU_SELECT BYPASS=1")
     }
 }
 </script>
