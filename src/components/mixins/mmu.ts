@@ -339,7 +339,9 @@ export default class MmuMixin extends Vue {
     }
 
     get varsFilamentRemainingColor(): string {
-        return this.formColorString(this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining_color ?? '')
+        let color = this.$store.state.printer.save_variables?.variables?.mmu_state_filament_remaining_color ?? ''
+        if (color) return this.formColorString(color)
+        return color
     }
 
 

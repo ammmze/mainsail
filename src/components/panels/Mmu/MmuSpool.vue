@@ -93,9 +93,10 @@ export default class MmuSpool extends Mixins(BaseMixin, MmuMixin) {
         let color = null
         if (this.thisGate !== null) {
             if (this.thisGate === this.TOOL_GATE_BYPASS) {
-                // Assume active spoolman spool
-                color = this.$store.state.server.spoolman?.active_spool?.filament.color_hex ?? null
-                if (color !== null) '#' + color
+                if (this.gate === this.TOOL_GATE_BYPASS) {
+                    // Assume active spoolman spool
+                    color = this.$store.state.server.spoolman?.active_spool?.filament.color_hex ?? null
+                }
             } else {
                 // Happy Hare syncs with spoolman so believe gate map
                 color = this.$store.state.printer.mmu?.gate_color[this.thisGate]

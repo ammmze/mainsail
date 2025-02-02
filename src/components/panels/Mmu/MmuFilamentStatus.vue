@@ -43,7 +43,10 @@
 
     <g>
         <rect ref="filamentRect" x="243" y="25" width="14" :height="filamentRectHeight" :fill="currentGateColor" />
-        <polygon v-if="nozzleFull" points="257,380 243,380 243,405 249,412 249,413 251,413 251,412 257,405" :fill="nozzleColor" :class="nozzleEffect"/>
+        <g :class="nozzleEffect">
+            <polygon v-if="upperNozzleFull" points="257,380 243,380 243,396 257,396" :fill="upperNozzleColor"/>
+            <polygon v-if="lowerNozzleFull" points="257,396 243,396 243,405 249,412 249,413 251,413 251,412 257,405" :fill="lowerNozzleColor"/>
+        </g>
     </g>
 
     <g :style="'stroke:' + colorOutline + '; fill:' + colorFont + '; stroke-linejoin: round; stroke-width: 0; font-family: Roboto; font-size: 16;'">
@@ -102,7 +105,7 @@
     <use v-if="action == ACTION_CUTTING_TIP" ref="cutTip" xlink:href="#sissors" class="cut2-effect"/>
 
     <use v-if="action == ACTION_PURGING" ref="poop" xlink:href="#blob" class="blob-effect"
-         :stroke="nozzleColor" :fill="nozzleColor"/>
+         :stroke="lowerNozzleColor" :fill="lowerNozzleColor"/>
 </svg>
 </template>
 
@@ -337,18 +340,29 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         return this.filamentPos === this.FILAMENT_POS_HOMED_TS
     }
 
-    get nozzleFull(): boolean {
+    get upperNozzleFull(): boolean {
         return this.filamentPos === this.FILAMENT_POS_LOADED
             || this.varsFilamentRemaining
     }
 
-    get nozzleColor(): string {
+    get lowerNozzleFull(): boolean {
+        return this.filamentPos === this.FILAMENT_POS_LOADED
+            || this.varsFilamentRemaining
+            || this.varsFilamentRemainingColor
+    }
+
+    get upperNozzleColor(): string {
         if (this.varsFilamentRemaining) return this.varsFilamentRemainingColor
         return this.currentGateColor
     }
 
+    get lowerNozzleColor(): string {
+        if (this.varsFilamentRemainingColor) return this.varsFilamentRemainingColor
+        return this.currentGateColor
+    }
+
     get nozzleEffect(): string {
-        if (this.action === 'ACTION_FORMING_TIP') return "form-tip-effect"
+        if (this.action === this.ACTION_FORMING_TIP) return "form-tip-effect"
         return ''
     }
 
