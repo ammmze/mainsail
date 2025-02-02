@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'develop'
+      - 'happy-hare'
   release:
     types: [published]
   pull_request:
@@ -44,6 +45,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: &tags |
             type=edge,branch=develop
+            type=edge,branch=happy-hare
             type=semver,pattern=v{{major}}
             type=semver,pattern=v{{major}}.{{minor}}
             type=semver,pattern=v{{major}}.{{minor}}.{{patch}}
