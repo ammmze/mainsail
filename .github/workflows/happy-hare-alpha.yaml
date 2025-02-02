@@ -1,0 +1,118 @@
+name: Happy Hare Alpha
+
+on:
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+
+  schedule:
+    - cron: "*/30 * * * *" 
+
+  workflow_dispatch:
+
+jobs:
+  rebase-local-branch:
+    if: ${{github.event_name != 'workflow_run'}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: happy-hare
+
+      # - uses: fregante/setup-git-token@v1
+      #   with:
+      #     # Personal access token needed for push below to trigger the
+      #     # build workflow
+      #     token: ${{ secrets.GH_TOKEN }}
+
+      - id: rebase
+        name: Rebase
+        run: |
+          git status
+          git fetch origin
+          git remote add upstream https://github.com/moggieuk/mainsail-happy-hare-edition.git
+          git fetch upstream develop
+          git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config --local user.name 'GitHub Actions'
+          git rebase upstream/develop
+          if git status | grep diverged; then
+            git push origin happy-hare --force-with-lease
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Trigger build workflow
+        uses: benc-uk/workflow-dispatch@v1
+        if: steps.rebase.outputs.updated
+        with:
+          workflow: build.yml
+          token: ${{ secrets.GH_TOKEN }}
+          ref: happy-hare
+
+  update-release:
+    if: ${{ github.event_name == 'workflow_run' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v8
+        with:
+          # Optional, GitHub token, a Personal Access Token with `public_repo` scope if needed
+          # Required, if the artifact is from a different repo
+          # Required, if the repo is private a Personal Access Token with `repo` scope is needed or GitHub token in a job where the permissions `action` scope set to `read`
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          # Optional, will use specified workflow run
+          # use ${{ github.event.workflow_run.id }} when your action runs in a workflow_run event
+          # and wants to download from the triggering workflow run
+          run_id: ${{ github.event.workflow_run.id }}
+          # Optional, uploaded artifact name,
+          # will download all artifacts if not specified
+          # and extract them into respective subdirectories
+          # https://github.com/actions/download-artifact#download-all-artifacts
+          # is treated as a regular expression if input name_is_regexp is true
+          # will download only those artifacts with a name that matches this regular expression
+          # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions
+          name: mainsail-latest.zip
+          # Optional, defaults to current repo
+          repo: ${{ github.repository }}
+          # Optional, choose how to exit the action if no artifact is found
+          # can be one of:
+          #  "fail", "warn", "ignore"
+          # default fail
+          if_no_artifact_found: fail
+          # Optional, choose to unpack the downloaded artifact(s) using `unzip` system utility
+          # default false
+          use_unzip: false
+
+      - id: repackage
+        run: |
+          mkdir mainsail
+          unzip mainsail-latest.zip -d mainsail
+          rm mainsail-latest.zip
+          base_version="$(jq '.version' -r mainsail/release_info.json)"
+          release_id="$(date +%Y%m%d%H%M%S)"
+          release_name="${base_version}-hh-alpha-${release_id}"
+          echo "release-name=${release_name}" >> "$GITHUB_OUTPUT"
+          echo '{"project_name":"mainsail","project_owner":"${{ github.repository_owner }}","version":"'"${release_name}"'"}' > mainsail/release_info.json
+          cd mainsail
+          zip -r ../mainsail-latest.zip .
+      
+      - name: Update alpha release
+        uses: mini-bomba/create-github-release@v1.1.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: "hh-alpha"
+          prerelease: true
+          name: "${{ steps.repackage.outputs.release-name}}"
+          body: |
+            This is an automatic alpha/prerelease of the Happy Hare fork of Mainsail.
+
+            [Github Actions workflow run that built this prerelease](https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}).
+
+            Commit message (${{ github.event.workflow_run.head_sha }}):
+            ${{ github.event.workflow_run.head_commit.message }}
+          files: |
+            mainsail-latest.zip
+          clear_attachments: true
