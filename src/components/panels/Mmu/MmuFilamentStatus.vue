@@ -1,5 +1,5 @@
 <template>
-<svg viewBox="140 16 285 425"
+<svg viewBox="140 20 285 421"
      preserveAspectRatio="xMidYMid meet"
      ref="filStatusSvg">
 
@@ -61,24 +61,22 @@
         <g v-if="hasSensor('mmu_gate')">
             <circle cx="258" cy="110" r="8" style="stroke-width:1;" :class="sensorClass('mmu_gate')"/>
             <text x="278" y="115" :class="{ 'text-disabled': (!isSensorEnabled('mmu_gate')) }">Gate</text>
-            <text v-if="homedToGate" x="219.5" y="115" font-weight="bold">H</text>
+            <transition name="fade"><text v-if="homedToGate" x="219.5" y="115" font-weight="bold">H</text></transition>
         </g>
   
         <circle cx="258" cy="140" r="8" style="stroke-width:1;" :class="encoderClass"/>
         <path d="M257 135 L261 140 L257 145" stroke-width="2" fill="none" />
         <text x="278" y="145">Encoder</text>
         <text x="345" y="145" font-size="11px">{{ encoderPosText }}</text>
-        <text v-if="homedToEncoder" x="219.5" y="145" font-weight="bold">H</text>
+        <transition name="fade"><text v-if="homedToEncoder" x="219.5" y="145" font-weight="bold">H</text></transition>
   
         <circle cx="258" cy="320" r="8" style="stroke-width:1;" :class="sensorClass('extruder')"/>
         <text x="278" y="325" :class="{ 'text-disabled': (!isSensorEnabled('extruder')) }">Extruder</text>
-        <text v-if="homedToExtruder" x="219.5" y="325" font-weight="bold">H</text>
-
-        <text v-if="homedToExtruderEntrance" x="219.5" y="339" font-weight="bold">H</text>
-
+        <transition name="fade"><text v-if="homedToExtruder" x="219.5" y="325" font-weight="bold">H</text></transition>
+        <transition name="fade"><text v-if="homedToExtruderEntrance" x="219.5" y="339" font-weight="bold">H</text></transition>
         <circle cx="258" cy="350" r="8" style="stroke-width:1;" :class="sensorClass('toolhead')"/>
         <text x="278" y="355" :class="{ 'text-disabled': (!isSensorEnabled('toolhead')) }">Toolhead</text>
-        <text v-if="homedToToolhead" x="219.5" y="355" font-weight="bold">H</text>
+        <transition name="fade"><text v-if="homedToToolhead" x="219.5" y="355" font-weight="bold">H</text></transition>
 
         <g v-if="hasSyncFeedback">
             <g v-if="isSensorTriggered('filament_tension')">
@@ -98,11 +96,12 @@
         <text x="160" y="60" :class="(tool === -2) ? 'tool-bypass' : 'tool-text'">{{ toolText }}</text>
     </g>
 
-    <use v-if="syncDrive" xlink:href="#sync-extruder" ref="sync" transform="translate(278, 385) scale(.030)"/>
-    <use v-if="action == ACTION_CUTTING_FILAMENT" ref="cut" xlink:href="#sissors" transform="translate(205, 145) scale(1.2)"/>
-    <use v-if="action == ACTION_CUTTING_TIP" ref="cutTip" xlink:href="#sissors" transform="translate(205, 365) scale(1.2)"/>
-    <use v-if="action == ACTION_PURGING" ref="poop" xlink:href="#blob"
-         transform="translate(250, 414) scale(1)"
+    <transition name="fade"><use v-if="syncDrive" xlink:href="#sync-extruder" ref="sync" transform="translate(278, 385) scale(.030)"/></transition>
+
+    <use v-if="action == ACTION_CUTTING_FILAMENT" ref="cut" xlink:href="#sissors" class="cut1-effect"/>
+    <use v-if="action == ACTION_CUTTING_TIP" ref="cutTip" xlink:href="#sissors" class="cut2-effect"/>
+
+    <use v-if="action == ACTION_PURGING" ref="poop" xlink:href="#blob" class="blob-effect"
          :stroke="nozzleColor" :fill="nozzleColor"/>
 </svg>
 </template>
@@ -126,7 +125,7 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         'after-pre-gate': 40,
         'before-gear': 50,    // Not currently used
         'gear': 55,
-        'after-gear': 70,     // Not currently used
+        'after-gear': 70,
         'gate': 85,
         'after-gate': 100,
         'encoder': 115,       // Not currently used
@@ -154,22 +153,15 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         this.calcFilamentHeight(newPos)
     }
 
-    @Watch('$store.state.printer.mmu.action')
-    onActionChanged(newAction: string): void {
-        if (newAction === this.ACTION_PURGING) {
-            this.startPoopAnimation()
-        } else {
-            this.stopPoopAnimation()
-        }
-    }
-
     private calcFilamentHeight(filamentPos: number): void {
         let pos = 0
         let animationTime = this.animationTime
         switch (filamentPos) {
 
             case this.FILAMENT_POS_UNLOADED:
-                if (this.isSensorTriggered('mmu-pre-gate')) {
+                if (this.isSensorTriggered('mmu-gear')) {
+                    pos = this.POSITIONS['after-gear']
+                } else if (this.isSensorTriggered('mmu-pre-gate')) {
                     pos = this.POSITIONS['after-pre-gate']
                 } else {
                     pos = this.POSITIONS['before-pre-gate']
@@ -262,42 +254,6 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         this.filamentRectHeight = newHeight
     }
 
-    private startPoopAnimation() {
-        this.$nextTick(() => {
-            this.animatePoop()
-        })
-        if (this.intervalId !== null) {
-            clearInterval(this.intervalId)
-        }
-        this.blobTimerId = setInterval(() => {
-            this.animatePoop()
-        }, 5000)
-    }
-
-    private stopPoopAnimation() {
-        if (this.blobTimerId !== null) {
-            clearInterval(this.blobTimerId)
-            let poop = this.$refs.poop as SVGElement
-            if (poop) {
-                //poop.setAttribute('transform', 'translate(250, 414) scale(1)')
-                poop.style.transition = ''
-            }
-            this.blobTimerId = null
-        }
-    }
-
-    private animatePoop() {
-        let poop = this.$refs.poop as SVGElement
-        if (poop) {
-            poop.setAttribute('transform', 'translate(250, 414) scale(1)');
-            poop.style.transition = ''
-            setTimeout(() => {
-                poop.setAttribute('transform', `translate(250, 414) scale(16)`);
-                poop.style.transition = 'transform 2s ease-in-out';
-            }, 100);
-        }
-    }
-
     get colorOutline(): string {
         return '#2CA9BC'
     }
@@ -350,7 +306,6 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get homedToEncoder(): boolean {
-        // PAUL review this logic
         if (this.filamentDirection === this.DIRECTION_LOAD) {
             return this.configGateHomingEndstop === 'encoder'
                 && this.filamentPos === this.FILAMENT_POS_START_BOWDEN
@@ -435,5 +390,55 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
 .tool-bypass {
     font-size: 16px;
     font-weight: normal;
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to {
+    opacity: 0;
+}
+
+@keyframes fadeInOut {
+    0%, 100% {
+        opacity: 0;
+        transform: translate(250px, 414px) scale(1);
+    }
+    90% {
+        opacity: 1;
+        transform: translate(250px, 414px) scale(16);
+    }
+}
+.blob-effect {
+    animation: fadeInOut 4s infinite;
+}
+
+@keyframes cut1 {
+    0%, 100% {
+        opacity: 0.5;
+        transform: translate(190px, 145px) scale(1.2);
+    }
+    30%, 70% {
+        opacity: 1;
+        transform: translate(205px, 145px) scale(1.2);
+    }
+}
+.cut1-effect {
+    animation: cut1 3s infinite;
+}
+
+@keyframes cut2 {
+    0%, 100% {
+        opacity: 0.5;
+        transform: translate(190px, 365px) scale(1.2);
+    }
+    30%, 70% {
+        opacity: 1;
+        transform: translate(205px, 365px) scale(1.2);
+    }
+}
+.cut2-effect {
+    animation: cut2 3s infinite;
 }
 </style>

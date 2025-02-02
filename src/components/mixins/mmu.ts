@@ -214,11 +214,11 @@ export default class MmuMixin extends Vue {
     }
 
     get clogDetectionEnabled(): boolean {
-        return this.$store.state.printer.mmu?.clog_detection
+        return this.$store.state.printer.mmu?.clog_detection // PAUL TODO change to clog_detection_enabled
     }
 
     get endlessSpoolEnabled(): boolean {
-        return this.$store.state.printer.mmu?.endless_spool
+        return this.$store.state.printer.mmu?.endless_spool // PAUL TODO change to endless_spool_enabled
     }
 
     get reasonForPause(): string {
@@ -348,23 +348,20 @@ export default class MmuMixin extends Vue {
      */
 
     get gateText(): string {
-        if (this.gate === -1) {
-            return "?"
-        } else if (this.gate === -2) {
-            return "Bypass"
-        } else {
-            return this.gate
-        }
+        return this.gate === -1 ? "?" : this.gate === this.TOOL_GATE_BYPASS ? "Bypass" : this.gate
     }
 
     get toolText(): string {
-        if (this.tool === -1) {
-            return "T?"
-        } else if (this.tool === -2) {
-            return "Bypass"
-        } else {
-            return "T" + this.tool
-        }
+        return this.tool === -1 ? "T?" : this.tool === this.TOOL_GATE_BYPASS ? "Bypass" : "T" + this.tool
+    }
+
+    // Empty string if nothing to report
+    get toolchangeText(): string {
+        if (this.nextTool === this.TOOL_GATE_UNKNOWN) return "";
+        const fromText = this.lastTool !== this.TOOL_GATE_UNKNOWN ?
+            ` from ${this.lastTool === this.TOOL_GATE_BYPASS ? "Bypass" : `T${this.lastTool}`}` : "";
+        const toText = ` to ${this.nextTool === this.TOOL_GATE_BYPASS ? "Bypass" : `T${this.nextTool}`}`;
+        return `Changing tool${fromText}${toText}`;
     }
 
     refreshSpoolmanData() {     

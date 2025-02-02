@@ -25,11 +25,11 @@
 
         <g v-for="(g, t) in ttgMap" :key="t">
             <text :x="toolX" :y="(t) * verticalSpacing + startY + 8"
-                  text-anchor="end" fill="currentColor" font-size="10px" :font-weight="(t === tool) ? 'bold' : 'normal'">
+                  text-anchor="end" :fill="(t === tool) ? '#2CA9BC' : 'currentColor'" font-size="10px" :font-weight="(t === tool) ? 'bold' : 'normal'">
                 T{{ t }}
             </text>
             <text :x="gateX" :y="(t) * verticalSpacing + startY + 8"
-                  text-anchor="start" fill="currentColor" font-size="10px" :font-weight="(t === gate) ? 'bold' : 'normal'">
+                  text-anchor="start" :fill="(t === gate) ? '#2CA9BC' : 'currentColor'" font-size="10px" :font-weight="(t === gate) ? 'bold' : 'normal'">
                 #{{ t }}
             </text>
             <g v-if="t !== tool">

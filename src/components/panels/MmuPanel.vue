@@ -69,7 +69,8 @@
                 </v-row>
                 <v-row align="start">
                     <v-col cols="5" class="pt-0 d-flex flex-column align-center justify-center">
-                        {{ statusText }}
+                        <div class="text--disabled smaller-font min-height-text background: none">{{ toolchangeText }}</div>
+                        <div class="text--disabled min-height-text background: none">{{ statusText }}</div>
                         <mmu-filament-status/>
                         <template v-if="showClogDetection">
                             <mmu-clog-meter v-if="hasEncoder" width="40%"/>
@@ -81,18 +82,18 @@
                             <v-row class="pb-3 pt-0" style="align-self: flex-start; width: 100%;">
                                 <mmu-active-gate-summary/>
                             </v-row>
-                            <v-divider style="width: 100%;"/>
                         </template>
+                        <v-divider style="width: 100%;"/>
                         <mmu-controls/>
+                        <v-divider style="width: 100%;"/>
                         <template v-if="showTtgMap">
-                            <v-divider style="width: 100%;"/>
                             <mmu-ttg-map :startY="20" width="75%"></mmu-ttg-map>
                             <div class="text--disabled">Tool Mapping</div>
                         </template>
                     </v-col>
                 </v-row>
-                <v-row v-if="reasonForPause">
-                    <v-divider style="width: 100%;"/>
+                <v-row>
+                    <v-divider/>
                 </v-row>
                 <v-row v-if="reasonForPause">
                     <v-col cols="auto" class="d-flex align-center justify-center">
@@ -102,7 +103,6 @@
                         <div>
                             <div class="text--secondary"><strong>Last Error</strong></div>
                             <div class="text--disabled smaller-font">{{ reasonForPause }}</div>
-                            <div v-if="lastToolchange && lastToolchange !== 'Unknown'" class="text--disabled smaller-font">Last toolchange: {{ lastToolchange }}</div>
                         </div>
                     </v-col>
                 </v-row>
@@ -212,6 +212,10 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
 }
 
 .smaller-font {
-  font-size: 0.8em;
+    font-size: 0.8em;
+}
+.min-height-text {
+    min-height: 1.2em;
+    line-height: 1.2em;
 }
 </style>

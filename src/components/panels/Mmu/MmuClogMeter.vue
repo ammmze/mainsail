@@ -28,7 +28,9 @@
   <line :x1="x1MinHeadroom" :y1="y1MinHeadroom" x2="70" y2="70"
         :class="{ 'warning-color': headroomWarning, 'primary-color': !headroomWarning }" stroke-width="4"
         stroke-dashoffset="0"
-        stroke-dasharray="25,65"/>
+        stroke-dasharray="25,65"
+        ref="minHeadroomLine"/>
+
   <line :x1="x1Start" :y1="y1Start" x2="70" y2="70"
         stroke="white" stroke-width="2"
         stroke-dashoffset="0"
@@ -41,8 +43,8 @@
   <text x="70" y="56" text-anchor="middle" class="small-text-color" font-size="11px">FLOW</text>
   <text x="70" y="80" text-anchor="middle" class="small-text-color" font-size="20px">{{ encoderFlowRate }}%</text>
   <text v-if="encoderDetectionMode === 2" x="70" y="124" text-anchor="middle" class="small-text-color" font-size="12px">Auto</text>
-  <text x="28" y="132" text-anchor="middle" class="small-text-color" font-size="12px">0</text>
-  <text x="108" y="132" class="small-text-color" font-size="12px">{{ encoderDetectionLength }}</text>
+  <text x="30" y="136" text-anchor="end" class="small-text-color" font-size="12px">{{ encoderDetectionLength }}</text>
+  <text x="108" y="136" class="small-text-color" font-size="12px">0</text>
 </svg>
 </template>
 
@@ -96,8 +98,8 @@ export default class MmuClogMeter extends Mixins(BaseMixin, MmuMixin) {
         const circle = this.$refs.dialCircle as SVGElement
         const currentOffset = parseFloat(getComputedStyle(circle).strokeDashoffset) ?? this.circumference
         const difference = Math.abs(currentOffset - newOffset)
-        //const duration = (difference / this.circumference) * this.rotationTime
-        const duration = this.rotationTime
+        const duration = (difference / this.circumference) * this.rotationTime
+        //const duration = this.rotationTime
         circle.style.transition = `stroke-dashoffset ${duration}s ease-out`
         this.dashOffset = newOffset
     }
