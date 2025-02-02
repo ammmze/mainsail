@@ -43,7 +43,7 @@
 
     <g>
         <rect ref="filamentRect" x="243" y="25" width="14" :height="filamentRectHeight" :fill="currentGateColor" />
-        <polygon v-if="!nozzleFull" points="257,380 243,380 243,405 249,412 249,413 251,413 251,412 257,405" :fill="nozzleColor" :class="nozzleEffect"/>
+        <polygon v-if="nozzleFull" points="257,380 243,380 243,405 249,412 249,413 251,413 251,412 257,405" :fill="nozzleColor" :class="nozzleEffect"/>
     </g>
 
     <g :style="'stroke:' + colorOutline + '; fill:' + colorFont + '; stroke-linejoin: round; stroke-width: 0; font-family: Roboto; font-size: 16;'">
