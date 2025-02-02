@@ -24,18 +24,19 @@
               :stroke-dashoffset="headroomArc">
       </circle>
   </g>
-  <line x1="70" y1="70" :x2="x2Start" :y2="y2Start"
-        stroke="white" stroke-width="2"
-        stroke-dashoffset="-41"
-        stroke-dasharray="65"/>
-  <line x1="70" y1="70" :x2="x2End" :y2="y2End"
-        class="warning-color" stroke-width="2"
-        stroke-dashoffset="-41"
-        stroke-dasharray="65"/>
-  <line x1="70" y1="70" :x2="x2MinHeadroom" :y2="y2MinHeadroom"
+
+  <line :x1="x1MinHeadroom" :y1="y1MinHeadroom" x2="70" y2="70"
         :class="{ 'warning-color': headroomWarning, 'primary-color': !headroomWarning }" stroke-width="4"
-        stroke-dashoffset="-59"
-        stroke-dasharray="65"/>
+        stroke-dashoffset="0"
+        stroke-dasharray="25,65"/>
+  <line :x1="x1Start" :y1="y1Start" x2="70" y2="70"
+        stroke="white" stroke-width="2"
+        stroke-dashoffset="0"
+        stroke-dasharray="24,65"/>
+  <line :x1="x1End" :y1="y1End" x2="70" y2="70"
+        class="warning-color" stroke-width="2"
+        stroke-dashoffset="0"
+        stroke-dasharray="24,65"/>
 
   <text x="70" y="56" text-anchor="middle" class="small-text-color" font-size="11px">FLOW</text>
   <text x="70" y="80" text-anchor="middle" class="small-text-color" font-size="20px">{{ encoderFlowRate }}%</text>
@@ -58,13 +59,13 @@ export default class MmuClogMeter extends Mixins(BaseMixin, MmuMixin) {
     private dialArc: number = this.circumference * (60 / 360)
     private dashOffset: number = this.circumference
 
-    private x2Start: number = 70 + 65 * Math.cos(120 * Math.PI / 180)
-    private y2Start: number = 70 + 65 * Math.sin(120 * Math.PI / 180)
-    private x2End: number = 70 + 65 * Math.cos(60 * Math.PI / 180)
-    private y2End: number = 70 + 65 * Math.sin(60 * Math.PI / 180)
+    private x1Start: number = 70 + 65 * Math.cos(120 * Math.PI / 180)
+    private y1Start: number = 70 + 65 * Math.sin(120 * Math.PI / 180)
+    private x1End: number = 70 + 65 * Math.cos(60 * Math.PI / 180)
+    private y1End: number = 70 + 65 * Math.sin(60 * Math.PI / 180)
 
-    x2MinHeadroom: number = 70 + 65 * Math.cos((120 + 0) * Math.PI / 180)
-    y2MinHeadroom: number = 70 + 65 * Math.sin((120 + 0) * Math.PI / 180)
+    x1MinHeadroom: number = 70 + 66 * Math.cos((120 + 0) * Math.PI / 180)
+    y1MinHeadroom: number = 70 + 66 * Math.sin((120 + 0) * Math.PI / 180)
     headroomWarning: boolean = false
 
     get headroomArc(): number {
@@ -86,8 +87,8 @@ export default class MmuClogMeter extends Mixins(BaseMixin, MmuMixin) {
     onMinHeadroomChanged(newMinHeadroom: number): void {
         const clogPercent = (Math.min(Math.max(0, this.encoderDetectionLength - newMinHeadroom), this.encoderDetectionLength) / this.encoderDetectionLength) * 100
         const angle = clogPercent * 3
-        this.x2MinHeadroom = 70 + 65 * Math.cos((120 + angle) * Math.PI / 180)
-        this.y2MinHeadroom = 70 + 65 * Math.sin((120 + angle) * Math.PI / 180)
+        this.x1MinHeadroom = 70 + 66 * Math.cos((120 + angle) * Math.PI / 180)
+        this.y1MinHeadroom = 70 + 66 * Math.sin((120 + angle) * Math.PI / 180)
         this.headroomWarning = (newMinHeadroom < this.encoderDesiredheadroom)
     }
 
