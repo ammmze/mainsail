@@ -25,11 +25,11 @@
 
         <g v-for="(g, t) in ttgMap" :key="t">
             <text :x="toolX" :y="(t) * verticalSpacing + startY + 8"
-                  text-anchor="end" fill="currentColor" font-size="10px">
+                  text-anchor="end" fill="currentColor" font-size="10px" :font-weight="(t === tool) ? 'bold' : 'normal'">
                 T{{ t }}
             </text>
             <text :x="gateX" :y="(t) * verticalSpacing + startY + 8"
-                  text-anchor="start" fill="currentColor" font-size="10px">
+                  text-anchor="start" fill="currentColor" font-size="10px" :font-weight="(t === gate) ? 'bold' : 'normal'">
                 #{{ t }}
             </text>
             <g v-if="t !== tool">
@@ -92,7 +92,6 @@ export default class MmuTtgMap extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get currentGroup(): number {
-// PAUL        const currentGate = this.$store.state.printer.mmu.gate
         if (this.gate >= 0) {
             return this.$store.state.printer.mmu.endless_spool_groups[this.gate]
         } else {

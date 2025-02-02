@@ -290,12 +290,12 @@ export default class MmuMixin extends Vue {
 
     }
 
-    get currentGateVendor(): string {
+    get currentGateVendor(): string { // Happy Hare doesn't store vendor
         if (this.gate === this.TOOL_GATE_BYPASS) {
             // Assume active spoolman spool if available
             return this.$store.state.server.spoolman?.active_spool?.filament?.vendor?.name ?? 'Unknown'
         }
-        return 'Unknown' // Happy Hare doesn't store vendor
+        return this.spoolmanSpool?.filament?.vendor?.name ?? 'Unknown'
     }
 
     get currentGateSpoolId(): number {
@@ -372,13 +372,13 @@ export default class MmuMixin extends Vue {
     }
 
     // Prefer active if its the correct one (updated more frequently)
-    get spoolmanSpool(): ServerSpoolmanStateSpool | null {
+    get spoolmanSpool() {
         const activeSpool = this.$store.state.server.spoolman.active_spool ?? null
         if (activeSpool?.id === this.gate) {
             return activeSpool
         }
         const spools = this.$store.state.server.spoolman?.spools ?? []
-        return spools.find((spool: ServerSpoolmanStateSpool) => spool.id === this.currentGateSpoolId) ?? null
+        return spools.find((spool) => spool.id === this.currentGateSpoolId) ?? null
     }
 
     async doLoadingSend(gcode: string, loadingKey: string) {

@@ -9,7 +9,7 @@
             {{ subtitle }}
         </v-list-item-subtitle>
         <v-list-item-subtitle class="subtitle-container smaller-font">
-            {{ extra || "No spoolman ID / Active spool" }}
+            {{ extra }}
         </v-list-item-subtitle>
     </v-list-item-content>
 </v-list-item>
@@ -20,7 +20,7 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin from '@/components/mixins/mmu'
 import Panel from '@/components/ui/Panel.vue'
-import { ServerSpoolmanStateSpool } from '@/store/server/spoolman/types'
+//import { ServerSpoolmanStateSpool } from '@/store/server/spoolman/types'
 
 @Component({ })
 export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
@@ -43,7 +43,7 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get title(): string {
-        return "#" + [this.gateText, this.currentGateVendor].filter ((v) => v !== null).join(' | ')
+        return ["@" + this.gateText, this.currentGateVendor].filter ((v) => v !== null).join(' | ')
     }
 
     get name(): string {
@@ -55,7 +55,12 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get extra(): string {
-        return [this.spoolIdText, this.weightText, this.lengthText].filter((v) => v !== null).join(' | ')
+        let text = [this.spoolIdText, this.weightText, this.lengthText].filter((v) => v !== null).join(' | ')
+        if (!text) {
+            if (this.gate === this.TOOL_GATE_BYPASS) return "No active spool"
+            return "No spool ID"
+        }
+        return text
     }
 
     get speedOverrideText(): string {
@@ -71,32 +76,30 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
 
     get spoolIdText(): string {
         if (this.currentGateSpoolId <= 0) return null
-        return "Spool ID: " + this.currentGateSpoolId
+        return "Spool ID: #" + this.currentGateSpoolId
     }
 
     // Only available with Spoolman...
 
     get weightText() {
-        let remaining = this.spoolmanSpool?.remaining_weight ?? null
-        const total = this.spoolmanSpool?.filament.weight ?? null
-        const unit = 'g'
+        const remaining = this.spoolmanSpool?.remaining_weight ?? null
+        const total = this.spoolmanSpool?.initial_weight ?? this.spoolmanSpool?.filament?.weight ?? null
         if (remaining === null || total === null) return null
-        remaining = Math.round(remaining)
-        let totalRound = Math.floor(total / 1000)
+
         if (total >= 1000) {
+            let totalRound = Math.floor(total / 1000)
             if (totalRound !== total / 1000) {
                 totalRound = Math.round(total / 100) / 10
             }
-            return `${remaining}g / ${totalRound}kg`
+            return `${Math.round(remaining)}g / ${totalRound}kg`
         }
-        return `${remaining} / ${total}${unit}`
+        return `${Math.round(remaining)} / ${Math.round(total)}g`
     }
 
     get lengthText() {
         let remaining = this.spoolmanSpool?.remaining_length ?? null
         if (remaining === null) return null
-        remaining = Math.round(remaining / 1000)
-        return `${remaining}m`
+        return `${Math.round(remaining / 1000)}m`
     }
 }
 </script>

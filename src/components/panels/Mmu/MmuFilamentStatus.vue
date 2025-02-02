@@ -298,7 +298,6 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         }
     }
 
-    /* PAUL fixme -- styles */
     get colorOutline(): string {
         return '#2CA9BC'
     }

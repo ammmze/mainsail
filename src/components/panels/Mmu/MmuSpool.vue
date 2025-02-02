@@ -72,19 +72,16 @@ export default class MmuSpool extends Mixins(BaseMixin, MmuMixin) {
             return 0
         }
         const spoolmanSupport = this.$store.state.printer.mmu.spoolman_support
-        const gateSpoolId = this.$store.state.printer.mmu.gate_spool_id[this.thisGate]
+        const thisGateSpoolId = this.$store.state.printer.mmu.gate_spool_id[this.thisGate]
         const spools = this.$store.state.server.spoolman?.spools ?? []
-        const spoolmanSpool = spools.find((spool: ServerSpoolmanStateSpool) => spool.id === gateSpoolId) ?? null
-        let amount = 100
-        if (gateSpoolId > 0 && spoolmanSupport !== "off") {
-            // Pull live from spoolman and calculate percentage
-            let remaining = spoolmanSpool?.remaining_weight ?? null
-            let total = spoolmanSpool?.filament?.weight ?? null
-            if (remaining !== null && total !== null) {
-                amount = Math.round(Math.max(0, Math.min(100, (remaining / total) * 100)))
-            }
-        }
-        return amount
+        const spoolmanSpool = spools.find((spool) => spool.id === thisGateSpoolId) ?? null
+
+        if (thisGateSpoolId <= 0 || spoolmanSupport === "off") return 100
+        // Pull live from spoolman and calculate percentage
+        const remaining = spoolmanSpool?.remaining_weight ?? null
+        const total = spoolmanSpool?.initial_weight ?? spoolmanSpool?.filament?.weight ?? null
+        if (remaining === null || total === null) return 100
+        return Math.round(Math.max(0, Math.min(100, (remaining / total) * 100)))
     }
 
     get filamentColor(): string {
