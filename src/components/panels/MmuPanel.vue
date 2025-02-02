@@ -69,8 +69,8 @@
                 </v-row>
                 <v-row align="start">
                     <v-col cols="5" class="pt-0 d-flex flex-column align-center justify-center">
-                        <div class="text--disabled smaller-font min-height-text background: none">{{ toolchangeText }}</div>
-                        <div class="text--disabled min-height-text background: none">{{ statusText }}</div>
+                        <div class="text--disabled smaller-font min-height-text">{{ toolchangeText }}</div>
+                        <div class="min-height-text">{{ statusText }}</div>
                         <mmu-filament-status/>
                         <template v-if="showClogDetection">
                             <mmu-clog-meter v-if="hasEncoder" width="40%"/>
