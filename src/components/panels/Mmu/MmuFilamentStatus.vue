@@ -43,7 +43,7 @@
 
     <g>
         <rect ref="filamentRect" x="243" y="25" width="14" :height="filamentRectHeight" :fill="currentGateColor" />
-        <polygon v-if="nozzleFull" points="257,380 243,380 243,405 249,412 249,413 251,413 251,412 257,405" :fill="nozzleColor" />
+        <polygon v-if="!nozzleFull" points="257,380 243,380 243,405 249,412 249,413 251,413 251,412 257,405" :fill="nozzleColor" :class="nozzleEffect"/>
     </g>
 
     <g :style="'stroke:' + colorOutline + '; fill:' + colorFont + '; stroke-linejoin: round; stroke-width: 0; font-family: Roboto; font-size: 16;'">
@@ -347,6 +347,11 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         return this.currentGateColor
     }
 
+    get nozzleEffect(): string {
+        if (this.action === 'ACTION_FORMING_TIP') return "form-tip-effect"
+        return ''
+    }
+
     mounted() {
         this.calcFilamentHeight(this.filamentPos)
     }
@@ -440,5 +445,17 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
 }
 .cut2-effect {
     animation: cut2 3s infinite;
+}
+
+@keyframes form-tip {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+.form-tip-effect {
+    animation: form-tip 1s infinite
 }
 </style>
