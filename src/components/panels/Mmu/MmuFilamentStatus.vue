@@ -41,13 +41,9 @@
         <path d="M242 25 L242 405 L249 411 L251 411 L258 405 L258 25" style="fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;"></path>
     </g>
 
-    <g>
-        <rect ref="filamentRect" x="243" y="25" width="14" :height="filamentRectHeight" :fill="currentGateColor" />
-        <g :class="nozzleEffect">
-            <polygon v-if="upperNozzleFull" points="257,380 243,380 243,396 257,396" :fill="upperNozzleColor"/>
-            <polygon v-if="lowerNozzleFull" points="257,396 243,396 243,405 249,412 249,413 251,413 251,412 257,405" :fill="lowerNozzleColor"/>
-        </g>
-    </g>
+    <rect ref="filamentRect" x="243" y="25" width="14" :height="filamentRectHeight" :fill="currentGateColor" :class="tipFormingClass"/>
+    <polygon v-if="upperNozzleFull" points="257,380 243,380 243,396 257,396" :fill="upperNozzleColor"/>
+    <polygon v-if="lowerNozzleFull" points="257,396 243,396 243,405 249,412 249,413 251,413 251,412 257,405" :fill="lowerNozzleColor"/>
 
     <g :style="'stroke:' + colorOutline + '; fill:' + colorFont + '; stroke-linejoin: round; stroke-width: 0; font-family: Roboto; font-size: 16;'">
         <g v-if="hasSensor('mmu_pre_gate')">
@@ -126,6 +122,7 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ default: 0.7 }) readonly animationTime!: number
 
     private filamentRectHeight: number = 0
+    private tipFormingClass: string = ''
 
     readonly POSITIONS = {
         'unknown': 8,
@@ -145,7 +142,9 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         'extruder-entrance': 308,
         'before-toolhead': 315,  // Bowden range ^^^
         'toolhead': 325,
-        'cut-point': 355 
+        'cooling-tube': 338,
+        'cut-point': 355,
+        'nozzle-start': 371
     } as const
 
     readonly BOWDEN_RANGE = 173 as const
@@ -162,6 +161,21 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         this.calcFilamentHeight(newPos)
     }
 
+    @Watch('$store.state.printer.mmu.action')
+    onActionChanged(action: number): void {
+        // Action being performed
+        if (action === this.ACTION_FORMING_TIP) {
+            this.tipFormingClass = 'form-tip-effect'
+        } else {
+            if (this.tipFormingClass) {
+                this.$nextTick(() => {
+                    this.animateFilament(this.POSITIONS['cooling-tube'], 1)
+                })
+            }
+            this.tipFormingClass = ''
+        }
+    }
+
     // TODO make styles but adjust for light/dark mode
     get colorOutline(): string {
         return '#2CA9BC'
@@ -175,7 +189,6 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
 
     private calcFilamentHeight(filamentPos: number): void {
         let pos = 0
-        let animationTime = this.animationTime
         switch (filamentPos) {
 
             case this.FILAMENT_POS_UNLOADED:
@@ -249,29 +262,30 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
                 break
 
             case this.FILAMENT_POS_IN_EXTRUDER:
-                pos = this.POSITIONS['cut-point']
+                pos = this.POSITIONS['cooling-tube']
                 break
 
             case this.FILAMENT_POS_LOADED:
-                animationTime = 0
-                pos = this.POSITIONS['cut-point']
+                pos = this.POSITIONS['nozzle-start']
                 break
 
             default: // this.FILAMENT_POS_UNKNOWN
                 pos = this.POSITIONS['unknown']
         }
-        this.animateFilament(pos, animationTime)
+        this.animateFilament(pos)
     }
 
     private animateFilament(newHeight: number, animationTime: number = this.animationTime) {
         const rect = this.$refs.filamentRect as SVGElement
-        if (animationTime > 0) {
-            const currentHeight = parseFloat(getComputedStyle(rect).height) ?? this.POSITIONS['end-bowden']
-            const difference = Math.abs(currentHeight - newHeight)
-            const duration = Math.min(((difference / this.BOWDEN_RANGE) * animationTime + 0.1), animationTime)
-            rect.style.transition = `height ${duration}s ease-in`
-        } else {
-            rect.style.transition = "none"
+        if (rect) {
+            if (animationTime > 0) {
+                const currentHeight = parseFloat(getComputedStyle(rect).height) ?? this.POSITIONS['end-bowden']
+                const difference = Math.abs(currentHeight - newHeight)
+                const duration = Math.min(((difference / this.BOWDEN_RANGE) * animationTime + 0.1), animationTime)
+                rect.style.transition = `height ${duration}s ease-in`
+            } else {
+                rect.style.transition = "none"
+            }
         }
         this.filamentRectHeight = newHeight
     }
@@ -372,17 +386,12 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
 
     get upperNozzleColor(): string {
         if (this.varsFilamentRemaining) return this.varsFilamentRemainingColor
-        return this.currentGateColor
+        return 'none'
     }
 
     get lowerNozzleColor(): string {
         if (this.varsFilamentRemainingColor) return this.varsFilamentRemainingColor
         return this.currentGateColor
-    }
-
-    get nozzleEffect(): string {
-        if (this.action === this.ACTION_FORMING_TIP) return "form-tip-effect"
-        return ''
     }
 
     mounted() {
@@ -482,13 +491,13 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
 
 @keyframes form-tip {
     0%, 100% {
-        opacity: 0.3;
+        height: 371px;
     }
     50% {
-        opacity: 1;
+        height: 338px;
     }
 }
 .form-tip-effect {
-    animation: form-tip 1s infinite
+    animation: form-tip 1s infinite;
 }
 </style>
