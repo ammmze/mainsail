@@ -82,19 +82,25 @@
         <transition name="fade"><text v-if="homedToToolhead" x="219.5" y="355" font-weight="bold">H</text></transition>
 
         <g v-if="hasSyncFeedback">
-            <g v-if="isSensorTriggered('filament_tension')">
-                <use xlink:href="#sync-feedback" transform="translate(258, 199) scale(1.2)"/>
-                <use xlink:href="#sync-feedback" transform="translate(258, 271) scale(1.2,-1.2)"/>
-            </g>
-            <g v-if="isSensorTriggered('filament_compression')">
-                <use xlink:href="#sync-feedback" transform="translate(258, 235) scale(1.2)"/>
-                <use xlink:href="#sync-feedback" transform="translate(258, 235) scale(1.2,-1.2)"/>
-            </g>
-            <g style="font-size: 14px;">
+            <transition name="fade">
+                <g v-if="isSensorTriggered('filament_tension')" key="tension">
+                    <use xlink:href="#sync-feedback" transform="translate(258, 199) scale(1.2)"/>
+                    <use xlink:href="#sync-feedback" transform="translate(258, 271) scale(1.2,-1.2)"/>
+                </g>
+            </transition>
+            <transition name="fade">
+                <g v-if="isSensorTriggered('filament_compression')" key="compression">
+                    <use xlink:href="#sync-feedback" transform="translate(258, 235) scale(1.2)"/>
+                    <use xlink:href="#sync-feedback" transform="translate(258, 235) scale(1.2,-1.2)"/>
+                </g>
+            </transition>
+            <transition name="fade">
+            <g v-if="isSensorTriggered('filament_tension') || isSensorTriggered('filament_compression')" style="font-size: 14px;" key="feedback">
                 <text v-if="isSensorTriggered('filament_tension') && isSensorTriggered('filament_compression')" x="288" y="240" fill="#FF0000">Error!</text>
                 <text v-else-if="isSensorTriggered('filament_tension')" x="288" y="240">Tension</text>
                 <text v-else-if="isSensorTriggered('filament_compression')" x="288" y="240">Compression</text>
             </g>
+            </transition>
         </g>
         <text x="160" y="60" :class="(tool === -2) ? 'tool-bypass' : 'tool-text'">{{ toolText }}</text>
     </g>
@@ -205,9 +211,11 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
                 break
 
             case this.FILAMENT_POS_END_BOWDEN:
-                const extruderForceHoming = false // TODO read from config?
-                if (this.configGateHomingEndstop === 'none' || ((this.hasSensor('toolhead') && this.isSensorEnabled('toolhead')) || this.configExtruderForceHoming)) {
-                    pos = this.POSITIONS['extruder-entrance'] // No extruder homing will be performed so indicate at the extruder now
+                if (this.configGateHomingEndstop === 'none'
+                    || (this.hasSensor('toolhead') && this.isSensorEnabled('toolhead') && !this.configExtruderForceHoming)) {
+
+                    // No extruder homing will be performed so indicate at the extruder now
+                    pos = this.POSITIONS['extruder-entrance']
                 } else {
                     pos = this.POSITIONS['end-bowden']
                 }
@@ -412,7 +420,7 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
 }
 
 .fade-enter-active, .fade-leave-active {
-    transition: opacity 0.5s ease;
+    transition: opacity 0.8s ease;
 }
 
 .fade-enter, .fade-leave-to {

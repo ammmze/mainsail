@@ -316,18 +316,18 @@ export default class MmuMixin extends Vue {
      */
 
     get configGateHomingEndstop(): string {
-        // TODO make dynamic because of MMU_TEST_CONFIG
+        // TODO ideally make dynamic because of MMU_TEST_CONFIG
         return this.$store.state.printer.configfile.config.mmu?.gate_homing_endstop
     }
 
     get configExtruderHomingEndstop(): string {
-        // TODO make dynamic because of MMU_TEST_CONFIG
+        // TODO ideally make dynamic because of MMU_TEST_CONFIG
         return this.$store.state.printer.configfile.config.mmu?.extruder_homing_endstop
     }
 
-    get configExtruderForceHoming(): string {
-        // TODO make dynamic because of MMU_TEST_CONFIG
-        return this.$store.state.printer.configfile.config.mmu?.extruder_force_homing
+    get configExtruderForceHoming(): boolean {
+        // TODO ideally make dynamic because of MMU_TEST_CONFIG
+        return (this.$store.state.printer.configfile.config.mmu?.extruder_force_homing ?? 0) === 1
     }
 
     get varsCalibrationBowdenLengths(): number[] {
