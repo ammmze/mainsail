@@ -123,10 +123,9 @@ import MmuMixin from '@/components/mixins/mmu'
 
 @Component({ })
 export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
-    @Prop({ default: 1 }) readonly animationTime!: number
+    @Prop({ default: 0.7 }) readonly animationTime!: number
 
     private filamentRectHeight: number = 0
-    private blobTimerId = null
 
     readonly POSITIONS = {
         'unknown': 8,
@@ -161,6 +160,17 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
     onFilamentPosChanged(newPos: number): void {
         // Filament position state
         this.calcFilamentHeight(newPos)
+    }
+
+    // TODO make styles but adjust for light/dark mode
+    get colorOutline(): string {
+        return '#2CA9BC'
+    }
+    get colorOutlineContrast(): string {
+        return '#222222'
+    }
+    get colorFont(): string {
+        return '#FFFFFF'
     }
 
     private calcFilamentHeight(filamentPos: number): void {
@@ -227,22 +237,18 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
                 break
 
             case this.FILAMENT_POS_HOMED_EXTRUDER:
-                animationTime = 0
                 pos = this.POSITIONS['extruder-entrance']
                 break
 
             case this.FILAMENT_POS_EXTRUDER_ENTRY:
-                animationTime = 0
                 pos = this.POSITIONS['before-toolhead']
                 break
 
             case this.FILAMENT_POS_HOMED_TS:
-                animationTime = 0
                 pos = this.POSITIONS['toolhead']
                 break
 
             case this.FILAMENT_POS_IN_EXTRUDER:
-                animationTime = 0
                 pos = this.POSITIONS['cut-point']
                 break
 
@@ -259,21 +265,15 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
 
     private animateFilament(newHeight: number, animationTime: number = this.animationTime) {
         const rect = this.$refs.filamentRect as SVGElement
-        const currentHeight = parseFloat(getComputedStyle(rect).height) ?? this.POSITIONS['end-bowden']
-        const difference = Math.abs(currentHeight - newHeight)
-        const duration = Math.min(((difference / this.BOWDEN_RANGE) * animationTime + 0.1), animationTime)
-        rect.style.transition = `height ${duration}s ease-in`
+        if (animationTime > 0) {
+            const currentHeight = parseFloat(getComputedStyle(rect).height) ?? this.POSITIONS['end-bowden']
+            const difference = Math.abs(currentHeight - newHeight)
+            const duration = Math.min(((difference / this.BOWDEN_RANGE) * animationTime + 0.1), animationTime)
+            rect.style.transition = `height ${duration}s ease-in`
+        } else {
+            rect.style.transition = "none"
+        }
         this.filamentRectHeight = newHeight
-    }
-
-    get colorOutline(): string {
-        return '#2CA9BC'
-    }
-    get colorOutlineContrast(): string {
-        return '#222222'
-    }
-    get colorFont(): string {
-        return '#FFFFFF'
     }
 
     get encoderPosText(): string {
