@@ -175,7 +175,7 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
     get statusText(): string {
         let posStr: string = ""
         if (["complete", "error", "cancelled", "started"].includes(this.printState)) {
-            posStr = capitalize(this.printState)
+            posStr = this.capitalize(this.printState)
         } else if (this.action == "Idle") {
             posStr = (this.filament !== "Unloaded") ? `Filament: ${this.filamentPosition}mm` : "Filament: Unloaded";
         } else if (this.action === "Loading" || this.action === "Unloading") {

@@ -53,30 +53,28 @@
       </v-col>
       <v-col cols="2"></v-col>
     </v-row>
-    <v-row>
-      <v-col cols="12">
-        <v-btn block medium color="secondary"
-               class="btnMinWidthAuto fill-width"
-               :disabled="['printing'].includes(printer_state) || filamentPos === FILAMENT_POS_UNLOADED"
-               :loading="loadings.includes('mmu_unload')"
-               @click="doLoadingSend('MMU_UNLOAD', 'mmu_unload')">
-            <v-icon left>{{ mdiUpload }}</v-icon>
-            {{ $t('Panels.MmuPanel.ButtonUnload') }}
-        </v-btn>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12">
-        <v-btn block medium color="secondary"
-               class="btnMinWidthAuto fill-width"
-               :disabled="['printing'].includes(printer_state) || filamentPos !== FILAMENT_POS_UNLOADED"
-               :loading="loadings.includes('mmu_load')"
-               @click="doLoadingSend('MMU_LOAD', 'mmu_load')">
-            <v-icon left>{{ mdiDownload }}</v-icon>
-            {{ $t('Panels.MmuPanel.ButtonLoad') }}
-        </v-btn>
-      </v-col>
-    </v-row>
+  <v-row>
+    <v-col cols="6">
+      <v-btn large block color="secondary"
+             class="tall-button"
+             :disabled="['printing'].includes(printer_state) || filamentPos === FILAMENT_POS_UNLOADED"
+             :loading="loadings.includes('mmu_unload')"
+             @click="doLoadingSend('MMU_UNLOAD', 'mmu_unload')">
+        <v-icon left>{{ mdiUpload }}</v-icon>
+        {{ $t('Panels.MmuPanel.ButtonUnload') }}
+      </v-btn>
+    </v-col>
+    <v-col cols="6">
+      <v-btn large block color="secondary"
+             class="tall-button"
+             :disabled="['printing'].includes(printer_state) || filamentPos !== FILAMENT_POS_UNLOADED"
+             :loading="loadings.includes('mmu_load')"
+             @click="doLoadingSend('MMU_LOAD', 'mmu_load')">
+        <v-icon left>{{ mdiDownload }}</v-icon>
+        {{ $t('Panels.MmuPanel.ButtonLoad') }}
+      </v-btn>
+    </v-col>
+  </v-row>
 </v-container>
 </template>
 
@@ -101,5 +99,9 @@ export default class MmuControls extends Mixins(BaseMixin, MmuMixin) {
 <style scoped>
 .btnMinWidthAuto {
     min-width: auto !important;
+}
+
+.tall-button {
+  min-height: 4em;
 }
 </style>
