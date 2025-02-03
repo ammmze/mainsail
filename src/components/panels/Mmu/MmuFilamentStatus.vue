@@ -80,6 +80,7 @@
         <circle cx="258" cy="350" r="8" style="stroke-width:1;" :class="sensorClass('toolhead')"/>
         <text x="278" y="355" :class="{ 'text-disabled': (!isSensorEnabled('toolhead')) }">Toolhead</text>
         <transition name="fade"><text v-if="homedToToolhead" x="219.5" y="355" font-weight="bold">H</text></transition>
+        <text x="228" y="412" font-size="11px" font-weight="bold" text-anchor="end" :class="temperatureClass">{{ temperatureText }}</text>
 
         <g v-if="hasSyncFeedback">
             <transition name="fade">
@@ -105,7 +106,7 @@
         <text x="160" y="60" :class="(tool === -2) ? 'tool-bypass' : 'tool-text'">{{ toolText }}</text>
     </g>
 
-    <transition name="fade"><use v-if="syncDrive" xlink:href="#sync-extruder" ref="sync" transform="translate(278, 385) scale(.030)"/></transition>
+    <transition name="fade"><use v-if="!syncDrive" xlink:href="#sync-extruder" ref="sync" transform="translate(278, 385) scale(.030)"/></transition>
 
     <use v-if="action == ACTION_CUTTING_FILAMENT" ref="cut" xlink:href="#sissors" class="cut1-effect"/>
     <use v-if="action == ACTION_CUTTING_TIP" ref="cutTip" xlink:href="#sissors" class="cut2-effect"/>
@@ -276,10 +277,20 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get encoderPosText(): string {
-        if (this.encoderPos < 10000) {
-            return `${this.encoderPos} mm`
-        } 
+        if (this.encoderPos < 10000) return `${this.encoderPos} mm`
         return this.encoderPos
+    }
+
+    get temperatureClass(): string {
+        const canExtrude = this.$store.state.printer.extruder?.can_extrude ?? false
+        if (canExtrude === false) return "text-disabled"
+        return ""
+    }
+
+    get temperatureText(): string {
+        const extTemp = this.$store.state.printer.extruder?.temperature ?? null
+        if (extTemp) return `${extTemp.toFixed(0)}°C`
+        return ''
     }
 
     private hasSensor(sensorName: string): boolean {
