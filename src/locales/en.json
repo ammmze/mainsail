@@ -742,9 +742,13 @@
             "ShowClogDetection": "Clog Detection",
             "ShowTtgMap": "TTG Map",
             "ShowDetails": "Filament Details",
+            "LargeFilamentStatus": "Large Filament Status",
             "CommingSoon": "Comming Soon...",
             "Cancel": "Cancel",
             "Ok": "Ok",
+            "Unknown": "Unknown",
+            "NoSpoolId": "No spool ID",
+            "NoActiveSpool": "No active spool",
             "ClogDetection": "Clog Detection",
             "ToolMapping": "Tool Mapping",
             "ButtonEject": "Eject",
@@ -754,7 +758,9 @@
             "ButtonRecover": "Recover",
             "ButtonUnlock": "Unlock",
             "ButtonLoad": "Load",
+            "ButtonLoadExt": "Load Ext",
             "ButtonUnload": "Unload",
+            "ButtonUnloadExt": "Unload Ext",
             "ButtonPrintStats": "Print Stats"
         },
         "StatusPanel": {

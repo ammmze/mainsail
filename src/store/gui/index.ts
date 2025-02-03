@@ -297,6 +297,7 @@ export const getDefaultState = (): GuiState => {
                showClogDetection: true,
                showTtgMap: true,
                showDetails: true,
+               largeFilamentStatus: false,
             },
         },
     }

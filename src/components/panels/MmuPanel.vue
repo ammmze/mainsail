@@ -70,7 +70,7 @@
                     <mmu-machine/>
                 </v-row>
                 <v-row align="start">
-                    <v-col cols="5" class="pt-0 d-flex flex-column align-center justify-center">
+                    <v-col :cols="col1Size" class="pt-0 d-flex flex-column align-center justify-center">
                         <div class="text--disabled smaller-font min-height-text">{{ toolchangeText }}</div>
                         <div class="min-height-text">{{ statusText }}</div>
                         <mmu-filament-status/>
@@ -79,7 +79,7 @@
                             <div class="text--disabled">{{ $t('Panels.MmuPanel.ClogDetection') }}</div>
                         </template>
                     </v-col>
-                    <v-col cols="7" class="d-flex flex-column align-center justify-center">
+                    <v-col :cols="12 - col1Size" class="d-flex flex-column align-center justify-center">
                         <template v-if="showDetails">
                             <v-row class="pb-3 pt-0" style="align-self: flex-start; width: 100%;">
                                 <mmu-active-gate-summary/>
@@ -152,7 +152,12 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
     showEditGateMapDialog = false
     showMaintenanceDialog = false
 
-    get title() {
+    get col1Size(): number {
+        if (this.$store.state.gui.view.mmu.largeFilamentStatus) return 6
+        return 5
+    }
+
+    get title(): string {
         const headline = this.$t('Panels.MmuPanel.Headline') as string
         if (!this.enabled) {
             return `${headline} (disabled)`

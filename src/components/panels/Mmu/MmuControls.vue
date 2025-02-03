@@ -56,22 +56,22 @@
   <v-row>
     <v-col cols="6">
       <v-btn large block color="secondary"
-             class="tall-button"
+             class="wrap-text-btn"
              :disabled="['printing'].includes(printer_state) || filamentPos === FILAMENT_POS_UNLOADED"
              :loading="loadings.includes('mmu_unload')"
              @click="doLoadingSend('MMU_UNLOAD', 'mmu_unload')">
         <v-icon left>{{ mdiUpload }}</v-icon>
-        {{ $t('Panels.MmuPanel.ButtonUnload') }}
+        {{ unloadButtonText }}
       </v-btn>
     </v-col>
     <v-col cols="6">
       <v-btn large block color="secondary"
-             class="tall-button"
+             class="wrap-text-btn"
              :disabled="['printing'].includes(printer_state) || filamentPos !== FILAMENT_POS_UNLOADED"
              :loading="loadings.includes('mmu_load')"
              @click="doLoadingSend('MMU_LOAD', 'mmu_load')">
         <v-icon left>{{ mdiDownload }}</v-icon>
-        {{ $t('Panels.MmuPanel.ButtonLoad') }}
+        {{ loadButtonText }}
       </v-btn>
     </v-col>
   </v-row>
@@ -93,6 +93,16 @@ export default class MmuControls extends Mixins(BaseMixin, MmuMixin) {
     mdiThermometerPlus = mdiThermometerPlus
     mdiUpload = mdiUpload
     mdiDownload = mdiDownload
+
+    get unloadButtonText() {
+        if (this.gate === this.TOOL_GATE_BYPASS) return this.$t('Panels.MmuPanel.ButtonUnloadExt')
+        return this.$t('Panels.MmuPanel.ButtonUnload')
+    }
+
+    get loadButtonText() {
+        if (this.gate === this.TOOL_GATE_BYPASS) return this.$t('Panels.MmuPanel.ButtonLoadExt')
+        return this.$t('Panels.MmuPanel.ButtonLoad')
+    }
 }
 </script>
 
@@ -101,7 +111,10 @@ export default class MmuControls extends Mixins(BaseMixin, MmuMixin) {
     min-width: auto !important;
 }
 
-.tall-button {
-  min-height: 4em;
+.wrap-text-btn {
+    min-height: 4em;
+    display: inline-block;
+    white-space: normal;
 }
+
 </style>

@@ -215,6 +215,7 @@ export interface GuiState {
            showClogDetection: boolean
            showTtgMap: boolean
            showDetails: boolean
+           largeFilamentStatus: boolean
         }
     }
 }

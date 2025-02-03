@@ -47,6 +47,7 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get name(): string {
+        if (this.gate === this.TOOL_GATE_BYPASS) return "No active spool"
         return this.currentGateFilamentName
     }
 
@@ -56,10 +57,7 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
 
     get extra(): string {
         let text = [this.spoolIdText, this.weightText, this.lengthText].filter((v) => v !== null).join(' | ')
-        if (!text) {
-            if (this.gate === this.TOOL_GATE_BYPASS) return "No active spool"
-            return "No spool ID"
-        }
+        if (!text) return "No spool ID"
         return text
     }
 

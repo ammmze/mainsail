@@ -27,6 +27,13 @@
                 hide-details
                 :label="$t('Panels.MmuPanel.ShowDetails')" />
         </v-list-item>
+        <v-list-item class="minHeight36">
+            <v-checkbox
+                v-model="largeFilamentStatus"
+                class="mt-0"
+                hide-details
+                :label="$t('Panels.MmuPanel.LargeFilamentStatus')" />
+        </v-list-item>
     </v-list>
 </v-menu>
 </template>
@@ -63,6 +70,14 @@ export default class MmuPanelSettings extends Mixins(BaseMixin, MmuMixin) {
 
     set showDetails(newVal: boolean) {
         this.$store.dispatch('gui/saveSetting', { name: 'view.mmu.showDetails', value: newVal })
+    }
+
+    get largeFilamentStatus(): boolean {
+        return this.$store.state.gui.view.mmu.largeFilamentStatus ?? true
+    }
+
+    set largeFilamentStatus(newVal: boolean) {
+        this.$store.dispatch('gui/saveSetting', { name: 'view.mmu.largeFilamentStatus', value: newVal })
     }
 }
 </script>
