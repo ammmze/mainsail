@@ -52,16 +52,29 @@ export default class MmuMixin extends Vue {
         return this.$store.state.printer.mmu?.num_gates ?? 0
     }
 
-    get isPaused(): boolean {
+    get printState(): string {
+        return this.$store.state.printer.mmu?.print_state
+    }
+
+    get isPrinting(): boolean {
+        return ["started", "printing"].includes(this.$store.state.printer.mmu?.print_state)
+    }
+
+    get isInPrint(): boolean {
+        return ["printing", "pause_locked", "paused"].includes(this.$store.state.printer.mmu?.print_state)
+    }
+
+    get isMmuPaused(): boolean {
         return this.$store.state.printer.mmu?.is_paused ?? false
+        return ["pause_locked", "paused"].includes(this.$store.state.printer.mmu?.print_state)
+    }
+
+    get isMmuPausedAndLocked(): boolean {
+        return ["pause_locked"].includes(this.$store.state.printer.mmu?.print_state)
     }
 
     get isHomed(): boolean {
         return this.$store.state.printer.mmu?.is_homed ?? false
-    }
-
-    get isInPrint(): boolean {
-        return this.$store.state.printer.mmu?.is_in_print
     }
 
     get gate(): number {
@@ -207,10 +220,6 @@ export default class MmuMixin extends Vue {
 
     get syncFeedbackEnabled(): boolean {
         return this.$store.state.printer.mmu?.sync_feedback_enabled
-    }
-
-    get printState(): string {
-        return this.$store.state.printer.mmu?.print_state
     }
 
     get clogDetectionEnabled(): boolean {
@@ -470,5 +479,8 @@ export default class MmuMixin extends Vue {
         }
         return false;
     }
+
+    def is_printing(self, force_in_print=False): # Actively printing and not paused
+        return self.print_state in ["started", "printing"] or force_in_print or self.test_force_in_print
 */
 }

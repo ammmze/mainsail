@@ -60,13 +60,16 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
         return "40px"
     }
 
-    selectGate(gate) {
-        this.doSend("MMU_SELECT GATE=" + gate)
-        return gate
+    selectGate(gate): null {
+        if (!this.isPrinting) {
+            this.doSend("MMU_SELECT GATE=" + gate)
+        }
     }
 
     selectBypass() {
-        this.doSend("MMU_SELECT BYPASS=1")
+        if (!this.isPrinting) {
+            this.doSend("MMU_SELECT BYPASS=1")
+        }
     }
 }
 </script>

@@ -161,6 +161,12 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         this.calcFilamentHeight(newPos)
     }
 
+    @Watch('$store.state.printer.mmu.sensors')
+    onFilamentPosChanged(newSensors: object): void {
+        // Update on sensor change
+        this.calcFilamentHeight(this.filamentPos)
+    }
+
     @Watch('$store.state.printer.mmu.action')
     onActionChanged(action: number): void {
         // Action being performed
@@ -192,9 +198,9 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
         switch (filamentPos) {
 
             case this.FILAMENT_POS_UNLOADED:
-                if (this.isSensorTriggered('mmu-gear')) {
+                if (this.isSensorTriggered('mmu_gear')) {
                     pos = this.POSITIONS['after-gear']
-                } else if (this.isSensorTriggered('mmu-pre-gate')) {
+                } else if (this.isSensorTriggered('mmu_pre_gate')) {
                     pos = this.POSITIONS['after-pre-gate']
                 } else {
                     pos = this.POSITIONS['before-pre-gate']

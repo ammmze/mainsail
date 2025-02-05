@@ -18,19 +18,22 @@
                         </v-btn>
                     </v-list-item>
                     <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
-                        <v-btn small style="width: 100%" @click="showEditTtgMapDialog = true">
+                        <v-btn small style="width: 100%"
+                               @click="showEditTtgMapDialog = true">
                             <!--<v-icon left>{{ mdiStateMachine }}</v-icon>-->
                             {{ $t('Panels.MmuPanel.EditTtgMap') }}
                         </v-btn>
                     </v-list-item>
                     <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
-                        <v-btn small style="width: 100%" @click="showEditGateMapDialog = true">
+                        <v-btn small style="width: 100%"
+                               @click="showEditGateMapDialog = true">
                             <!--<v-icon left>{{ mdiDatabaseEdit }}</v-icon>-->
                             {{ $t('Panels.MmuPanel.EditGateMap') }}
                         </v-btn>
                     </v-list-item>
                     <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
                         <v-btn small style="width: 100%"
+                               :disabled="isPrinting"
                                :loading="loadings.includes('mmu_check_gates')"
                                @click="doLoadingSend('MMU_CHECK_GATES', 'mmu_check_gates')">
                             <v-icon left>{{ mdiCheckAll }}</v-icon>
@@ -38,13 +41,17 @@
                         </v-btn>
                     </v-list-item>
                     <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
-                        <v-btn small style="width: 100%" @click="showRecoverStateDialog = true">
+                        <v-btn small style="width: 100%"
+                               :disabled="isPrinting"
+                               @click="showRecoverStateDialog = true">
                             <!--<v-icon left>{{ mdiCogRefresh }}</v-icon>-->
                             {{ $t('Panels.MmuPanel.RecoverState') }}
                         </v-btn>
                     </v-list-item>
                     <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
-                        <v-btn small style="width: 100%" @click="showMaintenanceDialog = true">
+                        <v-btn small style="width: 100%"
+                               :disabled="isPrinting"
+                               @click="showMaintenanceDialog = true">
                             <!--<v-icon left>{{ mdiWrenchCog }}</v-icon>-->
                             {{ $t('Panels.MmuPanel.MmuMaintenance') }}
                         </v-btn>
@@ -52,6 +59,7 @@
 <!--
                     <v-list-item :disabled="['printing'].includes(printer_state) || !enabled" :class="{ 'mmu-disabled': !enabled }">
                         <v-btn small style="width: 100%"
+                               :disabled="isPrinting"
                                :loading="loadings.includes('mmu_recover')"
                                @click="doLoadingSend('MMU_RECOVER', 'mmu_recover')">
                             <v-icon left>{{ mdiAutoFix }}</v-icon>
