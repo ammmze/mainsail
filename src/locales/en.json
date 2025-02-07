@@ -761,7 +761,8 @@
             "ButtonLoadExt": "Load Ext",
             "ButtonUnload": "Unload",
             "ButtonUnloadExt": "Unload Ext",
-            "ButtonPrintStats": "Print Stats"
+            "ButtonPrintStats": "Print Stats",
+            "ButtonSyncSpoolman": "Sync Spoolman"
         },
         "StatusPanel": {
             "CancelPrint": "Cancel print",

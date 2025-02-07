@@ -1,18 +1,18 @@
 <template>
-<v-list-item three-line :class="{ 'disabled-panel': (currentGateStatus === 0) }">
-    <v-list-item-content :class="listItemContentClass">
-        <div :class="overlineClass">{{ title }}</div>
-        <v-list-item-title :class="listItemTitleClass">
-            {{ name }}
-        </v-list-item-title>
-        <v-list-item-subtitle class="subtitle-container">
-            {{ subtitle }}
-        </v-list-item-subtitle>
-        <v-list-item-subtitle class="subtitle-container smaller-font">
-            {{ extra }}
-        </v-list-item-subtitle>
-    </v-list-item-content>
-</v-list-item>
+    <v-list-item three-line :class="{ 'disabled-panel': (currentGateStatus === 0) }">
+        <v-list-item-content :class="listItemContentClass">
+            <div :class="overlineClass">{{ title }}</div>
+            <v-list-item-title :class="listItemTitleClass">
+                {{ name }}
+            </v-list-item-title>
+            <v-list-item-subtitle class="subtitle-container">
+                {{ subtitle }}
+            </v-list-item-subtitle>
+            <v-list-item-subtitle class="subtitle-container smaller-font">
+                {{ extra }}
+            </v-list-item-subtitle>
+        </v-list-item-content>
+    </v-list-item>
 </template>
 
 <script lang="ts">
@@ -20,7 +20,6 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin from '@/components/mixins/mmu'
 import Panel from '@/components/ui/Panel.vue'
-//import { ServerSpoolmanStateSpool } from '@/store/server/spoolman/types'
 
 @Component({ })
 export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
@@ -47,7 +46,6 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get name(): string {
-        if (this.gate === this.TOOL_GATE_BYPASS) return "No active spool"
         return this.currentGateFilamentName
     }
 

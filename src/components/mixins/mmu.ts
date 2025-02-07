@@ -265,7 +265,7 @@ export default class MmuMixin extends Vue {
     get currentGateFilamentName(): string {
         if (this.gate === this.TOOL_GATE_BYPASS) {
             // Assume active spoolman spool if available
-            return this.$store.state.server.spoolman?.active_spool?.filament?.name ?? 'Unknown'
+            return this.$store.state.server.spoolman?.active_spool?.filament?.name ?? 'No active spool'
         }
         return this.$store.state.printer.mmu?.gate_filament_name?.[this.gate] || 'Unknown'
     }
@@ -399,6 +399,12 @@ export default class MmuMixin extends Vue {
     doSend(gcode: string) {
         this.$store.dispatch('server/addEvent', { message: gcode, type: 'command' })
         this.$socket.emit('printer.gcode.script', { script: gcode })
+    }
+
+    get canSend(): boolean {
+        const idleTimeout = this.$store.state.printer.idle_timeout?.state
+        console.log(`PAUL: canSend(). printer_state=${this.printer_state}, idle_timeout=${idleTimeout}`)
+        return this.klipperReadyForGui && !['printing'].includes(this.printer_state) && !['Printing'].includes(idleTimeout)
     }
 
 
