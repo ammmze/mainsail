@@ -130,7 +130,7 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
         let classes = []
         classes.push('no-padding')
         classes.push('tool-card')
-        if (this.selectedTool !== tool) classes.push('hover-effect')
+        if (!this.isMobile && this.selectedTool !== tool) classes.push('hover-effect')
         if (this.selectedTool === tool) classes.push('selected-card')
         if (this.selectedTool !== tool && this.selectedTool >= 0) classes.push('disabled-card')
         return classes

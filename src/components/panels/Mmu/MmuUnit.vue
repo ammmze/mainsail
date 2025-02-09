@@ -4,12 +4,12 @@
     <div class="spool-row">
         <div v-for="gate in unitGateRange" :key="'gate_' + gate"
              class="gate-status cursor-pointer" @click="selectGate(gate)">
-            <mmu-spool :width="width" :gateIndex="gate" class="hover-effect"/>
+            <mmu-spool :width="width" :gateIndex="gate" :class="{ 'hover-effect': !isMobile }"/>
             <mmu-gate-status :gateIndex="gate"/>
         </div>
         <div v-if="hasBypass"
              class="gate-status cursor-pointer" @click="selectBypass()">
-            <mmu-spool :width="width" :gateIndex="TOOL_GATE_BYPASS" class="hover-effect"/>
+            <mmu-spool :width="width" :gateIndex="TOOL_GATE_BYPASS" :class="{ 'hover-effect': !isMobile }"/>
             <mmu-gate-status :gateIndex="TOOL_GATE_BYPASS"/>
         </div>
     </div>

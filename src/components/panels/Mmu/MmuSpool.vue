@@ -40,8 +40,8 @@
         {{ filamentAmount }}%
     </text>
     <text v-else-if="!showPercent && filamentAmount === 0"
-          x="140" y="320" text-anchor="middle"
-          font-weight="bold" font-size="180px"
+          x="140" y="310" text-anchor="middle"
+          font-weight="bold" font-size="160px"
           style="fill: red; stroke: #111111; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round;">!</text>
     <use v-if="espoolerActive === 'rewind' && gateIndex === gate"
          href="#espool" transform="translate(225,0) rotate(90) scale(2,2)"/>
