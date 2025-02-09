@@ -99,7 +99,7 @@
             </g>
             </transition>
         </g>
-        <text x="160" y="60" :class="(tool === -2) ? 'tool-bypass' : 'tool-text'">{{ toolText }}</text>
+        <text x="160" y="60" :class="(tool === -2) ? 'tool-bypass' : 'tool-text'">{{ toolText(tool) }}</text>
     </g>
 
     <transition name="fade"><use v-if="!syncDrive" xlink:href="#sync-extruder" ref="sync" transform="translate(278, 385) scale(.030)"/></transition>
@@ -127,14 +127,14 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
     readonly POSITIONS = {
         'unknown': 8,
         'before-pre-gate': 20,
-        'pre-gate': 25,       // Not currently used
+        'pre-gate': 25,          // Not currently used
         'after-pre-gate': 40,
-        'before-gear': 50,    // Not currently used
+        'before-gear': 50,       // Not currently used
         'gear': 55,
         'after-gear': 70,
         'gate': 85,
         'after-gate': 100,
-        'encoder': 115,       // Not currently used
+        'encoder': 115,          // Not currently used
         'start-bowden': 135,     // Bowden range vvv
         'mid-bowden': 221,
         'end-bowden': 290,
@@ -398,6 +398,15 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
     get lowerNozzleColor(): string {
         if (this.varsFilamentRemainingColor) return this.varsFilamentRemainingColor
         return this.currentGateColor
+    }
+
+    get currentGateColor(): string {
+        let color = this.$store.state.printer.mmu?.gate_color[this.gate] ?? ''
+        if (this.gate === this.TOOL_GATE_BYPASS) {
+            // Assume active spoolman spool if available
+            color = this.$store.state.server.spoolman?.active_spool?.filament.color_hex ?? null
+        }
+        return this.formColorString(color)
     }
 
     mounted() {

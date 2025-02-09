@@ -38,7 +38,7 @@ export default class MmuGateSummary extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get title(): string {
-        return [this.gateText, this.vendorText].filter ((v) => v !== null).join(' | ')
+        return [this.gateText(this.gate), this.vendorText].filter ((v) => v !== null).join(' | ')
     }
 
     get name(): string {
@@ -53,10 +53,6 @@ export default class MmuGateSummary extends Mixins(BaseMixin, MmuMixin) {
         let text = [this.spoolIdText, this.weightText, this.lengthText].filter((v) => v !== null).join(' | ')
         if (!text) return "No spool ID"
         return text
-    }
-
-    get gateText(): string {
-        return this.gateIndex === -1 ? "?" : this.gateIndex === this.TOOL_GATE_BYPASS ? "Bypass" : "@" + this.gateIndex
     }
 
     get speedOverrideText(): string {
@@ -83,8 +79,8 @@ export default class MmuGateSummary extends Mixins(BaseMixin, MmuMixin) {
 
     get weightText() {
         const spoolmanSpool = this.spoolmanSpool(this.details.spoolId)
-        const remaining = this.spoolmanSpool?.remaining_weight ?? null
-        const total = this.spoolmanSpool?.initial_weight ?? this.spoolmanSpool?.filament?.weight ?? null
+        const remaining = spoolmanSpool?.remaining_weight ?? null
+        const total = spoolmanSpool?.initial_weight ?? spoolmanSpool?.filament?.weight ?? null
         if (remaining === null || total === null) return null
 
         if (total >= 1000) {
@@ -99,7 +95,7 @@ export default class MmuGateSummary extends Mixins(BaseMixin, MmuMixin) {
 
     get lengthText() {
         const spoolmanSpool = this.spoolmanSpool(this.details.spoolId)
-        let remaining = this.spoolmanSpool?.remaining_length ?? null
+        let remaining = spoolmanSpool?.remaining_length ?? null
         if (remaining === null) return null
         return `${Math.round(remaining / 1000)}m`
     }

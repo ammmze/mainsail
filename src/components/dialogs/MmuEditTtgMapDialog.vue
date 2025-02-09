@@ -62,8 +62,8 @@
 
             <v-card-text class="px-12 pb-4">
                 <div style="height: 350px; overflow-y: auto;">
-                    <v-data-table :headers="tableHeaders"
-                                  :items="tableData"
+                    <v-data-table :headers="gatesHeaders"
+                                  :items="gatesData"
                                   item-key="index"
                                   sort-by="index"
                                   :items-per-page="-1"
@@ -130,18 +130,19 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
         let classes = []
         classes.push('no-padding')
         classes.push('tool-card')
-        if (!this.isMobile && this.selectedTool !== tool) classes.push('hover-effect')
+        if (!this.isMobile && !this.isTablet && this.selectedTool !== tool) classes.push('hover-effect')
         if (this.selectedTool === tool) classes.push('selected-card')
         if (this.selectedTool !== tool && this.selectedTool >= 0) classes.push('disabled-card')
         return classes
     }
 
-    get tableData() {
+    get gatesData() {
+        // TODO agument with vendor and filament remaining/total
         if (this.selectedTool < 0) return []
         return this.gateMap
     }
 
-    get tableHeaders() {
+    get gatesHeaders() {
         if (this.selectedTool < 0) return []
         return [
             {
