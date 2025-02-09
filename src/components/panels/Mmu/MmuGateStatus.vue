@@ -8,14 +8,14 @@
           stroke-width="3"
           :stroke="statusColor"
           :fill="selectedColor"/>
-    <text v-if="thisGate >= 0" x="56" y="44" text-anchor="middle"
+    <text v-if="gateIndex >= 0" x="56" y="44" text-anchor="middle"
           font-weight="bold" font-size="30px"
-          :class="(thisGate === gate) ? 'selected-text' : 'regular-text'">
-        {{ thisGate }}
+          :class="(gateIndex === gate) ? 'selected-text' : 'regular-text'">
+        {{ gateIndex }}
     </text>
-    <text v-if="thisGate === TOOL_GATE_BYPASS" x="56" y="41" text-anchor="middle"
+    <text v-if="gateIndex === TOOL_GATE_BYPASS" x="56" y="41" text-anchor="middle"
           font-weight="bold" font-size="20px"
-          :class="(thisGate === gate) ? 'selected-text' : 'regular-text'">
+          :class="(gateIndex === gate) ? 'selected-text' : 'regular-text'">
         BYPASS
     </text>
 </svg>
@@ -29,21 +29,22 @@ import MmuMixin from '@/components/mixins/mmu'
 
 @Component({ })
 export default class MmuGateStatus extends Mixins(BaseMixin, MmuMixin) {
-    @Prop({ required: true, default: -1 }) declare readonly thisGate!: number
+
+    @Prop({ required: true, default: -1 }) declare readonly gateIndex!: number
 
     get statusColor(): string {
-        if (this.thisGate < 0) {
+        if (this.gateIndex < 0) {
             return "none"
-        } else if (this.gateStatus[this.thisGate] >= 1) {
+        } else if (this.gateStatus[this.gateIndex] >= 1) {
             return "green"
-        } else if (this.gateStatus[this.thisGate] === 0) {
+        } else if (this.gateStatus[this.gateIndex] === 0) {
             return "#808080"
         }
         return "orange" // Unknown
     }
 
     get selectedColor(): string {
-        if (this.gate === this.thisGate) {
+        if (this.gate === this.gateIndex) {
             return "limegreen"
         } else {
             return "none"

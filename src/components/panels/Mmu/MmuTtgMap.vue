@@ -1,7 +1,7 @@
 <template>
-<!-- <div class="cursor-pointer" @click="selectGate(gate)"> -->
     <svg :viewBox="'0 0 '+ width + ' ' + height"
          preserveAspectRatio="xMidYMid meet"
+         class="cursor-pointer" @click="$emit('click')"
          ref="ttgMap">
 
         <defs>
@@ -23,16 +23,16 @@
             </marker>
         </defs>
 
-        <g v-for="(g, t) in ttgMap" :key="t">
+        <g v-for="(g, t) in map" :key="t">
             <text :x="toolX" :y="(t) * verticalSpacing + startY + 8"
-                  text-anchor="end" :fill="(t === tool) ? '#2CA9BC' : 'currentColor'" font-size="10px" :font-weight="(t === tool) ? 'bold' : 'normal'">
+                  text-anchor="end" :fill="(t === selectedTool) ? '#2CA9BC' : 'currentColor'" font-size="10px" :font-weight="(t === selectedTool) ? 'bold' : 'normal'">
                 T{{ t }}
             </text>
             <text :x="gateX" :y="(t) * verticalSpacing + startY + 8"
-                  text-anchor="start" :fill="(t === gate) ? '#2CA9BC' : 'currentColor'" font-size="10px" :font-weight="(t === gate) ? 'bold' : 'normal'">
+                  text-anchor="start" :fill="(t === selectedGate) ? '#2CA9BC' : 'currentColor'" font-size="10px" :font-weight="(t === selectedGate) ? 'bold' : 'normal'">
                 #{{ t }}
             </text>
-            <g v-if="t !== tool">
+            <g v-if="t !== selectedTool">
                 <path :d="generateMappingPathD(t)" stroke-width="4"
                       class="stroke-background-color" fill="none"/>
                 <path :d="generateMappingPathD(t)" stroke-width="2"
@@ -40,10 +40,10 @@
                       marker-start="url(#squareStart)" marker-end="url(#arrowEnd)"/>
             </g>
         </g>
-        <g v-if="tool >= 0">
-            <path :d="generateMappingPathD(tool)" stroke-width="6"
+        <g v-if="selectedTool >= 0">
+            <path :d="generateMappingPathD(selectedTool)" stroke-width="6"
                   class="stroke-background-color" fill="none"/>
-            <path :d="generateMappingPathD(tool)" stroke-width="4"
+            <path :d="generateMappingPathD(selectedTool)" stroke-width="4"
                   class="stroke-selected-color" fill="none"
                   marker-start="url(#squareStartSelected)" marker-end="url(#arrowEndSelected)"/>
         </g>
@@ -51,13 +51,13 @@
             <g v-if="group !== currentGroup">
                 <path :d="generateEndlessSpoolPathD(group, index)" stroke-width="2" stroke-linecap="round"
                       class="stroke-regular-color" fill="none"/>
-                <text :x="groupX + (index * groupSpacing)" :y="startY + (ttgMap.length * verticalSpacing) + 2"
+                <text :x="groupX + (index * groupSpacing)" :y="startY + (map.length * verticalSpacing) + 2"
                       class="fill-regular-color" font-size="8px">{{ String.fromCharCode(group + 65) }}</text>
             </g>
             <g v-else>
                 <path :d="generateEndlessSpoolPathD(group, index)" stroke-width="2" stroke-linecap="round"
                       class="stroke-selected-color" fill="none"/>
-                <text :x="groupX + (index * groupSpacing)" :y="startY + (ttgMap.length * verticalSpacing) + 2"
+                <text :x="groupX + (index * groupSpacing)" :y="startY + (map.length * verticalSpacing) + 2"
                       class="fill-selected-color" font-size="8px" font-weight="bold">{{ String.fromCharCode(group + 65) }}</text>
             </g>
         </g>
@@ -71,13 +71,18 @@ import MmuMixin from '@/components/mixins/mmu'
 
 @Component({ })
 export default class MmuTtgMap extends Mixins(BaseMixin, MmuMixin) {
-    @Prop({ default: 10 }) readonly startX!: number
-    @Prop({ default: 8 }) readonly startY!: number
-    @Prop({ default: 12 }) readonly verticalSpacing!: number
-    @Prop({ default: 12 }) readonly groupSpacing!: number
-    @Prop({ default: 80 }) readonly mapSpace!: number
-    @Prop({ default: 10 }) readonly leader!: number
-    @Prop({ default: true }) readonly showESgroups!: boolean
+    @Prop({ required: false, default: 10 }) readonly startX!: number
+    @Prop({ required: false, default: 8 }) readonly startY!: number
+    @Prop({ required: false, default: 12 }) readonly verticalSpacing!: number
+    @Prop({ required: false, default: 12 }) readonly groupSpacing!: number
+    @Prop({ required: false, default: 80 }) readonly mapSpace!: number
+    @Prop({ required: false, default: 10 }) readonly leader!: number
+    @Prop({ required: false, default: true }) readonly showESgroups!: boolean
+
+    @Prop({ required: true }) readonly map: number[]
+    @Prop({ required: true }) readonly groups: number[]
+    @Prop({ required: false, default: -1 }) readonly selectedTool: number
+    @Prop({ required: false, default: -1 }) readonly selectedGate: number
 
     private toolX: number = this.startX + 14
     private gateX: number = this.startX + 2 * this.leader + this.mapSpace + 40
@@ -88,31 +93,30 @@ export default class MmuTtgMap extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get height(): number {
-        return this.startY + (this.$store.state.printer.mmu.ttg_map.length * this.verticalSpacing) + 6
+        return this.startY + (this.map.length * this.verticalSpacing) + 6
     }
 
     get currentGroup(): number {
-        if (this.gate >= 0) {
-            return this.$store.state.printer.mmu.endless_spool_groups[this.gate]
+        if (this.selectedGate >= 0) {
+            return this.groups[this.selectedGate]
         } else {
             return -1
         }
     }
 
     generateMappingPathD(tool: number): string {
-        const ttgMap = this.$store.state.printer.mmu.ttg_map
         const xOffset = 28
         const x1 = this.startX + xOffset
         const y1 = this.startY + tool * this.verticalSpacing + 4  // yOffset of 4 to align line with text
         const tX = x1 + this.leader                               // X position for tool column
         const gX = tX + this.mapSpace                             // X position for gate column
-        const gate = ttgMap[tool]                                 // Gate corresponding to the tool
+        const gate = this.map[tool]                               // Gate corresponding to the tool
         const tSpace = 2                                          // Horizontal "break" spacing tool side
         const gSpace = 2                                          // Horizontal "break" spacing gate side
 
         return `M ${x1} ${y1} L ${tX} ${y1} ` +                   // Draw leader line
                `L ${tX + gate * tSpace} ${y1} ` +                 // Horizontal to gateX column
-               `L ${gX - (ttgMap.length - gate) * gSpace} ${this.startY + gate * this.verticalSpacing + 4} ` + // To gate column
+               `L ${gX - (this.map.length - gate) * gSpace} ${this.startY + gate * this.verticalSpacing + 4} ` + // To gate column
                `L ${gX + this.leader} ${this.startY + gate * this.verticalSpacing + 4}`  // Add trailer
     }
 
@@ -139,9 +143,8 @@ export default class MmuTtgMap extends Mixins(BaseMixin, MmuMixin) {
 
     // Find groups with more than one gate
     getEndlessSpoolGroups(): number[] {
-        const endlessSpoolGroups = this.$store.state.printer.mmu.endless_spool_groups
         const countMap: { [key: number]: number } = {}
-        endlessSpoolGroups.forEach(num => {
+        this.groups.forEach(num => {
             if (countMap[num]) {
                 countMap[num]++
             } else {
@@ -156,9 +159,8 @@ export default class MmuTtgMap extends Mixins(BaseMixin, MmuMixin) {
     }
 
     private findAllGatesInGroup(gate: number): number[] {
-        const endlessSpoolGroups = this.$store.state.printer.mmu.endless_spool_groups
         const gatesInGroup: number[] = []
-        endlessSpoolGroups.forEach((g, index) => {
+        this.groups.forEach((g, index) => {
             if (g === gate) {
                 gatesInGroup.push(index)
             }

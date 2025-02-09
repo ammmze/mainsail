@@ -98,34 +98,34 @@ export default class MmuRecoverStateDialog extends Mixins(BaseMixin, MmuMixin) {
 
     @Prop({ required: true }) readonly showDialog!: boolean;
 
-    private uiGate: number = -1
-    private uiTool: number = -1
-    private uiFilamentPos: number = -1
+    private localGate: number = -1
+    private localTool: number = -1
+    private localFilamentPos: number = -1
                                 
     @Watch('showDialog')
     onShowDialogChanged(newValue: boolean): void {
         if (newValue) {
-            this.uiGate = this.gate
-            this.uiTool = this.tool
-            this.uiFilamentPos = this.filamentPos
+            this.localGate = this.gate
+            this.localTool = this.tool
+            this.localFilamentPos = this.filamentPos
         }
     }
 
     get selectedTool(): string {
-        if (this.uiTool === this.TOOL_GATE_UNKNOWN) {
+        if (this.localTool === this.TOOL_GATE_UNKNOWN) {
             return 'Unknown'
-        } else if (this.uiTool === this.TOOL_GATE_BYPASS) {
+        } else if (this.localTool === this.TOOL_GATE_BYPASS) {
             return 'Bypass'
         }
-        return `T${this.uiTool}`
+        return `T${this.localTool}`
     }
 
     set selectedTool(newTool: string): void {
         const index = this.toolsList.findIndex(item => item === newTool);
         if (index == this.numGates) {
-            this.uiTool = this.TOOL_GATE_BYPASS
+            this.localTool = this.TOOL_GATE_BYPASS
         } else {
-            this.uiTool = index
+            this.localTool = index
         }
     }
 
@@ -139,29 +139,29 @@ export default class MmuRecoverStateDialog extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get toolErrorMessage(): string {
-        if (this.uiTool === this.TOOL_GATE_UNKNOWN) {
+        if (this.localTool === this.TOOL_GATE_UNKNOWN) {
             return this.$t('MmuDialog.MmuRecover.NoTool')
-        } else if (this.uiGate === this.TOOL_GATE_BYPASS && this.uiTool !== this.TOOL_GATE_BYPASS) {
+        } else if (this.localGate === this.TOOL_GATE_BYPASS && this.localTool !== this.TOOL_GATE_BYPASS) {
             return this.$t('MmuDialog.MmuRecover.GateBypass')
         }
         return ""
     }
 
     get selectedGate(): string {
-        if (this.uiGate === this.TOOL_GATE_UNKNOWN) {
+        if (this.localGate === this.TOOL_GATE_UNKNOWN) {
             return 'Unknown'
-        } else if (this.uiGate === this.TOOL_GATE_BYPASS) {
+        } else if (this.localGate === this.TOOL_GATE_BYPASS) {
             return 'Bypass'
         }
-        return `${this.gateIndexText(this.uiGate)}`
+        return `${this.gateIndexText(this.localGate)}`
     }
 
     set selectedGate(newGate: string): void {
         const index = this.gatesList.findIndex(item => item === newGate);
         if (index == this.numGates) {
-            this.uiGate = this.TOOL_GATE_BYPASS
+            this.localGate = this.TOOL_GATE_BYPASS
         } else {
-            this.uiGate = index
+            this.localGate = index
         }
     }
 
@@ -175,12 +175,12 @@ export default class MmuRecoverStateDialog extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get gateErrorMessage(): string {
-        if (this.uiGate === this.TOOL_GATE_UNKNOWN) {
+        if (this.localGate === this.TOOL_GATE_UNKNOWN) {
             return this.$t('MmuDialog.MmuRecover.NoGate')
-        } else if (this.uiTool === this.TOOL_GATE_BYPASS && this.uiGate !== this.TOOL_GATE_BYPASS) {
+        } else if (this.localTool === this.TOOL_GATE_BYPASS && this.localGate !== this.TOOL_GATE_BYPASS) {
             return this.$t('MmuDialog.MmuRecover.ToolBypass')
-        } else if (this.uiGate >= 0 && this.ttgMap[this.uiGate] !== this.uiTool) {
-            return `Warning: ${this.$t('MmuDialog.MmuRecover.RemapWarningPrefix')} T${this.uiTool}`
+        } else if (this.localGate >= 0 && this.ttgMap[this.localGate] !== this.localTool) {
+            return `Warning: ${this.$t('MmuDialog.MmuRecover.RemapWarningPrefix')} T${this.localTool}`
         }
         return ""
     }
@@ -200,11 +200,11 @@ export default class MmuRecoverStateDialog extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get selectedPos(): string {
-        if (this.uiFilamentPos === this.FILAMENT_POS_UNKNOWN) {
+        if (this.localFilamentPos === this.FILAMENT_POS_UNKNOWN) {
             return 'Unknown'
-        } else if (this.uiFilamentPos === this.FILAMENT_POS_UNLOADED) {
+        } else if (this.localFilamentPos === this.FILAMENT_POS_UNLOADED) {
             return "UNLOADED"
-        } else if (this.uiFilamentPos === this.FILAMENT_POS_LOADED) {
+        } else if (this.localFilamentPos === this.FILAMENT_POS_LOADED) {
             return "LOADED"
         }
         return "Auto Recover"
@@ -227,7 +227,7 @@ export default class MmuRecoverStateDialog extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get posErrorMessage(): string {
-        if (this.uiFilamentPos === this.FILAMENT_POS_UNKNOWN) {
+        if (this.localFilamentPos === this.FILAMENT_POS_UNKNOWN) {
             return this.$t('MmuDialog.MmuRecover.NoPosition')
         }
         return ""
@@ -245,10 +245,10 @@ export default class MmuRecoverStateDialog extends Mixins(BaseMixin, MmuMixin) {
     }
 
     commit() {
-        let cmd = `MMU_RECOVER TOOL=${this.uiTool} GATE=${this.uiGate}`
-        if (this.uiPosPosition === this.FILAMENT_POS_UNLOADED) {
+        let cmd = `MMU_RECOVER TOOL=${this.localTool} GATE=${this.localGate}`
+        if (this.localFilamentPos === this.FILAMENT_POS_UNLOADED) {
             cmd += " LOADED=0"
-        } else if (this.uiPosPosition === this.FILAMENT_POS_LOADED) {
+        } else if (this.localFilamentPos === this.FILAMENT_POS_LOADED) {
             cmd += " LOADED=1"
         }
         this.doSend(cmd)

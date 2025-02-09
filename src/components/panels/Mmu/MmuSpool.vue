@@ -26,7 +26,7 @@
         <use href="#oval" transform="scale(0.41)" style="filter:url(#blur_wheel2)" :fill="spoolWheelColor"/>
         <use href="#center" transform="scale(0.41)" :fill="spoolWheelColor"/>
     </g>
-    <path v-if="filamentAmount > 0" ref="filament"
+    <path v-if="filamentAmount !== 0" ref="filament"
           d="M 0 -63 C 35 -63 63 -35 63 0 C 63 35 35 63 0 63 L -424 63 L -424 -63 z" vector-effect="non-scaling-stroke"
           :fill="filamentColor"
           :transform="'matrix(' + computedScale(0.28, 0.4) + ',0,0,' + computedScale(1.65, 3.5) + ',197,250)'"/>
@@ -34,13 +34,18 @@
         <use href="#oval" style="filter:url(#blur_wheel2)" :fill="spoolWheelColor"/>
         <use href="#oval" transform="scale(0.41)" style="fill:#111111"/>
     </g>
-    <text v-if="filamentAmount > 0 && filamentAmount < 100" x="152" y="270" text-anchor="middle"
+    <text v-if="showPercent && filamentAmount > 0"
+          x="152" y="270" text-anchor="middle"
           font-weight="bold" font-size="56px" :fill="contrastColor">
         {{ filamentAmount }}%
     </text>
-    <use v-if="espoolerActive === 'rewind' && thisGate === gate"
+    <text v-else-if="!showPercent && filamentAmount === 0"
+          x="140" y="320" text-anchor="middle"
+          font-weight="bold" font-size="180px"
+          style="fill: red; stroke: #111111; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round;">!</text>
+    <use v-if="espoolerActive === 'rewind' && gateIndex === gate"
          href="#espool" transform="translate(225,0) rotate(90) scale(2,2)"/>
-    <use v-if="espoolerActive === 'assist' && thisGate === gate"
+    <use v-if="espoolerActive === 'assist' && gateIndex === gate"
          href="#espool" transform="translate(225,500) rotate(270) scale(2,-2)"/>
 </svg>
 </template>
@@ -54,33 +59,30 @@ import { ServerSpoolmanStateSpool } from '@/store/server/spoolman/types'
 
 @Component({ })
 export default class MmuSpool extends Mixins(BaseMixin, MmuMixin) {
-    @Prop({ required: false, default: null }) readonly thisGate: number | null
+
+    @Prop({ required: true, default: -1 }) declare readonly gateIndex!: number
     @Prop({ required: false, default: "#AD8762" }) readonly spoolWheelColor: string
+    @Prop({ required: false, default: true }) readonly showPercent: boolean
 
     contrastColor: string = "black"
 
-    computedScale(start, end) {
-        return start + (end - start) * (this.filamentAmount / 100)
+    get details(): MmuGateDetails {
+        return this.gateDetails(this.gateIndex)
     }
 
     get filamentAmount(): number {
-        if (this.thisGate === null) {
-            return 100
-        }
-        const gateStatus = this.$store.state.printer.mmu.gate_status[this.thisGate]
-        if (gateStatus === 0) {
-            return 0
-        }
-        const spoolmanSupport = this.$store.state.printer.mmu.spoolman_support
-        const thisGateSpoolId = this.$store.state.printer.mmu.gate_spool_id[this.thisGate]
-        const spools = this.$store.state.server.spoolman?.spools ?? []
-        const spoolmanSpool = spools.find((spool) => spool.id === thisGateSpoolId) ?? null
+        if (this.details.status === this.GATE_EMPTY) return 0
 
-        if (thisGateSpoolId <= 0 || spoolmanSupport === "off") return 100
+        const spoolmanSpool = this.spoolmanSpool(this.details.spoolId)
+        if (!spoolmanSpool) return -1
+
+        const spoolmanSupport = this.$store.state.printer.mmu.spoolman_support
+        if (this.details.spoolId <= 0 || spoolmanSupport === "off") return -1
+
         // Pull live from spoolman and calculate percentage
         const remaining = spoolmanSpool?.remaining_weight ?? null
         const total = spoolmanSpool?.initial_weight ?? spoolmanSpool?.filament?.weight ?? null
-        if (remaining === null || total === null) return 100
+        if (remaining === null || total === null) return -1
         return Math.round(Math.max(0, Math.min(100, (remaining / total) * 100)))
     }
 
@@ -89,20 +91,12 @@ export default class MmuSpool extends Mixins(BaseMixin, MmuMixin) {
         this.$nextTick(() => {
             this.computeContrastColor()
         })
+        return this.details.color
+    }
 
-        let color = null
-        if (this.thisGate !== null) {
-            if (this.thisGate === this.TOOL_GATE_BYPASS) {
-                if (this.gate === this.TOOL_GATE_BYPASS) {
-                    // Assume active spoolman spool
-                    color = this.$store.state.server.spoolman?.active_spool?.filament.color_hex ?? null
-                }
-            } else {
-                // Happy Hare syncs with spoolman so believe gate map
-                color = this.$store.state.printer.mmu?.gate_color[this.thisGate]
-            }
-        }
-        return this.formColorString(color)
+    computedScale(start, end) {
+        if (this.filamentAmount < 0) return end
+        return start + (end - start) * (this.filamentAmount / 100)
     }
 
     computeContrastColor(): void {

@@ -1,7 +1,18 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 
-@Component
+interface MmuGateDetails {
+    gate: number
+    status: number
+    filamentName: string
+    material: string
+    color: string
+    temperature: number
+    spoolId: number
+    speedOverride: number
+}
+
+@Component({ })
 export default class MmuMixin extends Vue {
 
     get hasMmu(): boolean {
@@ -185,6 +196,65 @@ export default class MmuMixin extends Vue {
         return this.$store.state.printer.mmu?.gate_speed_override
     }
 
+    get gateMap(): MmuGateDetails[] {
+        if (!this.gateStatus) return []
+        return this.gateStatus.map((status, index) => {
+            return {
+                index: index,
+                status: status,
+                filamentName: this.gateFilamentName[index],
+                material: this.gateMaterial[index],
+                color: this.gateColor[index],
+                temperature: this.gateTemperature[index],
+                spoolId: this.gateSpoolId[index],
+                speedOverride: this.gateSpeedOverride[index]
+            }
+        })
+    }
+
+    private gateDetails(gateIndex: number): MmuGateDetails {
+        let gd: MmuGateDetails = {}
+        if (gateIndex === this.TOOL_GATE_BYPASS) {
+            gd.index = -2
+            gd.gateName = 'Bypass'
+            gd.status = -1
+            if (this.gate === gateIndex) {
+                gd.filamentName = this.$store.state.server.spoolman?.active_spool?.filament?.name ?? 'No active spool'
+                gd.material = this.$store.state.server.spoolman?.active_spool?.filament?.material ?? 'Unknown'
+                gd.color = this.formColorString(this.$store.state.server.spoolman?.active_spool?.filament.color_hex ?? null)
+                gd.temperature = this.$store.state.server.spoolman?.active_spool?.filament?.settings_extruder_temp ?? -1
+                gd.spoolId = this.$store.state.server.spoolman?.active_spool?.id ?? -1
+            } else {
+                gd.filamentName = 'Unknown'
+                gd.material = 'Unknown'
+                gd.color = this.formColorString(null)
+                gd.temperature = -1
+                gd.spoolId = -1
+            }
+            gd.speedOverride = 100
+        } else {
+            gd.index = gateIndex
+            gd.gateName = gateIndex === -1 ? '?' : 'Gate: ' + gateIndex
+            gd.status = this.$store.state.printer.mmu?.gate_status?.[gateIndex] ?? -1
+            gd.filamentName = this.$store.state.printer.mmu?.gate_filament_name?.[gateIndex] || 'Unknown'
+            gd.material = this.$store.state.printer.mmu?.gate_material?.[gateIndex] || 'Unknown'
+            gd.color = this.formColorString(this.$store.state.printer.mmu?.gate_color[gateIndex] ?? '')
+            gd.temperature = this.$store.state.printer.mmu?.gate_temperature?.[gateIndex] ?? -1
+            gd.spoolId = this.$store.state.printer.mmu?.gate_spool_id?.[gateIndex] ?? -1
+            gd.speedOverride = this.$store.state.printer.mmu?.gate_speed_override?.[gateIndex] ?? 100
+        }
+        return gd
+    }
+
+    private spoolmanSpool(spoolId: number) {
+        const activeSpool = this.$store.state.server.spoolman.active_spool ?? null
+        if (activeSpool?.id === spoolId) {
+            return activeSpool
+        }
+        const spools = this.$store.state.server.spoolman?.spools ?? []
+        return spools.find((spool) => spool.id === spoolId) ?? null
+    }
+
     //return this.$store.state.printer.mmu?.gate_color_rgb
     //return this.$store.state.printer.mmu?.slicer_color_rgb
     //return this.$store.state.printer.mmu?.tool_extrusion_multipliers
@@ -239,10 +309,8 @@ export default class MmuMixin extends Vue {
     }
 
     get spoolmanSupport(): string {
-        return this.$store.state.printer.mmu?.spoolman_support
+        return this.$store.state.printer.mmu?.spoolman_support ?? 'off'
     }
-
-    //return this.$store.state.printer.mmu?.selector_type
 
     get sensors(): object[] {
         return this.$store.state.printer.mmu?.sensors ?? []
@@ -258,6 +326,7 @@ export default class MmuMixin extends Vue {
      * selected then try to get info from active spoolman spool
      */
 
+/* PAUL -- change to use GateDetails */
     get currentGateStatus(): number {
         return this.$store.state.printer.mmu?.gate_status?.[this.gate] ?? -1
     }
@@ -319,6 +388,16 @@ export default class MmuMixin extends Vue {
         return this.$store.state.printer.mmu?.gate_speed_override?.[this.gate] ?? 100
     }
 
+    // Prefer active if its the correct one (updated more frequently)
+    get currentSpoolmanSpool() {
+        const activeSpool = this.$store.state.server.spoolman.active_spool ?? null
+        if (activeSpool?.id === this.gate) {
+            return activeSpool
+        }
+        const spools = this.$store.state.server.spoolman?.spools ?? []
+        return spools.find((spool) => spool.id === this.currentGateSpoolId) ?? null
+    }
+
 
     /*
      * Selective Happy Hare configuration parameters
@@ -358,11 +437,11 @@ export default class MmuMixin extends Vue {
      * Miscellaneous
      */
 
-    get gateText(): string {
+    get gateText(): string { /* PAUL not sure I need this */
         return this.gate === -1 ? "?" : this.gate === this.TOOL_GATE_BYPASS ? "Bypass" : this.gate
     }
 
-    get toolText(): string {
+    get toolText(): string { /* PAUL rename to currentToolText */
         return this.tool === -1 ? "T?" : this.tool === this.TOOL_GATE_BYPASS ? "Bypass" : "T" + this.tool
     }
 
@@ -379,6 +458,7 @@ export default class MmuMixin extends Vue {
         this.$store.dispatch('server/spoolman/refreshSpools')
     }
 
+/* PAUL
     // Prefer active if its the correct one (updated more frequently)
     get spoolmanSpool() {
         const activeSpool = this.$store.state.server.spoolman.active_spool ?? null
@@ -388,6 +468,7 @@ export default class MmuMixin extends Vue {
         const spools = this.$store.state.server.spoolman?.spools ?? []
         return spools.find((spool) => spool.id === this.currentGateSpoolId) ?? null
     }
+*/
 
     async doLoadingSend(gcode: string, loadingKey: string) {
         await this.$store.dispatch('socket/addLoading', { name: loadingKey })
@@ -403,7 +484,6 @@ export default class MmuMixin extends Vue {
 
     get canSend(): boolean {
         const idleTimeout = this.$store.state.printer.idle_timeout?.state
-        console.log(`PAUL: canSend(). printer_state=${this.printer_state}, idle_timeout=${idleTimeout}`)
         return this.klipperReadyForGui && !['printing'].includes(this.printer_state) && !['Printing'].includes(idleTimeout)
     }
 

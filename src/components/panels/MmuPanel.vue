@@ -64,8 +64,8 @@
                             {{ $t('Panels.MmuPanel.ButtonPrintStats') }}
                         </v-btn>
                     </v-list-item>
-                    <v-list-item :disabled="!enabled"
-                                 :class="{ 'mmu-disabled': !enabled }">
+                    <v-list-item :disabled="!enabled || spoolmanSupport === 'off'"
+                                 :class="{ 'mmu-disabled': !enabled || spoolmanSupport === 'off'}">
                         <v-btn small style="width: 100%"
                                :loading="loadings.includes('mmu_spoolman')"
                                @click="handleSyncSpoolman()">
@@ -107,7 +107,7 @@
                         <template v-if="showDetails">
                             <v-row class="pb-3 pt-0" style="align-self: flex-start; width: 100%;">
                                 <v-col class="pa-0">
-                                    <mmu-active-gate-summary/>
+                                    <mmu-gate-summary :gateIndex="gate"/>
                                 </v-col>
                             </v-row>
                         </template>
@@ -115,7 +115,12 @@
                         <mmu-controls/>
                         <v-divider style="width: 100%;"/>
                         <template v-if="showTtgMap">
-                            <mmu-ttg-map :startY="20" width="75%"></mmu-ttg-map>
+                            <mmu-ttg-map :startY="20" width="75%"
+                                         :map="ttgMap"
+                                         :groups="endlessSpoolGroups"
+                                         :selectedTool="tool"
+                                         :selectedGate="gate"
+                                         @click="showEditTtgMapDialog = true"/>
                             <div class="text--disabled">{{ $t('Panels.MmuPanel.ToolMapping') }}</div>
                         </template>
                     </v-col>
@@ -154,13 +159,13 @@ import MmuMachine from '@/components/panels/Mmu/MmuMachine.vue'
 import MmuPanelSettings from '@/components/panels/Mmu/MmuPanelSettings.vue'
 import MmuFilamentStatus from '@/components/panels/Mmu/MmuFilamentStatus.vue'
 import MmuClogMeter from '@/components/panels/Mmu/MmuClogMeter.vue'
-import MmuActiveGateSummary from '@/components/panels/Mmu/MmuActiveGateSummary.vue'
+import MmuGateSummary from '@/components/panels/Mmu/MmuGateSummary.vue'
 import MmuControls from '@/components/panels/Mmu/MmuControls.vue'
 import MmuTtgMap from '@/components/panels/Mmu/MmuTtgMap.vue'
 import MmuRefresh from '@/components/panels/Mmu/MmuRefresh.vue'
 
 @Component({
-    components: { Panel, MmuMachine, MmuPanelSettings, MmuFilamentStatus, MmuClogMeter, MmuActiveGateSummary, MmuControls, MmuTtgMap},
+    components: { Panel, MmuMachine, MmuPanelSettings, MmuFilamentStatus, MmuClogMeter, MmuGateSummary, MmuControls, MmuTtgMap},
 })
 export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
     mdiMulticast = mdiMulticast

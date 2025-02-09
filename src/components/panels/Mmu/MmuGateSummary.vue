@@ -1,14 +1,14 @@
 <template>
-    <v-list-item three-line :class="{ 'disabled-panel': (currentGateStatus === 0) }">
+    <v-list-item :lines="lines" :class="{ 'disabled-panel': (details.status === 0) }">
         <v-list-item-content :class="listItemContentClass">
             <div :class="overlineClass">{{ title }}</div>
             <v-list-item-title :class="listItemTitleClass">
                 {{ name }}
             </v-list-item-title>
-            <v-list-item-subtitle class="subtitle-container">
+            <v-list-item-subtitle v-if="showDetails" class="subtitle-container">
                 {{ subtitle }}
             </v-list-item-subtitle>
-            <v-list-item-subtitle class="subtitle-container smaller-font">
+            <v-list-item-subtitle v-if="showDetails" class="subtitle-container smaller-font">
                 {{ extra }}
             </v-list-item-subtitle>
         </v-list-item-content>
@@ -22,35 +22,31 @@ import MmuMixin from '@/components/mixins/mmu'
 import Panel from '@/components/ui/Panel.vue'
 
 @Component({ })
-export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
-    @Prop({ required: false, default: true }) readonly small!: boolean
+export default class MmuGateSummary extends Mixins(BaseMixin, MmuMixin) {
 
-    get listItemContentClass() {
-        if (this.small) return 'my-0'
-        return ''
+    @Prop({ required: true, default: -1 }) declare readonly gateIndex!: number
+    @Prop({ required: false, default: true }) readonly compact!: boolean
+    @Prop({ required: false, default: true }) readonly showDetails!: boolean
+
+    get details(): MmuGateDetails {
+        return this.gateDetails(this.gateIndex)
     }
 
-    get overlineClass() {
-        const classes = ['text-overline', 'mb-1']
-        if (this.small) classes.push('line-height-auto')
-        return classes
-    }
-
-    get listItemTitleClass() {
-        if (this.small) return ['text-h6', 'mb-1']
-        return ['text-h5', 'mb-1']
+    get lines(): string {
+        if (this.showDetails) return "three"
+        return "two"
     }
 
     get title(): string {
-        return ["@" + this.gateText, this.currentGateVendor].filter ((v) => v !== null).join(' | ')
+        return [this.gateText, this.vendorText].filter ((v) => v !== null).join(' | ')
     }
 
     get name(): string {
-        return this.currentGateFilamentName
+        return this.details.filamentName
     }
 
     get subtitle(): string {
-        return [this.currentGateMaterial,this.temperatureText, this.speedOverrideText].filter((v) => v !== null).join(' | ')
+        return [this.details.material, this.temperatureText, this.speedOverrideText].filter((v) => v !== null).join(' | ')
     }
 
     get extra(): string {
@@ -59,25 +55,34 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
         return text
     }
 
+    get gateText(): string {
+        return this.gateIndex === -1 ? "?" : this.gateIndex === this.TOOL_GATE_BYPASS ? "Bypass" : "@" + this.gateIndex
+    }
+
     get speedOverrideText(): string {
-        if (this.currentGateSpeedOverride === 100) return null
-        return "Speed: " + this.currentGateSpeedOverride + "%"
+        if (this.details.speedOverride === 100) return null
+        return "Speed: " + this.details.speedOverride + "%"
     }
 
     get temperatureText(): string {
-        if (this.currentGateTemperature <= 0) return null
-        return this.currentGateTemperature + '\u00B0' + 'C'
-        
+        if (this.details.temperature <= 0) return null
+        return this.details.temperature + '\u00B0' + 'C'
     }
 
     get spoolIdText(): string {
-        if (this.currentGateSpoolId <= 0) return null
-        return "Spool ID: #" + this.currentGateSpoolId
+        if (this.details.spoolId <= 0) return null
+        return "Spool ID: #" + this.details.spoolId
     }
 
     // Only available with Spoolman...
 
+    get vendorText() {
+        const spoolmanSpool = this.spoolmanSpool(this.details.spoolId)
+        return spoolmanSpool?.filament?.vendor?.name ?? 'Unknown'
+    }
+
     get weightText() {
+        const spoolmanSpool = this.spoolmanSpool(this.details.spoolId)
         const remaining = this.spoolmanSpool?.remaining_weight ?? null
         const total = this.spoolmanSpool?.initial_weight ?? this.spoolmanSpool?.filament?.weight ?? null
         if (remaining === null || total === null) return null
@@ -93,9 +98,26 @@ export default class MmuActiveGateSummary extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get lengthText() {
+        const spoolmanSpool = this.spoolmanSpool(this.details.spoolId)
         let remaining = this.spoolmanSpool?.remaining_length ?? null
         if (remaining === null) return null
         return `${Math.round(remaining / 1000)}m`
+    }
+
+    get listItemContentClass() {
+        if (this.compact) return 'my-0'
+        return ''
+    }
+
+    get overlineClass() {
+        const classes = ['text-overline', 'mb-1']
+        if (this.compact) classes.push('line-height-auto')
+        return classes
+    }
+
+    get listItemTitleClass() {
+        if (this.compact) return ['text-h6', 'mb-1']
+        return ['text-h5', 'mb-1']
     }
 }
 </script>

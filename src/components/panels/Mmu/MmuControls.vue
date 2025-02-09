@@ -120,6 +120,7 @@
 
 <script lang="ts">
 import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { Debounce } from 'vue-debounce-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin from '@/components/mixins/mmu'
 import { mdiDownloadOutline, mdiEject, mdiCheck, mdiAutoFix, mdiThermometerPlus, mdiDownload, mdiUpload } from '@mdi/js'
@@ -146,6 +147,7 @@ export default class MmuControls extends Mixins(BaseMixin, MmuMixin) {
         return this.$t('Panels.MmuPanel.ButtonLoad')
     }
 
+    @Debounce(500)
     checkButtonWidth() {
         this.$nextTick(() => {
             const btn = this.$refs.refBtn
@@ -186,6 +188,10 @@ export default class MmuControls extends Mixins(BaseMixin, MmuMixin) {
         this.checkButtonWidth()
         window.addEventListener('resize', this.checkButtonWidth)
     }
+
+   beforeDestroy() {
+       window.removeEventListener('resize', this.checkButtonWidth)
+   }
 }
 </script>
 

@@ -4,13 +4,13 @@
     <div class="spool-row">
         <div v-for="gate in unitGateRange" :key="'gate_' + gate"
              class="gate-status cursor-pointer" @click="selectGate(gate)">
-            <mmu-spool :width="width" :thisGate="gate"/>
-            <mmu-gate-status :thisGate="gate"/>
+            <mmu-spool :width="width" :gateIndex="gate" class="hover-effect"/>
+            <mmu-gate-status :gateIndex="gate"/>
         </div>
         <div v-if="hasBypass"
              class="gate-status cursor-pointer" @click="selectBypass()">
-            <mmu-spool :width="width" :thisGate="TOOL_GATE_BYPASS"/>
-            <mmu-gate-status :thisGate="TOOL_GATE_BYPASS"/>
+            <mmu-spool :width="width" :gateIndex="TOOL_GATE_BYPASS" class="hover-effect"/>
+            <mmu-gate-status :gateIndex="TOOL_GATE_BYPASS"/>
         </div>
     </div>
 </v-container>
@@ -83,7 +83,16 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
     gap: 0px;
     font-size: 14px;
 }
+
 .gate-status {
-  font-size: 0px;
+    font-size: 0px;
 }
+
+.hover-effect {         
+    transition: transform 0.2s ease-in-out;
+}               
+            
+.hover-effect:hover {
+    transform: translateY(-3px);
+}  
 </style>
