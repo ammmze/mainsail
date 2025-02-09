@@ -254,7 +254,7 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
 }
 
 .min-width-card {
-    min-width: 96px;
+    min-width: 112px;
 }
 
 .min-width-map {
