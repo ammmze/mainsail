@@ -21,7 +21,7 @@
                         </v-col>
                     </v-row>
                     <v-row>
-                        <v-col cols="9">
+                        <v-col :cols="isMobile ? 12 : 9">
                             <v-row>
                                 <v-col cols="1" v-for="(g, t) in ttgMap" :key="t" class="no-padding min-width-card">
                                   <v-card :class="toolCardClass(t)" @click="selectTool(t)">
@@ -39,7 +39,7 @@
                                                     <div class="text-center">#{{ g }}</div>
                                                     <v-spacer/>
                                                     <v-divider/>
-                                                    <div class="text-center small-font">&infin;14</div>
+                                                    <div class="text-start no-break"><strong>&infin; </strong><span class="tiny-font">{{ esSpoolsText(g) }}</span></div>
                                                 </v-col>
                                             </v-row>
                                         </v-container>
@@ -48,7 +48,7 @@
                                 </v-col>
                             </v-row>
                         </v-col>
-                        <v-col cols="3" class="d-flex flex-column align-center justify-center pa-0 min-width-map">
+                        <v-col :cols="isMobile ? 6 : 3" class="d-flex flex-column align-center justify-center pa-0 min-width-map">
                             <mmu-ttg-map :map="localTtgMap"
                                          :groups="localEndlessSpoolGroups"
                                          :selectedTool="selectedTool"
@@ -121,8 +121,8 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
     @Watch('showDialog')
     onShowDialogChanged(newValue: boolean): void {
         if (newValue) {
-            this.localTtgMap = this.ttgMap
-            this.localEndlessSpoolGroups = this.endlessSpoolGroups
+            this.localTtgMap = Array.from(this.ttgMap)
+            this.localEndlessSpoolGroups = Array.from(this.endlessSpoolGroups)
         }           
     }
 
@@ -206,6 +206,19 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
         }
     }
 
+    private esSpoolsText(gate: number): string {
+        let esGates = []
+        let group = this.localEndlessSpoolGroups[gate]
+        this.localEndlessSpoolGroups.forEach((g, index) => {
+            let cIndex = (gate + index) % this.localEndlessSpoolGroups.length;
+            if (this.localEndlessSpoolGroups[cIndex] === group && cIndex !== gate) {
+                esGates.push(cIndex)
+            }
+        })
+        if (esGates.length) return esGates.join(',')
+        return "none"
+    }
+
     close() {
         this.selectedTool = -1
         this.selectedGate = -1
@@ -250,12 +263,23 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
     font-size: 0.8em;
 }
 
+.tiny-font {
+    font-size: 0.8em;
+    line-height: 0.8em;
+}
+
+.no-break {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .no-padding {
     padding: 3px;
 }
 
 .min-width-card {
-    min-width: 112px;
+    min-width: 96px;
 }
 
 .min-width-map {

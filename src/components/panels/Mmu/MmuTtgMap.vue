@@ -158,10 +158,10 @@ export default class MmuTtgMap extends Mixins(BaseMixin, MmuMixin) {
         return duplicates
     }
 
-    private findAllGatesInGroup(gate: number): number[] {
+    private findAllGatesInGroup(group: number): number[] {
         const gatesInGroup: number[] = []
         this.groups.forEach((g, index) => {
-            if (g === gate) {
+            if (g === group) {
                 gatesInGroup.push(index)
             }
         })
