@@ -160,6 +160,10 @@ export default class MmuMixin extends Vue {
         return this.$store.state.printer.mmu?.active_filament
     }
 
+    get numToolchanges(): number {
+        return this.$store.state.printer.mmu?.num_toolchanges
+    }
+
     get lastTool(): number {
         return this.$store.state.printer.mmu?.last_tool
     }
@@ -342,13 +346,9 @@ export default class MmuMixin extends Vue {
                     c2 = file.filament_color
                     break
             }
-            console.log(`PAUL: c1=${c1}`)
-            console.log(`PAUL: c2=${c1}`)
             let colors = c1.split(/[,;]/).map(element => element.trim())
-            console.log(`PAUL: colors(c1)=${colors}`)
             if (colors.every(str => str === "")) {
                 colors = c2.split(/[,;]/).map(element => element.trim())
-                console.log(`PAUL: colors(c2)=${colors}`)
             }
             td.color = this.formColorString(colors[toolIndex])
 
