@@ -168,8 +168,8 @@ import { Mixins, Prop, Watch } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin from '@/components/mixins/mmu'
 import Panel from '@/components/ui/Panel.vue'
-import { mdiCloseThick, mdiStateMachine } from '@mdi/js'
 import { FileStateGcodefile } from '@/store/files/types'
+import { mdiCloseThick, mdiStateMachine } from '@mdi/js'
 
 @Component({
     components: { Panel }
