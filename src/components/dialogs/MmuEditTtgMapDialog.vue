@@ -29,7 +29,8 @@
                     <v-row>
                         <v-col :cols="isMobile ? 12 : 9">
                             <v-row>
-                                <v-col cols="1" v-for="([t, g], index) in toolGateTuples" :key="t" class="no-padding min-width-card">
+                              <template v-for="(g, t) in localTtgMap">
+                              <v-col cols="1" v-if="toolMetaData[t].inUse || allTools" :key="t" class="no-padding min-width-card">
                                   <v-card :class="toolCardClass(t)" @click="selectTool(t)">
                                     <v-card-title class="justify-center">{{ toolText(t) }}</v-card-title>
                                     <v-card-text>
@@ -52,6 +53,7 @@
                                     </v-card-text>
                                   </v-card>
                                 </v-col>
+                                </template>
                             </v-row>
                         </v-col>
 
@@ -219,6 +221,7 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
 
     @Watch('allTools')
     onAllToolsChanged(newValue: boolean): void {
+// PAUL restore initial gate
         this.selectedTool = -1
         this.selectedGate = -1
     }
@@ -274,16 +277,19 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
     }
 
     private onGateLeave(gate) {
+// PAUL: restore localTtgMap back to original gate
         this.selectedGate = -1
     }
 
     private selectGate(gate) {
+// PAUL set this here this.localTtgMap[this.selectedTool] = gate
         this.selectedTool = -1
         this.selectedGate = -1
     }
 
     private handleEscapePress(event) {
         if (event.key === 'Escape' || event.keyCode === 27) {
+// PAUL: restore localTtgMap back to original gate
             this.selectedTool = -1
             this.selectedGate = -1
         }
@@ -300,20 +306,6 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
         })
         if (esGates.length) return esGates.join(',')
         return "none"
-    }
-
-    get toolGateTuples(): [number, number][] {
-        if (this.referencedTools.length > 0 && !this.allTools) {
-            return this.localTtgMap
-              .map((gateNumber, toolNumber) => {
-                if (this.referencedTools.includes(toolNumber)) {
-                  return [toolNumber, gateNumber] as [number, number]
-                }
-                return null;
-              })
-              .filter((tuple): tuple is [number, number] => tuple !== null)
-        }
-        return this.localTtgMap.map((gateNumber, index) => [index, gateNumber]);
     }
 
 

@@ -337,13 +337,13 @@ export default class MmuMixin extends Vue {
             switch (file.slicer) {
                 case 'OrcaSlicer':
                 case 'BambuStudio':
-                    c1 = file.filament_color
-                    c2 = file.extruder_color
+                    c1 = file.filament_color ?? ""
+                    c2 = file.extruder_color ?? ""
                     break
                 case 'SuperSlicer':
                 default: // Assume PrusaSlicer
-                    c1 = file.extruder_color
-                    c2 = file.filament_color
+                    c1 = file.extruder_color ?? ""
+                    c2 = file.filament_color ?? ""
                     break
             }
             let colors = c1.split(/[,;]/).map(element => element.trim())
@@ -352,19 +352,21 @@ export default class MmuMixin extends Vue {
             }
             td.color = this.formColorString(colors[toolIndex])
 
-            let materials = file.filament_type
+            let materials = file.filament_type ?? ""
             materials = materials.split(/[,;]/).map(element => element.trim())
             td.material = materials[toolIndex] || 'Unknown'
 
-            let temps = file.filament_temp
+            let temps = file.filament_temp ?? ""
             temps = temps.split(/[,;]/).map(element => element.trim())
             td.temp = Number(temps[toolIndex] ?? -1)
 
-            let names = file.filament_name
+            let names = file.filament_name ?? ""
             names = names.split(/[,;]/).map(element => element.trim())
             td.name = names[toolIndex] || 'Unknown'
 
-            td.inUse = file.referenced_tools?.includes(toolIndex) || false
+            let referencedTools = file.referenced_tools ?? ""
+            referencedTools = referencedTools.split(/[,;]/).map(element => element.trim())
+            td.inUse = referencedTools?.includes(toolIndex.toString()) ?? false
 
         } else { // Use Happy Hare's slicer_tool_map
             td.color = this.formColorString(this.$store.state.printer.mmu?.slicer_tool_map?.tools?.[toolIndex]?.color ?? '')
