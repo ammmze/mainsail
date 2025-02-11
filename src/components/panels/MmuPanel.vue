@@ -237,7 +237,7 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
 
     handleSyncSpoolman() {
         this.refreshSpoolmanData()
-        this.doLoadingSend('MMU_SPOOLMAN SYNC=1 QUIET=1', 'mmu_spoolman')
+        this.doLoadingSend('MMU_SPOOLMAN REFRESH=1 QUIET=1', 'mmu_spoolman')
     }
 
     mounted() {
