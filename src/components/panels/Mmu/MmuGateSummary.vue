@@ -1,14 +1,14 @@
 <template>
     <v-list-item :lines="lines" :class="{ 'disabled-panel': (details.status === 0) }">
-        <v-list-item-content :class="listItemContentClass">
-            <div :class="overlineClass">{{ title }}</div>
-            <v-list-item-title :class="listItemTitleClass">
+        <v-list-item-content :class="contentClass">
+            <div :class="toplineClass">{{ title }}</div>
+            <v-list-item-title :class="titleClass">
                 {{ name }}
             </v-list-item-title>
-            <v-list-item-subtitle v-if="showDetails" class="subtitle-container">
+            <v-list-item-subtitle :class="subtitleClass">
                 {{ subtitle }}
             </v-list-item-subtitle>
-            <v-list-item-subtitle v-if="showDetails" class="subtitle-container smaller-font">
+            <v-list-item-subtitle v-if="showDetails" :class="detailsClass">
                 {{ extra }}
             </v-list-item-subtitle>
         </v-list-item-content>
@@ -25,8 +25,9 @@ import Panel from '@/components/ui/Panel.vue'
 export default class MmuGateSummary extends Mixins(BaseMixin, MmuMixin) {
 
     @Prop({ required: true, default: -1 }) declare readonly gateIndex!: number
-    @Prop({ required: false, default: true }) readonly compact!: boolean
+    @Prop({ required: false, default: false }) readonly compact!: boolean
     @Prop({ required: false, default: true }) readonly showDetails!: boolean
+    @Prop({ required: false, default: true }) readonly showGate!: boolean
 
     get details(): MmuGateDetails {
         return this.gateDetails(this.gateIndex)
@@ -38,7 +39,7 @@ export default class MmuGateSummary extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get title(): string {
-        return [this.gateText(this.gate), this.vendorText].filter ((v) => v !== null).join(' | ')
+        return [this.showGate ? this.gateText(this.gate) : null, this.vendorText].filter ((v) => v !== null).join(' | ')
     }
 
     get name(): string {
@@ -100,37 +101,51 @@ export default class MmuGateSummary extends Mixins(BaseMixin, MmuMixin) {
         return `${Math.round(remaining / 1000)}m`
     }
 
-    get listItemContentClass() {
-        if (this.compact) return 'my-0'
-        return ''
+    get contentClass() {
+        if (this.compact) return ['my-0', 'smaller-font']
+        return 'my-0'
     }
 
-    get overlineClass() {
-        const classes = ['text-overline', 'mb-1']
-        if (this.compact) classes.push('line-height-auto')
-        return classes
+    get toplineClass() {
+        if (this.compact) return ['text-overline', 'mb-1', 'reduced-line-height', 'small-overline-font']
+        return ['text-overline', 'reduced-line-height', 'mb-2']
     }
 
-    get listItemTitleClass() {
-        if (this.compact) return ['text-h6', 'mb-1']
-        return ['text-h5', 'mb-1']
+    get titleClass() {
+        if (this.compact) return ['text-h7', 'mb-1']
+        return ['text-h6', 'mb-1']
+    }
+
+    get subtitleClass() {
+        if (this.compact) return ['subtitle-container', ' smaller-font']
+        return ['subtitle-container']
+    }
+
+    get detailsClass() {
+        if (this.compact) return ['subtitle-container', ' smaller-font']
+        return ['subtitle-container', 'smaller-font']
     }
 }
 </script>
 
 <style scoped>
-.line-height-auto {
-    line-height: 1;
+.reduced-line-height {
+    line-height: 1em;
 }
 
 .subtitle-container {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .smaller-font {
-  font-size: 0.75em;
+    font-size: 0.8em;
+}
+
+.small-overline-font {
+    line-height: 0.7em;
+    font-size: 0.7em !important;
 }
 
 .disabled-panel {

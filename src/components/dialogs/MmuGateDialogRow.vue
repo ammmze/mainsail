@@ -8,16 +8,13 @@
         <td class="pr-0 py-2">
             <mmu-spool :gateIndex="details.index"
                        :showPercent="false"
-                       style="width: 30px; float: left" class="mr-0"/>
+                       style="height: 60px; float: left" class="mr-0"/>
         </td>
         <td class="py-0" style="min-width: 300px">
             <mmu-gate-summary :gateIndex="details.index"
-                              :showDetails="false"/>
-        </td>
-        <td class="text-center text-no-wrap">{{ details.material }}</td>
-        <td class="text-right text-no-wrap">
-            <strong>100g</strong>
-            <small class="ml-1">/ 1kg</small>
+                              :showDetails="true"
+                              :showGate="false"
+                              :compact="true"/>
         </td>
     </tr>
 </template>
