@@ -17,11 +17,11 @@
                     <!-- HEADER -->
                     <v-row>
                         <v-col cols="8" class="d-flex justify-start align-center no-padding">
-                            <span v-if="allTools">Map tools to MMU gates</span>
-                            <span v-else>Map slicer tools to MMU gates for print</span>
+                            <span v-if="allTools">{{ $t('Panels.MmuPanel.TtgMapDialog.MapTools') }}</span>
+                            <span v-else>{{ $t('Panels.MmuPanel.TtgMapDialog.MapSlicerTools') }}</span>
                         </v-col>
                         <v-col cols="4" class="d-flex justify-end align-center no-padding pr-10">
-                            <v-switch :disabled="allToolsDisabled" v-model="allTools" label="All Tools" hide-details class="short-switch"></v-switch>
+                            <v-switch :disabled="allToolsDisabled" v-model="allTools" :label="$t('Panels.MmuPanel.TtgMapDialog.AllTools')" hide-details class="short-switch"></v-switch>
                         </v-col>
                     </v-row>
 
@@ -63,6 +63,11 @@
                                          :groups="localEndlessSpoolGroups"
                                          :selectedTool="selectedTool"
                                          :selectedGate="selectedGate"/>
+                            <v-btn small color="secondary" class="small-font"
+                                   :loading="loadings.includes('mmu_ttg_map')"
+                                   @click="reset()">
+                                {{ $t('Panels.MmuPanel.TtgMapDialog.Reset') }}
+                            </v-btn>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -75,7 +80,7 @@
                 <div class="fixed-area">
                     <transition name="fade">
                         <div v-if="selectedTool === -1" class="overlay-text">
-                            Select Tool to map then choose gate from list
+                            {{ $t('Panels.MmuPanel.TtgMapDialog.SelectTool') }}
                         </div>
                     </transition>
 
@@ -87,7 +92,9 @@
                                 <v-col cols="4" class="d-flex align-center justify-center">
                                     <v-list-item v-if="selectedTool !== -1">
                                         <v-list-item-content v-if="toolMetaData[selectedTool] && referencedTools.includes(selectedTool)">
-                                            <div class="text-overline">Slicer Expects</div>
+                                            <div class="text-overline">
+                                                {{ $t('Panels.MmuPanel.TtgMapDialog.SlicerExpects') }}
+                                            </div>
                                             <v-divider/>
                                             <div class="mb-2 mt-2">
                                                 <span class="tool-swatch mr-1" :style="'background-color: ' + toolColor" />
@@ -111,10 +118,10 @@
                                         <v-list-item-content v-else>
                                             <v-list-item-subtitle class="wrap-tool-name">
                                                 <div v-if="toolMetaData[selectedTool] || referencedTools.length > 0">
-                                                    {{ toolText(selectedTool) }} not used in this print, choose default mapping
+                                                    {{ $t('Panels.MmuPanel.TtgMapDialog.ToolNotUsed', { tool: this.toolText(selectedTool) }) }}
                                                 </div>
                                                 <div v-else>
-                                                    No slicer information, choose default mapping for {{ toolText(selectedTool) }} 
+                                                    {{ $t('Panels.MmuPanel.TtgMapDialog.NoSlicerInfo', { tool: this.toolText(selectedTool) }) }}
                                                 </div>
                                             </v-list-item-subtitle>
                                         </v-list-item-content>
@@ -127,23 +134,26 @@
 
                                 <!-- GATE CHOOSER -->
                                 <v-col cols="7" class="drop-down-table">
-                                    <v-data-table :headers="gatesHeaders"
-                                                  :items="gatesData"
+                                    <v-data-table :headers="gateTableHeaders"
+                                                  :items="gateItems"
                                                   item-key="index"
                                                   sort-by="index"
                                                   :items-per-page="-1"
                                                   hide-default-footer>
     
                                           <template #no-data>
-                                              <div class="text-center">No gate data</div>
+                                              <div class="text-center">{{ $t('Panels.MmuPanel.TtgMapDialog.NoGateData') }}</div>
                                           </template>
 
                                           <template #item="{ item }">
                                               <mmu-gate-dialog-row :key="item.index"
+                                                                   :ref="`row-${item.index}`"
                                                                    :details="item"
-                                                                   @select-gate="selectGate"
+                                                                   :selectedEsGroup="localEndlessSpoolGroups[selectedGate] ?? null"
+                                                                   :selectedGate="selectedGate ?? null"
                                                                    @mouseover="onGateHover"
-                                                                   @mouseleave="onGateLeave"/>
+                                                                   @mouseleave="onGateLeave"
+                                                                   @select-gate="selectGate"/>
                                           </template>
                                      </v-data-table>
                                 </v-col>
@@ -170,6 +180,7 @@ import { Mixins, Prop, Watch } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin from '@/components/mixins/mmu'
 import Panel from '@/components/ui/Panel.vue'
+import { set } from 'vue'
 import { FileStateGcodefile } from '@/store/files/types'
 import { mdiCloseThick, mdiStateMachine } from '@mdi/js'
 
@@ -192,10 +203,24 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
 
     private selectedTool: number = -1
     private selectedGate: number = -1
-                                
+
+    @Watch('ttgMap')
+    onTtgMapChanged(): void {
+        this.initialize()
+    }
+
+    @Watch('endlessSpoolGroups')
+    onEndlessSpoolGroupsChanged(): void {
+        this.initialize()
+    }
+
     @Watch('showDialog')
-    onShowDialogChanged(newValue: boolean): void {
-        if (newValue) {
+    onShowDialogChanged(): void {
+        this.initialize()
+    }
+
+    private initialize(): null {
+        if (this.showDialog) {
             this.localTtgMap = Array.from(this.ttgMap)
             this.localEndlessSpoolGroups = Array.from(this.endlessSpoolGroups)
 
@@ -216,12 +241,13 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
                 this.allTools = true
                 this.allToolsDisabled = true
             }
+            this.selectedTool = -1
+            this.selectedGate = -1
         }
     }
 
     @Watch('allTools')
     onAllToolsChanged(newValue: boolean): void {
-// PAUL restore initial gate
         this.selectedTool = -1
         this.selectedGate = -1
     }
@@ -235,16 +261,16 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
         return classes
     }
 
-    get gatesData() {
+    get gateItems() {
         if (this.selectedTool < 0) return []
         return this.gateMap
     }
 
-    get gatesHeaders() {
+    get gateTableHeaders() {
         if (this.selectedTool < 0) return []
         return [
             {
-                text: 'Gate',
+                text: this.$t('Panels.MmuPanel.TtgMapDialog.Gate'),
                 align: 'start',
                 value: 'index',
                 sortable: false,
@@ -256,7 +282,14 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
             },
             {
                 text: 'Filament Information',
+                text: this.$t('Panels.MmuPanel.TtgMapDialog.FilamentInfo'),
                 align: 'start',
+                sortable: false,
+            },
+            {
+                text: 'ES \u221E',
+                text: this.$t('Panels.MmuPanel.TtgMapDialog.EndlessSpool'),
+                align: 'center',
                 sortable: false,
             },
         ]
@@ -268,28 +301,35 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
             this.selectedGate = -1
         } else {
             this.selectedTool = tool
+            this.selectedGate = this.localTtgMap[tool]
+            this.scrollToGateRow(this.selectedGate)
         }
     }
 
     private onGateHover(gate) {
-        this.localTtgMap[this.selectedTool] = gate
-        this.selectedGate = gate
+        // TODO: Maybe tooltip to indicate compatibility
     }
 
     private onGateLeave(gate) {
-// PAUL: restore localTtgMap back to original gate
-        this.selectedGate = -1
+        // TODO: Maybe tooltip to indicate compatibility
     }
 
-    private selectGate(gate) {
-// PAUL set this here this.localTtgMap[this.selectedTool] = gate
-        this.selectedTool = -1
-        this.selectedGate = -1
+    private selectGate(gate, item) {
+        this.selectedGate = gate
+        set(this.localTtgMap, this.selectedTool, gate)
     }
+
+    private scrollToGateRow(gate) {
+        this.$nextTick(() => {
+            const targetRow = this.$refs[`row-${gate}`]
+            if (targetRow) {
+                targetRow.$el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        })
+      }
 
     private handleEscapePress(event) {
         if (event.key === 'Escape' || event.keyCode === 27) {
-// PAUL: restore localTtgMap back to original gate
             this.selectedTool = -1
             this.selectedGate = -1
         }
@@ -334,22 +374,22 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
         let alerts = []
         
         if (this.toolMetaData[this.selectedTool].material.toUpperCase() !== this.gateDetails(this.selectedGate).material.toUpperCase()) {
-            alerts.push('\u2022 ' + "Material")
+            alerts.push('\u2022 ' + this.$t('Panels.MmuPanel.TtgMapDialog.Material'))
         }
 
         if (Math.abs(this.toolMetaData[this.selectedTool].temp - this.gateDetails(this.selectedGate).temperature) > maxTempDiff) {
-            alerts.push('\u2022 ' + "Temperature")
+            alerts.push('\u2022 ' + this.$t('Panels.MmuPanel.TtgMapDialog.Temperature'))
         }
 
         const rgb1 = this.hexToRgb(this.formColorString(this.toolMetaData[this.selectedTool].color))
         const rgb2 = this.hexToRgb(this.formColorString(this.gateDetails(this.selectedGate).color))
         const colorDifference = this.weightedEuclideanDistance(rgb1, rgb2)
         if (colorDifference > maxColorDiff) {
-            alerts.push('\u2022 ' + "Color")
+            alerts.push('\u2022 ' + this.$t('Panels.MmuPanel.TtgMapDialog.Color'))
         }
 
         if (alerts.length > 0) {
-            alerts.unshift('Possible filament mismatch:')
+            alerts.unshift(this.$t('Panels.MmuPanel.TtgMapDialog.Mismatch'))
             return alerts
         }
         return null
@@ -369,6 +409,11 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
 
     // Actions...
 
+    reset() {  
+        this.initialize()
+        this.doLoadingSend('MMU_TTG_MAP RESET=1', 'mmu_ttg_map')
+    }
+
     close() {
         this.selectedTool = -1
         this.selectedGate = -1
@@ -387,8 +432,8 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
 
     mounted() {
         document.addEventListener('keydown', this.handleEscapePress)
-
     }
+
     beforeDestroy() {
         document.removeEventListener('keydown', this.handleEscapePress)
     }
@@ -402,7 +447,6 @@ export default class MmuEditTtgMapDialog extends Mixins(BaseMixin, MmuMixin) {
 
 .disabled-card {
     opacity: 0.5;
-/*    pointer-events: none; */
 }
 
 .tool-card {

@@ -35,8 +35,8 @@
         </g>
     </defs>
 
-    <rect x="150" y="30" width="265" height="130" fill="#808080" fill-opacity="0.1" rx="10" ry="10"/>
-    <rect x="150" y="333" width="265" height="66" fill="#808080" fill-opacity="0.1" rx="10" ry="10"/>
+    <rect x="150" y="30" width="265" height="130" class="zone-background" rx="10" ry="10"/>
+    <rect x="150" y="333" width="265" height="66" class="zone-background" rx="10" ry="10"/>
     <g :style="'stroke:' + colorOutline + '; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;'">
         <path d="M242 25 L242 405 L249 411 L251 411 L258 405 L258 25" style="fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1;"></path>
     </g>
@@ -420,10 +420,15 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
     opacity: 0.5;
 }
 
+.zone-background {
+    fill: var(--v-secondary-lighten3, #808080);
+    opacity: 0.1;
+}
+
 .sensor-disabled {
-    stroke: #808080;
+    stroke: var(--v-secondary-lighten3, #808080);
     stroke-dasharray: 2,1;
-    fill: #272727;
+    fill: var(--v-secondary-darken1, #272727);
 }
 
 .sensor-triggered {
@@ -431,17 +436,17 @@ export default class MmuFilamentStatus extends Mixins(BaseMixin, MmuMixin) {
 }
 
 .sensor-open {
-    fill: #272727;
+    fill: var(--v-secondary-darken1, #272727);
 }
 
 .sensor-disabled-extruder {
-    stroke: #808080;
+    stroke: var(--v-secondary-lighten3, #808080);
     stroke-dasharray: 2,1;
-    fill: #1E1E1E;
+    fill: var(--v-secondary-darken2, #1E1E1E);
 }
 
 .sensor-open-extruder {
-    fill: #1E1E1E;
+    fill: var(--v-secondary-darken2, #1E1E1E);
 }
 
 .tool-text {

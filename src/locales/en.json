@@ -762,7 +762,25 @@
             "ButtonUnload": "Unload",
             "ButtonUnloadExt": "Unload Ext",
             "ButtonPrintStats": "Print Stats",
-            "ButtonSyncSpoolman": "Sync Spoolman"
+            "ButtonSyncSpoolman": "Sync Spoolman",
+            "TtgMapDialog": {
+                "Gate": "Gate",
+                "FilamentInfo": "Filament Information",
+                "EndlessSpool": "ES \u221E",
+                "Mismatch": "Possible filament mismatch:",
+                "Color": "Color",
+                "Material": "Material",
+                "Temperature": "Temperature",
+                "Reset": "Reset",
+                "SelectTool": "Select Tool to map then choose gate from list",
+                "SlicerExpects": "Slicer Expects",
+                "ToolNotUsed": "{tool} not used in this print, choose default mapping",
+                "NoSlicerInfo": "No slicer information, choose default mapping for {tool}",
+                "NoGateData": "No gate data",
+                "MapTools": "Map tools to MMU gates",
+                "MapSlicerTools": "Map slicer tools to MMU gates for print",
+                "AllTools": "All Tools"
+            }
         },
         "StatusPanel": {
             "CancelPrint": "Cancel print",

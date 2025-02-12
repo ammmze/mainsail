@@ -29,6 +29,6 @@ export default class MmuMachine extends Mixins(BaseMixin, MmuMixin) {
 <style scoped>
 .mmu_unit {
     border-radius: 10px;
-    background: #282828;
+    background: var(--v-secondary-darken1, #272727);
 }
 </style>

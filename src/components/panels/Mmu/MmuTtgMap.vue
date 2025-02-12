@@ -25,11 +25,11 @@
 
         <g v-for="(g, t) in map" :key="t">
             <text :x="toolX" :y="(t) * verticalSpacing + startY + 8"
-                  text-anchor="end" :fill="(t === selectedTool) ? '#2CA9BC' : 'currentColor'" font-size="10px" :font-weight="(t === selectedTool) ? 'bold' : 'normal'">
+                  text-anchor="end" :fill="(t === selectedTool) ? 'var(--v-primary-lighten1, #2CA9BC)' : 'currentColor'" font-size="10px" :font-weight="(t === selectedTool) ? 'bold' : 'normal'">
                 T{{ t }}
             </text>
             <text :x="gateX" :y="(t) * verticalSpacing + startY + 8"
-                  text-anchor="start" :fill="(t === selectedGate) ? '#2CA9BC' : 'currentColor'" font-size="10px" :font-weight="(t === selectedGate) ? 'bold' : 'normal'">
+                  text-anchor="start" :fill="(t === selectedGate) ? 'var(--v-primary-lighten1, #2CA9BC)' : 'currentColor'" font-size="10px" :font-weight="(t === selectedGate) ? 'bold' : 'normal'">
                 #{{ t }}
             </text>
             <g v-if="t !== selectedTool">
@@ -173,21 +173,21 @@ export default class MmuTtgMap extends Mixins(BaseMixin, MmuMixin) {
 <style scoped>
 /* Bug in <path> requires separation of styles - fill attribute doesn't override! */
 .stroke-regular-color {
-    stroke: #808080;
+    stroke: var(--v-secondary-lighten2, #808080);
 }
 .stroke-selected-color {
-    stroke: #2CA9BC;
+    stroke: var(--v-primary-lighten1, #2CA9BC);
 }
 .stroke-background-color {
-    stroke: #1E1E1E;
+    stroke: var(--v-secondary-darken2, #1E1E1E);
 }
 .fill-regular-color {
-    fill: #808080;
+    fill: var(--v-secondary-lighten2, #808080);
 }
 .fill-selected-color {
-    fill: #2CA9BC;
+    fill: var(--v-primary-lighten1, #2CA9BC);
 }
 .fill-background-color {
-    fill: #1E1E1E;
+    fill: var(--v-secondary-darken2, #1E1E1E);
 }
 </style>

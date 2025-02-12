@@ -10,6 +10,7 @@ interface MmuGateDetails {
     temperature: number
     spoolId: number
     speedOverride: number
+    endlessSpoolGroup: number | null
 }
 
 interface SlicerToolDetails {
@@ -260,7 +261,6 @@ export default class MmuMixin extends Vue {
     }
 
     get gateMap(): MmuGateDetails[] {
-        if (!this.gateStatus) return []
         return this.gateStatus.map((status, index) => {
             return {
                 index: index,
@@ -270,7 +270,8 @@ export default class MmuMixin extends Vue {
                 color: this.gateColor[index],
                 temperature: this.gateTemperature[index],
                 spoolId: this.gateSpoolId[index],
-                speedOverride: this.gateSpeedOverride[index]
+                speedOverride: this.gateSpeedOverride[index],
+                endlessSpoolGroup: this.endlessSpoolGroups[index]
             }
         })
     }
@@ -295,6 +296,7 @@ export default class MmuMixin extends Vue {
                 gd.spoolId = -1
             }
             gd.speedOverride = 100
+            gd.endlessSpoolGroup = null
         } else {
             gd.index = gateIndex
             gd.gateName = gateIndex === -1 ? '?' : 'Gate: ' + gateIndex
@@ -305,6 +307,7 @@ export default class MmuMixin extends Vue {
             gd.temperature = this.$store.state.printer.mmu?.gate_temperature?.[gateIndex] ?? -1
             gd.spoolId = this.$store.state.printer.mmu?.gate_spool_id?.[gateIndex] ?? -1
             gd.speedOverride = this.$store.state.printer.mmu?.gate_speed_override?.[gateIndex] ?? 100
+            gd.endlessSpoolGroup = this.$store.state.printer.mmu?.endless_spool_groups?.[gateIndex] ?? gateIndex
         }
         return gd
     }
@@ -547,7 +550,7 @@ export default class MmuMixin extends Vue {
         return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722
     } 
 
-/* PAUL TEMP
+/* PAUL vvv TEMP
    PAUL note to change in Extruder panel..
    Remember:  || <val> if default should apply to 0 or "", ?? <val> if default only for undefined, etc
 
@@ -565,5 +568,18 @@ export default class MmuMixin extends Vue {
     get warningColor(): string {
         return this.$vuetify?.theme?.currentTheme?.warning?.toString() ?? '#ff8300'
     }
-*/
+
+    // Example of themed styles
+    themeClass() {
+      return this.$vuetify.theme.dark ? 'dark-theme' : 'light-theme';
+    },
+
+    .v-data-table .v-data-table__wrapper table tbody tr.item-selected.light-theme {
+      background-color: #e0f7fa;
+    }
+
+    .v-data-table .v-data-table__wrapper table tbody tr.item-selected.dark-theme {
+      background-color: #424242;
+    }
+PAUL ^^^ */
 }

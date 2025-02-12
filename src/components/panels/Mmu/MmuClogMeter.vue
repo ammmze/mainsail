@@ -112,12 +112,12 @@ export default class MmuClogMeter extends Mixins(BaseMixin, MmuMixin) {
     cursor: not-allowed;
 }
 .primary-color {
-    stroke: #2CA9BC;
+    stroke: var(--v-primary-lighten1, #2CA9BC);
 }
 .warning-color {
-    stroke: #FF0000;
+    stroke: var(--v-error-base, #FF0000);
 }
 .small-text-color {
-    fill: #2CA9BC;
+    fill: var(--v-primary-lighten1, #2CA9BC);
 }
 </style>
