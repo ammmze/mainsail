@@ -5,49 +5,49 @@ on:
     workflows: [Build]
     types: [completed]
 
-  schedule:
-    - cron: "*/30 * * * *" 
+  # schedule:
+  #   - cron: "*/30 * * * *"
 
   workflow_dispatch:
 
 jobs:
-  rebase-local-branch:
-    if: ${{github.event_name != 'workflow_run'}}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          ref: happy-hare
+  # rebase-local-branch:
+  #   if: ${{github.event_name != 'workflow_run'}}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: 0
+  #         ref: happy-hare
 
-      # - uses: fregante/setup-git-token@v1
-      #   with:
-      #     # Personal access token needed for push below to trigger the
-      #     # build workflow
-      #     token: ${{ secrets.GH_TOKEN }}
+  #     # - uses: fregante/setup-git-token@v1
+  #     #   with:
+  #     #     # Personal access token needed for push below to trigger the
+  #     #     # build workflow
+  #     #     token: ${{ secrets.GH_TOKEN }}
 
-      - id: rebase
-        name: Rebase
-        run: |
-          git status
-          git fetch origin
-          git remote add upstream https://github.com/moggieuk/mainsail-happy-hare-edition.git
-          git fetch upstream develop
-          git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git config --local user.name 'GitHub Actions'
-          git rebase upstream/develop
-          if git status | grep diverged; then
-            git push origin happy-hare --force-with-lease
-            echo "updated=true" >> "$GITHUB_OUTPUT"
-          fi
+  #     - id: rebase
+  #       name: Rebase
+  #       run: |
+  #         git status
+  #         git fetch origin
+  #         git remote add upstream https://github.com/moggieuk/mainsail-happy-hare-edition.git
+  #         git fetch upstream develop
+  #         git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
+  #         git config --local user.name 'GitHub Actions'
+  #         git rebase upstream/develop
+  #         if git status | grep diverged; then
+  #           git push origin happy-hare --force-with-lease
+  #           echo "updated=true" >> "$GITHUB_OUTPUT"
+  #         fi
 
-      - name: Trigger build workflow
-        uses: benc-uk/workflow-dispatch@v1
-        if: steps.rebase.outputs.updated
-        with:
-          workflow: build.yml
-          token: ${{ secrets.GH_TOKEN }}
-          ref: happy-hare
+  #     - name: Trigger build workflow
+  #       uses: benc-uk/workflow-dispatch@v1
+  #       if: steps.rebase.outputs.updated
+  #       with:
+  #         workflow: build.yml
+  #         token: ${{ secrets.GH_TOKEN }}
+  #         ref: happy-hare
 
   update-release:
     if: ${{ github.event_name == 'workflow_run' }}
