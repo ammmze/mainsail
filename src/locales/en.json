@@ -797,6 +797,9 @@
                 "AreYouSure": "Are you sure?"
             },
             "Disabled": "disabled",
+            "Drying": "Drying",
+            "DryingComplete": "Drying complete",
+            "DryingQueued": "Drying queued",
             "EditGateMap": "Edit Filaments",
             "EditGateMapTitle": "Edit Filaments (Gate Map)",
             "EditTtgMap": "Map Tools",
@@ -829,6 +832,7 @@
             "Gear": "Gear",
             "Guard": "Guard",
             "Headline": "Mmu",
+            "Heater": "Heater",
             "LargeFilamentStatus": "Large Filament Status",
             "MmuMaintenance": "MMU Maintenance",
             "MmuMaintenanceDialog": {
