@@ -1,5 +1,5 @@
 <template>
-    <div class="mmu-unit d-inline-flex flex-column mx-1 rounded-lg mb-3">
+    <div class="mmu-unit d-inline-flex flex-column mx-1 mb-3">
         <div class="d-flex flex-wrap pt-3 px-4 position-relative">
             <mmu-unit-gate
                 v-for="gateIndex in numGates"
@@ -20,7 +20,12 @@
                 :selected-gate="selectedGate"
                 @select-gate="selectGate" />
         </div>
-        <mmu-unit-footer class="pt-0 position-relative" :mmu-machine-unit="mmuMachineUnit" :unit-index="unitIndex" />
+        <mmu-unit-footer
+            class="pt-0 position-relative"
+            :style="footerStyle"
+            :mmu-machine-unit="mmuMachineUnit"
+            :unit-index="unitIndex"
+            :show-details="showDetails" />
     </div>
 </template>
 <script lang="ts">
@@ -60,6 +65,12 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
     selectGate(gateIndex: number) {
         this.$emit('select-gate', gateIndex)
     }
+
+    get footerStyle() {
+        const numSpools = this.numGates + (this.hasBypass ? 1 : 0)
+        const maxWidth = this.spoolWidth * numSpools + 32
+        return `max-width: ${maxWidth}px;`
+    }
 }
 </script>
 
@@ -67,6 +78,7 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
 .mmu-unit {
     background: #2c2c2c;
     overflow: hidden;
+    border-radius: 32px 32px 8px 8px;
 }
 
 html.theme--light .mmu-unit {

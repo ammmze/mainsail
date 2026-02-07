@@ -282,6 +282,7 @@ export const getDefaultState = (): GuiState => {
                 largeFilamentStatus: false,
                 showLogos: true,
                 showName: true,
+                showClimate: true,
                 showUnavailableSpoolColor: false,
             },
             tempchart: {
