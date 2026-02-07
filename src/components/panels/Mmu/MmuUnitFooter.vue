@@ -227,7 +227,6 @@ export default class MmuUnitFooter extends Mixins(BaseMixin, MmuMixin) {
 
     get unitHeaterIcon() {
         if (this.unitDryingCycle) return mdiRotateOrbit
-        if (this.unitHeaterTemp) return mdiHeatingCoil
 
         if (this.hasPerGateHeaters) {
             // Check all heaters on unit
@@ -239,7 +238,7 @@ export default class MmuUnitFooter extends Mixins(BaseMixin, MmuMixin) {
                 const raw = heaterObj?.target
                 if (typeof raw == 'number' && raw > 0) return mdiHeatingCoil
             }
-        }
+        } else if (this.unitHeaterTemp) return mdiHeatingCoil
 
         return undefined
     }
@@ -254,16 +253,16 @@ export default class MmuUnitFooter extends Mixins(BaseMixin, MmuMixin) {
         if (this.hasPerGateClimateSensors && !this.unitClimateSensorObj) return '...'
         if (!this.unitClimateSensorObj) return undefined
         const value = this.formatMetric(this.unitClimateSensorObj, 'temperature', '°C')
-        return value ? (this.hasPerGateClimateSensors ? `${value}...` : value) : undefined
+        return value ? (this.hasPerGateClimateSensors ? `${value} ...` : value) : undefined
     }
 
     get unitHeaterTemp() {
-        if (this.hasPerGateHeaters && !this.unitHeaterObj) return '...'
-        if (!this.unitHeaterObj) return undefined
+        if (!this.unitHeaterObj && this.mmuGate >= 0) return undefined
+        if (!this.unitHeaterObj && this.hasPerGateHeaters) return '...'
         const raw = this.unitHeaterObj?.target
         if (typeof raw !== 'number' || raw <= 0) return undefined
         const value = this.formatMetric(this.unitHeaterObj, 'target', '°C')
-        return value ? (this.hasPerGateHeaters ? `${value}...` : value) : undefined
+        return value ? (this.hasPerGateHeaters ? `${value} ...` : value) : undefined
     }
 
     get mmuVendor() {
