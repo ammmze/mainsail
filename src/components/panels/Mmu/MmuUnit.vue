@@ -21,6 +21,7 @@
                 @select-gate="selectGate" />
         </div>
         <mmu-unit-footer
+            v-if="showFooter"
             class="pt-0 position-relative"
             :style="footerStyle"
             :mmu-machine-unit="mmuMachineUnit"
@@ -41,6 +42,7 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ required: true }) readonly unitIndex!: number
     @Prop({ default: false }) readonly showDetails!: boolean
     @Prop({ default: false }) readonly showContextMenu!: boolean
+    @Prop({ default: true }) readonly showFooter!: boolean
     @Prop({ default: false }) readonly hideBypass!: boolean
     @Prop({ default: false }) readonly unhighlightSpools!: boolean
 

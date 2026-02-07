@@ -78,6 +78,15 @@
                         :show-details="true"
                         :show-context-menu="true"
                         @select-gate="selectGate" />
+                    <mmu-unit
+                        v-if="showStandaloneBypass"
+                        key="bypass"
+                        :selected-gate="mmuGate"
+                        :unit-index="-1"
+                        :show-details="false"
+                        :show-context-menu="false"
+                        :show-footer="false"
+                        @select-gate="selectGate" />
                 </v-col>
             </v-row>
             <v-row>
@@ -220,6 +229,13 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
 
     get slicerToolMap() {
         return this.mmu?.slicer_tool_map ?? undefined
+    }
+
+    get showStandaloneBypass(): boolean {
+        for (let i = 0; i < this.mmuNumUnits; i++) {
+            if (this.getMmuMachineUnit(i)?.hasBypass) return false
+        }
+        return true
     }
 
     get totalToolchanges() {
