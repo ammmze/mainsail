@@ -228,6 +228,7 @@ export interface GuiState {
             largeFilamentStatus: boolean
             showLogos: boolean
             showName: boolean
+            showClimate: boolean
             showUnavailableSpoolColor: boolean
         }
     }

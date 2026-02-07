@@ -20,7 +20,12 @@
                 :selected-gate="selectedGate"
                 @select-gate="selectGate" />
         </div>
-        <mmu-unit-footer class="pt-0 position-relative" :style="footerStyle" :mmu-machine-unit="mmuMachineUnit" :unit-index="unitIndex" />
+        <mmu-unit-footer
+            class="pt-0 position-relative"
+            :style="footerStyle"
+            :mmu-machine-unit="mmuMachineUnit"
+            :unit-index="unitIndex"
+            :show-details="showDetails" />
     </div>
 </template>
 <script lang="ts">
