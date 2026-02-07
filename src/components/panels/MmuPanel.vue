@@ -233,7 +233,7 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
 
     get showStandaloneBypass(): boolean {
         for (let i = 0; i < this.mmuNumUnits; i++) {
-            if (this.getMmuMachineUnit(i)?.hasBypass) return false
+            if (this.getMmuMachineUnit(i)?.has_bypass) return false
         }
         return true
     }
