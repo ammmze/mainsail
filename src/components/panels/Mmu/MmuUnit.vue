@@ -1,5 +1,5 @@
 <template>
-    <div class="mmu-unit d-inline-flex flex-column mx-1 mb-3">
+    <div class="mmu-unit d-inline-flex flex-column mx-1 rounded-lg mb-3">
         <div class="d-flex flex-wrap pt-3 px-4 position-relative">
             <mmu-unit-gate
                 v-for="gateIndex in numGates"
@@ -78,7 +78,6 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
 .mmu-unit {
     background: #2c2c2c;
     overflow: hidden;
-    border-radius: 32px 32px 8px 8px;
 }
 
 html.theme--light .mmu-unit {
