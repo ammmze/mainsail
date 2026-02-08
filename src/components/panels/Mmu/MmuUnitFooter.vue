@@ -1,5 +1,5 @@
 <template>
-    <div class="mmu-unit-footer zindex-4 d-flex flex-row align-center px-4 pb-1">
+    <div class="mmu-unit-footer zindex-4 d-flex flex-row align-center px-2 pb-1">
         <v-icon
             v-if="showFooter && showLogos"
             class="mr-4 flex-grow-0 flex-shrink-0 opacity-70"
