@@ -116,9 +116,7 @@ export default class MmuUnitGate extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get firstGate() {
-        if (!this.mmuMachineUnit) return true
-
-        return this.gatePosition === 1
+        return !this.mmuMachineUnit || this.gatePosition === 1
     }
 
     get lastGate() {
@@ -230,7 +228,6 @@ html.theme--light .gate-number {
 .mmu-unit-box {
     box-shadow: inset 0 4px 4px -4px #ffffff80;
     background-image: linear-gradient(to bottom, #3c3c3c 0%, #2c2c2c 100%);
-    border-radius: 0 0 8px 8px;
     justify-content: center;
     width: 100%;
 }
