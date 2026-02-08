@@ -21,7 +21,6 @@
                 @select-gate="selectGate" />
         </div>
         <mmu-unit-footer
-            v-if="showFooter"
             class="pt-0 position-relative"
             :style="footerStyle"
             :mmu-machine-unit="mmuMachineUnit"
