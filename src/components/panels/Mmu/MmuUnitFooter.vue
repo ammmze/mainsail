@@ -166,7 +166,7 @@ export default class MmuUnitFooter extends Mixins(BaseMixin, MmuMixin) {
             const parts: string[] = []
 
             const fullname = sensors?.[i]
-            const sensorObj = this.additionalSensorObj(fullname)
+            const sensorObj = this.additionalSensorObj(this.stripQuotes(fullname))
             if (sensorObj) {
                 const h = this.humidity(sensorObj)
                 const t = this.temperature(sensorObj)
