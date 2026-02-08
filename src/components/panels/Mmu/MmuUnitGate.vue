@@ -2,7 +2,7 @@
     <div class="d-flex flex-column align-center">
         <div
             v-longpress:500="openContextMenu"
-            class="d-flex flex-wrap mb-n2 pt-1 position-relative"
+            class="d-flex flex-wrap mb-n6 pt-1 position-relative"
             @contextmenu.prevent="openContextMenu($event)">
             <mmu-unit-gate-spool
                 class="position-relative zindex-1"
@@ -61,7 +61,7 @@ export default class MmuUnitGate extends Mixins(BaseMixin, MmuMixin) {
     mdiEject = mdiEject
 
     @Prop({ required: true }) readonly gateIndex!: number
-    @Prop({ required: true }) readonly mmuMachineUnit!: MmuMachineUnit
+    @Prop({ required: false }) readonly mmuMachineUnit!: MmuMachineUnit
     @Prop({ default: false }) readonly showDetails!: boolean
     @Prop({ default: false }) readonly showContextMenu!: boolean
     @Prop({ required: true }) readonly selectedGate!: number
@@ -110,11 +110,11 @@ export default class MmuUnitGate extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get firstGate() {
-        return this.gatePosition === 1
+        return !this.mmuMachineUnit || this.gatePosition === 1
     }
 
     get lastGate() {
-        if (this.gateIndex === TOOL_GATE_BYPASS) return true
+        if (!this.mmuMachineUnit || this.gateIndex === TOOL_GATE_BYPASS) return true
 
         return this.gatePosition === this.mmuMachineUnit?.num_gates && !this.hasBypass
     }
@@ -222,7 +222,6 @@ html.theme--light .gate-number {
 .mmu-unit-box {
     box-shadow: inset 0 4px 4px -4px #ffffff80;
     background-image: linear-gradient(to bottom, #3c3c3c 0%, #2c2c2c 100%);
-    border-radius: 0 0 8px 8px;
     justify-content: center;
     width: 100%;
 }
