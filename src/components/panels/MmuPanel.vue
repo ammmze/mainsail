@@ -223,6 +223,13 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
         this.doSend(`MMU_SELECT GATE=${gateIndex}`, 'mmu_select')
     }
 
+    get showStandaloneBypass() {
+        for (let i = 0; i < this.mmuNumUnits; i++) {
+            if (this.getMmuMachineUnit(i)?.has_bypass) return false
+        }
+        return true
+    }
+
     get showClogDetection() {
         return (this.hasMmuEncoder || this.hasSyncFeedback) && this.$store.state.gui.view.mmu.showClogDetection
     }
@@ -233,13 +240,6 @@ export default class MmuPanel extends Mixins(BaseMixin, MmuMixin) {
 
     get showDetails() {
         return this.$store.state.gui.view.mmu.showDetails ?? true
-    }
-
-    get showStandaloneBypass() {
-        for (let i = 0; i < this.mmuNumUnits; i++) {
-            if (this.getMmuMachineUnit(i)?.has_bypass) return false
-        }
-        return true
     }
 
     get slicerToolMap() {
