@@ -1,5 +1,5 @@
 <template>
-    <div class="mmu-unit d-inline-flex flex-column mx-1 rounded-lg mb-3">
+    <div :class="mmuUnitClass" class="d-inline-flex flex-column mx-1 rounded-lg mb-3">
         <div class="d-flex flex-wrap pt-3 px-4 position-relative">
             <mmu-unit-gate
                 v-for="gateIndex in numGates"
@@ -21,9 +21,9 @@
                 @select-gate="selectGate" />
         </div>
         <mmu-unit-footer
-            v-if="showFooter"
             class="pt-0 position-relative"
             :mmu-machine-unit="mmuMachineUnit"
+            :show-footer="showFooter"
             :unit-index="unitIndex" />
     </div>
 </template>
@@ -40,8 +40,18 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ required: true }) readonly unitIndex!: number
     @Prop({ default: false }) readonly showDetails!: boolean
     @Prop({ default: false }) readonly showContextMenu!: boolean
+    @Prop({ default: true }) readonly showFooter!: boolean
     @Prop({ default: false }) readonly hideBypass!: boolean
     @Prop({ default: false }) readonly unhighlightSpools!: boolean
+
+    get mmuUnitClass() {
+        if (this.unitIndex < 0) return 'mmu-unit-clear mmu-unit'
+        return 'mmu-unit'
+        return [
+            'mmu-unit',
+            this.unitIndex < 0 && 'mmu-unit-bypass'
+        ]
+    }
 
     get mmuMachineUnit() {
         return this.getMmuMachineUnit(this.unitIndex)
@@ -68,6 +78,10 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
 </script>
 
 <style scoped>
+.mmu-unit-clear {
+    background: none !important;
+}
+
 .mmu-unit {
     background: #2c2c2c;
     overflow: hidden;

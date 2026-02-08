@@ -1,15 +1,17 @@
 <template>
     <div class="mmu-unit-footer zindex-4 d-flex flex-row align-center px-4 pb-1">
-        <v-icon
-            v-if="showLogos"
-            class="mr-4 flex-grow-0 flex-shrink-0 opacity-70"
-            :class="logoClasses"
-            :size="logoHeight">
-            {{ logo }}
-        </v-icon>
-        <div class="flex-grow-1 flex-shrink-1 min-width-0 text-caption">
-            <div v-if="showName" class="text-truncate">{{ unitDisplayName }}</div>
-            <div v-if="unitClimateInfo" class="text-truncate">{{ unitClimateInfo }}</div>
+        <div v-if="showFooter">
+            <v-icon
+                v-if="showLogos"
+                class="mr-4 flex-grow-0 flex-shrink-0 opacity-70"
+                :class="logoClasses"
+                :size="logoHeight">
+                {{ logo }}
+            </v-icon>
+            <div class="flex-grow-1 flex-shrink-1 min-width-0 text-caption">
+                <div v-if="showName" class="text-truncate">{{ unitDisplayName }}</div>
+                <div v-if="unitClimateInfo" class="text-truncate">{{ unitClimateInfo }}</div>
+            </div>
         </div>
     </div>
 </template>
@@ -40,6 +42,7 @@ const squareLogoVendors = ['3MS', 'AngryBeaver', 'EMU', 'ERCF', 'KMS']
 export default class MmuUnitFooter extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ required: true }) readonly unitIndex!: number
     @Prop({ required: true }) readonly mmuMachineUnit!: MmuMachineUnit
+    @Prop({ default: true }) readonly showFooter!: boolean
 
     get unitDisplayName(): string {
         const name = this.mmuMachineUnit?.name
