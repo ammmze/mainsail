@@ -110,7 +110,7 @@ export default class MmuUnitGate extends Mixins(BaseMixin, MmuMixin) {
     }
 
     get firstGate() {
-        if (!this.mmuMachineUnit || this.gatePosition === 1) return true
+        return (!this.mmuMachineUnit || this.gatePosition === 1)
     }
 
     get lastGate() {

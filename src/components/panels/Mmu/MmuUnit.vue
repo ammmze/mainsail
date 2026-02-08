@@ -47,10 +47,6 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
     get mmuUnitClass() {
         if (this.unitIndex < 0) return 'mmu-unit-clear mmu-unit'
         return 'mmu-unit'
-        return [
-            'mmu-unit',
-            this.unitIndex < 0 && 'mmu-unit-bypass'
-        ]
     }
 
     get mmuMachineUnit() {
