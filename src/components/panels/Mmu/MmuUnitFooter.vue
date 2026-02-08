@@ -1,35 +1,33 @@
 <template>
     <div class="mmu-unit-footer zindex-4 d-flex flex-row align-center px-4 pb-1">
-        <div v-if="showFooter">
-            <v-icon
-                v-if="showLogos"
-                class="mr-4 flex-grow-0 flex-shrink-0 opacity-70"
-                :class="logoClasses"
-                :size="logoHeight">
-                {{ logo }}
-            </v-icon>
-            <div class="flex-grow-1 flex-shrink-1 min-width-0 text-caption">
-                <div v-if="showName" class="text-truncate">{{ unitDisplayName }}</div>
-                <v-tooltip v-if="showDetails && showClimate" :disabled="!showPerGateReport" top open-delay="500">
-                    <template #activator="{ on, attrs }">
-                        <div class="text-truncate d-flex" v-bind="attrs" v-on="on">
-                            <span v-if="unitClimateHumidity" class="d-inline-flex align-center ml-n1 mr-1">
-                                <v-icon size="18" class="blue--text">{{ mdiWater }}</v-icon>
-                                {{ unitClimateHumidity }}
-                            </span>
-                            <span v-if="unitClimateTemp" class="d-inline-flex align-center mr-2">
-                                <v-icon size="18" class="deep-orange--text">{{ mdiThermometer }}</v-icon>
-                                {{ unitClimateTemp }}
-                            </span>
-                            <span v-if="unitHeaterIcon" class="d-inline-flex align-center ml-auto">
-                                <v-icon size="22" class="red--text">{{ unitHeaterIcon }}</v-icon>
-                                {{ unitHeaterTemp }}
-                            </span>
-                        </div>
-                    </template>
-                    <span style="white-space: pre-line">{{ perGateReport }}</span>
-                </v-tooltip>
-            </div>
+        <v-icon
+            v-if="showFooter && showLogos"
+            class="mr-4 flex-grow-0 flex-shrink-0 opacity-70"
+            :class="logoClasses"
+            :size="logoHeight">
+            {{ logo }}
+        </v-icon>
+        <div v-if="showFooter" class="flex-grow-1 flex-shrink-1 min-width-0 text-caption">
+            <div v-if="showName" class="text-truncate">{{ unitDisplayName }}</div>
+            <v-tooltip v-if="showDetails && showClimate" :disabled="!showPerGateReport" top open-delay="500">
+                <template #activator="{ on, attrs }">
+                    <div class="text-truncate d-flex" v-bind="attrs" v-on="on">
+                        <span v-if="unitClimateHumidity" class="d-inline-flex align-center ml-n1 mr-1">
+                            <v-icon size="18" class="blue--text">{{ mdiWater }}</v-icon>
+                            {{ unitClimateHumidity }}
+                        </span>
+                        <span v-if="unitClimateTemp" class="d-inline-flex align-center mr-2">
+                            <v-icon size="18" class="deep-orange--text">{{ mdiThermometer }}</v-icon>
+                            {{ unitClimateTemp }}
+                        </span>
+                        <span v-if="unitHeaterIcon" class="d-inline-flex align-center ml-auto">
+                            <v-icon size="22" class="red--text">{{ unitHeaterIcon }}</v-icon>
+                            {{ unitHeaterTemp }}
+                        </span>
+                    </div>
+                </template>
+                <span style="white-space: pre-line">{{ perGateReport }}</span>
+            </v-tooltip>
         </div>
     </div>
 </template>
