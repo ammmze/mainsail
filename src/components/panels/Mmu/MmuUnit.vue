@@ -24,8 +24,8 @@
             class="pt-0 position-relative"
             :style="footerStyle"
             :mmu-machine-unit="mmuMachineUnit"
-            :unit-index="unitIndex"
-            :show-details="showDetails" />
+            :show-details="showDetails"
+            :unit-index="unitIndex" />
     </div>
 </template>
 <script lang="ts">
