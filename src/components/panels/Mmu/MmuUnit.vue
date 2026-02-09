@@ -96,5 +96,6 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
 
 html.theme--light .mmu-unit {
     background: #f0f0f0;
+    box-shadow: inset 0px 4px 2px -4px #2c2c2c80;
 }
 </style>
