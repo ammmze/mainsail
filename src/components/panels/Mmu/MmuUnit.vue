@@ -84,12 +84,14 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
 <style scoped>
 .mmu-unit-clear {
     background: none !important;
+    box-shadow: none !important;
 }
 
 .mmu-unit {
     background: #2c2c2c;
     overflow: hidden;
     border-radius: 32px 32px 8px 8px;
+    box-shadow: inset 0px 4px 4px -4px #ffffff80;
 }
 
 html.theme--light .mmu-unit {
