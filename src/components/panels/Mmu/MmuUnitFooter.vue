@@ -12,12 +12,12 @@
             <v-tooltip v-if="showDetails && showClimate" :disabled="!showPerGateReport" top open-delay="500">
                 <template #activator="{ on, attrs }">
                     <div class="text-truncate d-flex" v-bind="attrs" v-on="on">
-                        <span v-if="unitClimateHumidity" class="d-inline-flex align-center ml-n1 mr-1">
-                            <v-icon size="18" class="blue--text">{{ mdiWater }}</v-icon>
+                        <span v-if="unitClimateHumidity" class="d-inline-flex align-center mr-1">
+                            <v-icon v-if="showClimateIcons" size="18" class="blue--text ml-n1">{{ mdiWater }}</v-icon>
                             {{ unitClimateHumidity }}
                         </span>
                         <span v-if="unitClimateTemp" class="d-inline-flex align-center mr-2">
-                            <v-icon size="18" class="deep-orange--text">{{ mdiThermometer }}</v-icon>
+                            <v-icon v-if="showClimateIcons" size="18" class="deep-orange--text">{{ mdiThermometer }}</v-icon>
                             {{ unitClimateTemp }}
                         </span>
                         <span v-if="unitHeaterIcon" class="d-inline-flex align-center ml-auto">
@@ -91,6 +91,10 @@ export default class MmuUnitFooter extends Mixins(BaseMixin, MmuMixin) {
 
     get showClimate(): boolean {
         return this.$store.state.gui.view.mmu.showClimate ?? true
+    }
+
+    get showClimateIcons(): boolean {
+        return this.numGates > 2
     }
 
     get unitHeaterObj() {
