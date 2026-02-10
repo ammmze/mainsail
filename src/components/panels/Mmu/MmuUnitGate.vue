@@ -2,7 +2,7 @@
     <div class="d-flex flex-column align-center">
         <div
             v-longpress:500="openContextMenu"
-            class="d-flex flex-wrap mb-n6 pt-1 position-relative"
+            class="d-flex flex-wrap mb-n5 pt-1 position-relative"
             @contextmenu.prevent="openContextMenu($event)">
             <mmu-unit-gate-spool
                 class="position-relative zindex-1"
