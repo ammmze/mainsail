@@ -9,7 +9,12 @@
         </v-icon>
         <div v-if="showFooter" class="flex-grow-1 flex-shrink-1 min-width-0 text-caption">
             <div v-if="showName" class="text-truncate">{{ unitDisplayName }}</div>
-            <v-tooltip v-if="showDetails && showClimate" :disabled="!showPerGateReport" top open-delay="500">
+            <v-tooltip
+                v-if="showDetails && showClimate"
+                v-model="isTooltipOpen"
+                :disabled="!showPerGateReport"
+                top
+                open-delay="500">
                 <template #activator="{ on, attrs }">
                     <div class="text-truncate d-flex" v-bind="attrs" v-on="on">
                         <span v-if="unitClimateHumidity" class="d-inline-flex align-center mr-1">
@@ -34,7 +39,7 @@
     </div>
 </template>
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin, { MmuMachineUnit } from '@/components/mixins/mmu'
 import { mdiWater, mdiThermometer, mdiHeatingCoil, mdiRotateOrbit } from '@mdi/js'
@@ -68,6 +73,18 @@ export default class MmuUnitFooter extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ required: true }) readonly mmuMachineUnit!: MmuMachineUnit
     @Prop({ default: true }) readonly showDetails!: boolean
     @Prop({ default: true }) readonly showFooter!: boolean
+
+    @Watch('isTooltipOpen')
+    onTooltipOpenChanged(open: boolean) {
+        if (open && this.showPerGateReport) {
+            this.perGateReport = this.generatePerGateReport()
+        } else {
+            this.perGateReport = ''
+        }
+    }
+
+    isTooltipOpen = false
+    perGateReport = ''
 
     get numGates() {
         return this.mmuMachineUnit?.num_gates ?? 0
@@ -154,7 +171,7 @@ export default class MmuUnitFooter extends Mixins(BaseMixin, MmuMixin) {
         return (this.hasPerGateHeaters || this.hasPerGateClimateSensors) && this.showDetails
     }
 
-    get perGateReport(): string {
+    private generatePerGateReport(): string {
         const sensors = this.mmuMachineUnit?.environment_sensors
         const heaters = this.mmuMachineUnit?.filament_heaters
         const isDrying = this.unitDryingCycle
