@@ -17,7 +17,9 @@
                             {{ unitClimateHumidity }}
                         </span>
                         <span v-if="unitClimateTemp" class="d-inline-flex align-center mr-2">
-                            <v-icon v-if="showClimateIcons" size="18" class="deep-orange--text">{{ mdiThermometer }}</v-icon>
+                            <v-icon v-if="showClimateIcons" size="18" class="deep-orange--text">
+                                {{ mdiThermometer }}
+                            </v-icon>
                             {{ unitClimateTemp }}
                         </span>
                         <span v-if="unitHeaterIcon" class="d-inline-flex align-center ml-auto">
