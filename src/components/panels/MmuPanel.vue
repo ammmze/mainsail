@@ -85,7 +85,7 @@
                         :selected-gate="mmuGate"
                         :unit-index="-1"
                         :show-details="false"
-                        :show-context-menu="false"
+                        :show-context-menu="true"
                         :show-footer="false"
                         @select-gate="selectGate" />
                 </v-col>
