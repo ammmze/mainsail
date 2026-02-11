@@ -1,22 +1,48 @@
 <template>
-    <div class="mmu-unit-footer zindex-4 d-flex flex-row align-center px-4 pb-1">
+    <div class="mmu-unit-footer zindex-4 d-flex flex-row align-center px-2 pb-1">
         <v-icon
-            v-if="showLogos"
+            v-if="showFooter && showLogos"
             class="mr-4 flex-grow-0 flex-shrink-0 opacity-70"
             :class="logoClasses"
             :size="logoHeight">
             {{ logo }}
         </v-icon>
-        <div class="flex-grow-1 flex-shrink-1 min-width-0 text-caption">
+        <div v-if="showFooter" class="flex-grow-1 flex-shrink-1 min-width-0 text-caption">
             <div v-if="showName" class="text-truncate">{{ unitDisplayName }}</div>
-            <div v-if="unitClimateInfo" class="text-truncate">{{ unitClimateInfo }}</div>
+            <v-tooltip
+                v-if="showDetails && showClimate"
+                v-model="isTooltipOpen"
+                :disabled="!showPerGateReport"
+                top
+                open-delay="500">
+                <template #activator="{ on, attrs }">
+                    <div class="text-truncate d-flex" v-bind="attrs" v-on="on">
+                        <span v-if="unitClimateHumidity" class="d-inline-flex align-center mr-1">
+                            <v-icon v-if="showClimateIcons" size="18" class="blue--text ml-n1">{{ mdiWater }}</v-icon>
+                            {{ unitClimateHumidity }}
+                        </span>
+                        <span v-if="unitClimateTemp" class="d-inline-flex align-center mr-2">
+                            <v-icon v-if="showClimateIcons" size="18" class="deep-orange--text">
+                                {{ mdiThermometer }}
+                            </v-icon>
+                            {{ unitClimateTemp }}
+                        </span>
+                        <span v-if="unitHeaterIcon" class="d-inline-flex align-center ml-auto">
+                            <v-icon size="22" class="red--text">{{ unitHeaterIcon }}</v-icon>
+                            {{ unitHeaterTemp }}
+                        </span>
+                    </div>
+                </template>
+                <span style="white-space: pre-line">{{ perGateReport }}</span>
+            </v-tooltip>
         </div>
     </div>
 </template>
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import MmuMixin, { MmuMachineUnit } from '@/components/mixins/mmu'
+import { mdiWater, mdiThermometer, mdiHeatingCoil, mdiRotateOrbit } from '@mdi/js'
 import {
     mmuIcon3MS,
     mmuIconAngryBeaver,
@@ -38,8 +64,35 @@ const squareLogoVendors = ['3MS', 'AngryBeaver', 'EMU', 'ERCF', 'KMS']
 
 @Component
 export default class MmuUnitFooter extends Mixins(BaseMixin, MmuMixin) {
+    mdiWater = mdiWater
+    mdiThermometer = mdiThermometer
+    mdiHeatingCoil = mdiHeatingCoil
+    mdiRotateOrbit = mdiRotateOrbit
+
     @Prop({ required: true }) readonly unitIndex!: number
     @Prop({ required: true }) readonly mmuMachineUnit!: MmuMachineUnit
+    @Prop({ default: true }) readonly showDetails!: boolean
+    @Prop({ default: true }) readonly showFooter!: boolean
+
+    @Watch('isTooltipOpen')
+    onTooltipOpenChanged(open: boolean) {
+        if (open && this.showPerGateReport) {
+            this.perGateReport = this.generatePerGateReport()
+        } else {
+            this.perGateReport = ''
+        }
+    }
+
+    isTooltipOpen = false
+    perGateReport = ''
+
+    get numGates() {
+        return this.mmuMachineUnit?.num_gates ?? 0
+    }
+
+    get firstGateNumber() {
+        return this.mmuMachineUnit?.first_gate ?? 0
+    }
 
     get unitDisplayName(): string {
         const name = this.mmuMachineUnit?.name
@@ -55,21 +108,38 @@ export default class MmuUnitFooter extends Mixins(BaseMixin, MmuMixin) {
         return this.$store.state.gui.view.mmu.showName ?? true
     }
 
-    get unitClimateSensorName() {
-        const name = this.mmuMachineUnit?.environment_sensor?.replace(/^"(.*)"$/, '$1') ?? undefined
-        if (!name) return undefined
-
-        const parts = name.split(' ')
-        if (parts.length !== 2) return undefined
-
-        return parts[1]
+    get showClimate(): boolean {
+        return this.$store.state.gui.view.mmu.showClimate ?? true
     }
 
-    get unitClimateSensor() {
-        if (!this.unitClimateSensorName) return undefined
+    get showClimateIcons(): boolean {
+        return this.numGates > 2
+    }
+
+    get unitHeaterObj() {
+        const name = this.resolvePerGateName(
+            this.mmuMachineUnit?.filament_heaters,
+            this.mmuMachineUnit?.filament_heater
+        )
+        return name ? this.$store.state.printer[name] : undefined
+    }
+
+    get unitClimateSensorObj() {
+        const fullname = this.resolvePerGateName(
+            this.mmuMachineUnit?.environment_sensors,
+            this.mmuMachineUnit?.environment_sensor
+        )
+        return this.additionalSensorObj(fullname)
+    }
+
+    private additionalSensorObj(fullname: string | undefined) {
+        if (!fullname) return undefined
+        const parts = fullname.split(' ')
+        if (parts.length !== 2) return undefined
+        const name = parts[1]
 
         for (const key of additionalSensors) {
-            const objectName: string = `${key} ${this.unitClimateSensorName}`
+            const objectName: string = `${key} ${name}`
             if (!(objectName in this.$store.state.printer)) continue
 
             return this.$store.state.printer[objectName]
@@ -78,20 +148,145 @@ export default class MmuUnitFooter extends Mixins(BaseMixin, MmuMixin) {
         return undefined
     }
 
-    get unitClimateInfo() {
-        if (!this.unitClimateSensor) return undefined
+    get hasPerGateClimateSensors() {
+        return !!this.mmuMachineUnit?.environment_sensors
+    }
 
-        const values: string[] = []
+    get hasPerGateHeaters() {
+        return !!this.mmuMachineUnit?.filament_heaters
+    }
 
-        if ('temperature' in this.unitClimateSensor && this.unitClimateSensor.temperature !== null) {
-            values.push(`${this.unitClimateSensor.temperature.toFixed(0)}°C`)
+    get unitDryingCycle(): boolean {
+        const start = this.firstGateNumber
+        const end = this.firstGateNumber + this.numGates
+
+        return this.dryingState.slice(start, end).some((state) => state === 'active' || state === 'queued')
+    }
+
+    get dryingState() {
+        return this.mmu?.drying_state ?? []
+    }
+
+    get showPerGateReport(): boolean {
+        return (this.hasPerGateHeaters || this.hasPerGateClimateSensors) && this.showDetails
+    }
+
+    private generatePerGateReport(): string {
+        const sensors = this.mmuMachineUnit?.environment_sensors
+        const heaters = this.mmuMachineUnit?.filament_heaters
+        const isDrying = this.unitDryingCycle
+
+        const gateLabel = this.$t('Panels.MmuPanel.Gate').toString()
+        const dryingLabel = this.$t('Panels.MmuPanel.Drying').toString()
+        const heaterLabel = this.$t('Panels.MmuPanel.Heater').toString()
+        const queued = this.$t('Panels.MmuPanel.DryingQueued').toString()
+        const complete = this.$t('Panels.MmuPanel.DryingComplete').toString()
+        const cancelled = this.$t('Panels.MmuPanel.DryingCancelled').toString()
+
+        const lines: string[] = []
+        for (let i = 0; i < this.numGates; i++) {
+            const gate = this.firstGateNumber + i
+            const parts: string[] = []
+
+            const fullname = sensors?.[i]
+            const sensorObj = this.additionalSensorObj(this.stripQuotes(fullname))
+            if (sensorObj) {
+                const h = this.humidity(sensorObj)
+                const t = this.temperature(sensorObj)
+                if (h || t) parts.push([h, t].filter(Boolean).join('/'))
+            }
+
+            const heaterName = heaters?.[i]
+            const heaterKey = this.stripQuotes(heaterName)
+            const heaterObj = heaterKey ? this.$store.state.printer[heaterKey] : undefined
+            if (heaterObj) {
+                const state = this.dryingState?.[gate]
+                if (isDrying) {
+                    if (state === 'active') parts.push(`${dryingLabel}: ${this.target(heaterObj) ?? ''}`.trim())
+                    else if (state === 'queued') parts.push(queued)
+                    else if (state === 'complete') parts.push(complete)
+                    else if (state === 'cancelled') parts.push(cancelled)
+                    else parts.push(`${heaterLabel}: ${this.target(heaterObj) ?? ''}`.trim())
+                } else {
+                    parts.push(`${heaterLabel}: ${this.target(heaterObj) ?? ''}`.trim())
+                }
+            }
+
+            lines.push(`${gateLabel} ${gate}: ${parts.join(', ')}`)
         }
 
-        if ('humidity' in this.unitClimateSensor && this.unitClimateSensor.humidity !== null) {
-            values.push(`${this.unitClimateSensor.humidity.toFixed(0)}%`)
-        }
+        return lines.join('\n')
+    }
 
-        return values.length > 0 ? values.join(' / ') : undefined
+    private formatMetric(obj: any, key: 'humidity' | 'temperature' | 'target', suffix: string) {
+        const v = obj?.[key]
+        return typeof v === 'number' ? `${v.toFixed(0)}${suffix}` : undefined
+    }
+
+    private humidity(obj: any) {
+        return this.formatMetric(obj, 'humidity', '%')
+    }
+
+    private temperature(obj: any) {
+        return this.formatMetric(obj, 'temperature', '°C')
+    }
+
+    private target(obj: any) {
+        return this.formatMetric(obj, 'target', '°C')
+    }
+
+    private resolvePerGateName(perGate: string[] | undefined, single: string | undefined) {
+        if (perGate) {
+            const start = this.firstGateNumber
+            const end = start + this.numGates
+            if (this.mmuGate < start || this.mmuGate >= end) return undefined
+            return this.stripQuotes(perGate[this.mmuGate - start])
+        }
+        return this.stripQuotes(single)
+    }
+
+    private stripQuotes(v?: string) {
+        return v?.replace(/^"(.*)"$/, '$1')
+    }
+
+    get unitHeaterIcon() {
+        if (this.unitDryingCycle) return mdiRotateOrbit
+
+        if (this.hasPerGateHeaters) {
+            // Check all heaters on unit
+            const heaters = this.mmuMachineUnit?.filament_heaters
+            for (let i = 0; i < this.numGates; i++) {
+                const heaterName = heaters?.[i]
+                const heaterKey = this.stripQuotes(heaterName)
+                const heaterObj = heaterKey ? this.$store.state.printer[heaterKey] : undefined
+                const raw = heaterObj?.target
+                if (typeof raw == 'number' && raw > 0) return mdiHeatingCoil
+            }
+        } else if (this.unitHeaterTemp) return mdiHeatingCoil
+
+        return undefined
+    }
+
+    get unitClimateHumidity() {
+        if (this.hasPerGateClimateSensors && !this.unitClimateSensorObj) return '...'
+        if (!this.unitClimateSensorObj) return undefined
+        return this.formatMetric(this.unitClimateSensorObj, 'humidity', '%')
+    }
+
+    get unitClimateTemp() {
+        if (this.hasPerGateClimateSensors && !this.unitClimateSensorObj) return '...'
+        if (!this.unitClimateSensorObj) return undefined
+        const value = this.formatMetric(this.unitClimateSensorObj, 'temperature', '°C')
+        return value ? (this.hasPerGateClimateSensors ? `${value} ...` : value) : undefined
+    }
+
+    get unitHeaterTemp() {
+        if (!this.unitHeaterObj && this.mmuGate >= 0) return undefined
+        if (!this.unitHeaterObj && this.hasPerGateHeaters) return '...'
+        const raw = this.unitHeaterObj?.target
+        if (typeof raw !== 'number' || raw <= 0) return undefined
+        const value = this.formatMetric(this.unitHeaterObj, 'target', '°C')
+        return value ? (this.hasPerGateHeaters ? `${value} ...` : value) : undefined
     }
 
     get mmuVendor() {
