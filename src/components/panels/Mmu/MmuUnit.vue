@@ -43,9 +43,9 @@ export default class MmuUnit extends Mixins(BaseMixin, MmuMixin) {
     @Prop({ required: true }) readonly unitIndex!: number
     @Prop({ default: false }) readonly showDetails!: boolean
     @Prop({ default: false }) readonly showContextMenu!: boolean
-    @Prop({ default: true }) readonly showFooter!: boolean
     @Prop({ default: false }) readonly hideBypass!: boolean
     @Prop({ default: false }) readonly unhighlightSpools!: boolean
+    @Prop({ default: true }) readonly showFooter!: boolean
 
     get mmuUnitClass() {
         if (this.unitIndex < 0) return 'mmu-unit-clear mmu-unit'
