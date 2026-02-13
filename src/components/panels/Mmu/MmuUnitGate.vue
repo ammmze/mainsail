@@ -1,13 +1,12 @@
 <template>
-    <div class="d-flex flex-column align-center cursor-pointer" @click="handleClickGate" @contextmenu.prevent>
+    <div class="d-flex flex-column align-center" :class="cursorType" @click="handleClickGate" @contextmenu.prevent>
         <div class="d-flex flex-wrap mb-n5 pt-1 position-relative">
             <mmu-unit-gate-spool
                 class="position-relative zindex-1"
                 :gate-index="gateIndex"
                 :show-details="showDetails"
                 :is-selected="isSelected"
-                :unhighlight-spools="unhighlightSpools"
-                @select-spool="() => {}" />
+                :unhighlight-spools="unhighlightSpools" />
         </div>
 
         <div class="mmu-unit-box d-flex zindex-3 pb-1 pt-2 position-relative" :class="gateClass">
@@ -85,6 +84,11 @@ export default class MmuUnitGate extends Mixins(BaseMixin, MmuMixin) {
     contextMenu = false
     menuX = 0
     menuY = 0
+
+    get cursorType() {
+        if (this.showContextMenu) return 'gate-menu'
+        return 'gate-selection'
+    }
 
     get gateName() {
         if (this.gateIndex === TOOL_GATE_BYPASS) return 'Bypass'
@@ -343,5 +347,13 @@ html.theme--light .mmu-unit-box {
     border-radius: 8px 8px 0 0;
     width: calc(100% + 32px);
     margin-right: -16px;
+}
+
+.gate-selection {
+    cursor: pointer;
+}
+
+.gate-menu {
+    cursor: context-menu;
 }
 </style>
